@@ -23,9 +23,9 @@ function LoginPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Bienvenida de vuelta");
-        navigate({ to: "/admin" });
+        navigate({ to: "/atelier-privado" });
       } else {
-        const redirectTo = `${window.location.origin}/admin`;
+        const redirectTo = `${window.location.origin}/atelier-privado`;
         const { error } = await supabase.auth.signUp({
           email,
           password,
