@@ -21,7 +21,7 @@ function Forbidden() {
         </p>
         <Link
           to="/"
-          className="mt-10 inline-flex items-center justify-center rounded-full border border-primary px-8 py-3 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_40px_-8px_var(--gold)]"
+          className="mt-10 inline-flex items-center justify-center rounded-full border border-primary px-8 py-3 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_40px_-8px_var(--ruby)]"
         >
           Volver al inicio
         </Link>

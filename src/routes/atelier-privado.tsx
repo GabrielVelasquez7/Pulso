@@ -180,7 +180,7 @@ function AdminPage() {
             placeholder="5215555555555 (con código de país)"
             className="flex-1 rounded-md border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
           />
-          <button onClick={saveWhatsApp} className="rounded-md bg-primary px-6 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-gold">
+          <button onClick={saveWhatsApp} className="rounded-md bg-primary px-6 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-ruby">
             Guardar
           </button>
         </div>
@@ -204,7 +204,7 @@ function AdminPage() {
               Activar oferta (mostrar precio tachado)
             </label>
             <div className="flex gap-3 pt-2">
-              <button type="submit" className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-primary py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-gold">
+              <button type="submit" className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-primary py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-ruby">
                 <Plus className="h-4 w-4" /> {form.id ? "Guardar" : "Crear"}
               </button>
               {form.id && (

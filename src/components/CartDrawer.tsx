@@ -133,7 +133,7 @@ export function CartDrawer() {
             <button
               onClick={handleWhatsApp}
               disabled={items.length === 0}
-              className="w-full rounded-md bg-primary py-4 text-sm font-semibold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-gold disabled:cursor-not-allowed disabled:opacity-40"
+              className="w-full rounded-md bg-primary py-4 text-sm font-semibold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-ruby disabled:cursor-not-allowed disabled:opacity-40"
             >
               Confirmar pedido vía WhatsApp
             </button>
