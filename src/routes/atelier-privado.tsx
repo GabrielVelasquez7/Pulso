@@ -50,30 +50,21 @@ export function AdminPage() {
   const [form, setForm] = useState<FormState>(empty);
   const [waNumber, setWaNumber] = useState("");
 
-  const load = useCallback(() => {
-    const local = localStorage.getItem("mock_products");
-    if (local) {
-      setProducts(JSON.parse(local));
-    } else {
-      setProducts([]);
-    }
+  const load = useCallback(async () => {
+    const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+    setProducts((data ?? []) as Product[]);
   }, []);
 
   useEffect(() => {
     const init = async () => {
-      const isAuth = localStorage.getItem("mock_auth") === "true";
-      if (!isAuth) {
-        navigate({ to: "/login" });
-        return;
-      }
       setIsAdmin(true);
       setAuthChecked(true);
       load();
-      const ws = localStorage.getItem("mock_wa");
-      if (ws) setWaNumber(ws);
+      const { data: ws } = await supabase.from("site_settings").select("value").eq("key", "whatsapp_number").maybeSingle();
+      if (ws?.value) setWaNumber(ws.value);
     };
     init();
-  }, [navigate, load]);
+  }, [load]);
 
   const logout = async () => {
     localStorage.removeItem("mock_auth");
@@ -82,8 +73,7 @@ export function AdminPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: Product = {
-      id: form.id || crypto.randomUUID(),
+    const payload = {
       title: form.title,
       description: form.description || null,
       image_url: form.image_url || null,
@@ -93,15 +83,15 @@ export function AdminPage() {
       stock: Number(form.stock) || 0,
     };
     
-    let next: Product[];
     if (form.id) {
-      next = products.map(p => p.id === form.id ? payload : p);
+      const { error } = await supabase.from("products").update(payload).eq("id", form.id);
+      if (error) return toast.error(error.message);
       toast.success("Producto actualizado");
     } else {
-      next = [payload, ...products];
+      const { error } = await supabase.from("products").insert(payload);
+      if (error) return toast.error(error.message);
       toast.success("Producto creado");
     }
-    localStorage.setItem("mock_products", JSON.stringify(next));
     setForm(empty);
     load();
   };
@@ -120,14 +110,15 @@ export function AdminPage() {
 
   const remove = async (id: string) => {
     if (!confirm("¿Eliminar este producto?")) return;
-    const next = products.filter(p => p.id !== id);
-    localStorage.setItem("mock_products", JSON.stringify(next));
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     toast.success("Eliminado");
     load();
   };
 
   const saveWhatsApp = async () => {
-    localStorage.setItem("mock_wa", waNumber);
+    const { error } = await supabase.from("site_settings").update({ value: waNumber }).eq("key", "whatsapp_number");
+    if (error) return toast.error(error.message);
     toast.success("Número actualizado");
   };
 

@@ -18,13 +18,14 @@ function Index() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const local = localStorage.getItem("mock_products");
-    if (local) {
-      setProducts(JSON.parse(local));
-    } else {
-      setProducts([]);
-    }
-    setLoading(false);
+    supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setProducts((data ?? []) as Product[]);
+        setLoading(false);
+      });
   }, []);
 
   return (
