@@ -38,7 +38,7 @@ function Index() {
         <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-20 h-[300px] w-[300px] rounded-full bg-gradient-ruby opacity-[0.08] blur-3xl float-slow" style={{ animationDelay: "3s" }} />
 
         <div className="relative mx-auto max-w-7xl px-5 sm:px-8 py-24 md:py-36 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.4em] text-primary backdrop-blur">
+          <p className="inline-flex items-center gap-2 rounded-[5px] border border-primary/40 bg-background/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.4em] text-primary backdrop-blur">
             <span className="h-1 w-1 rounded-full bg-primary glow-pulse" />
             +18 · Confidencial
           </p>
@@ -54,14 +54,14 @@ function Index() {
           <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
             <a
               href="#coleccion"
-              className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-ruby px-10 py-4 text-xs uppercase tracking-[0.3em] text-primary-foreground shadow-[var(--shadow-ruby)] transition-silk hover:scale-[1.03] hover:shadow-[0_0_60px_-5px_var(--ruby)]"
+              className="group relative inline-flex items-center justify-center overflow-hidden rounded-[5px] bg-gradient-ruby px-10 py-4 text-xs uppercase tracking-[0.3em] text-primary-foreground shadow-[var(--shadow-ruby)] transition-silk hover:scale-[1.03] hover:shadow-[0_0_60px_-5px_var(--ruby)]"
             >
               <span className="relative z-10">Explorar la colección</span>
               <span aria-hidden className="absolute inset-0 shimmer opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             </a>
             <a
               href="#coleccion"
-              className="inline-flex items-center justify-center rounded-full border border-border/80 bg-background/30 px-8 py-4 text-xs uppercase tracking-[0.3em] text-foreground/80 backdrop-blur transition-silk hover:border-primary hover:text-primary"
+              className="inline-flex items-center justify-center rounded-[5px] border border-border/80 bg-background/30 px-8 py-4 text-xs uppercase tracking-[0.3em] text-foreground/80 backdrop-blur transition-silk hover:border-primary hover:text-primary"
             >
               Novedades
             </a>
