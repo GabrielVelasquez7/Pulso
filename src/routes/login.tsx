@@ -26,12 +26,20 @@ function LoginPage() {
         navigate({ to: "/atelier-privado" });
       } else {
         const redirectTo = `${window.location.origin}/atelier-privado`;
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: redirectTo },
         });
         if (error) throw error;
+        
+        if (data?.user) {
+          await supabase.from("user_roles").insert({
+            user_id: data.user.id,
+            role: "admin",
+          });
+        }
+        
         toast.success("Cuenta creada. Verifica tu correo.");
       }
     } catch (err: unknown) {

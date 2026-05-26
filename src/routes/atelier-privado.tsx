@@ -41,7 +41,7 @@ const empty: FormState = {
   stock: "0",
 };
 
-function AdminPage() {
+export function AdminPage() {
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
