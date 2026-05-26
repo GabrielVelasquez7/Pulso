@@ -76,7 +76,7 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-primary py-3 text-xs uppercase tracking-[0.3em] text-primary-foreground hover:glow-gold transition-all disabled:opacity-50"
+            className="w-full rounded-md bg-primary py-3 text-xs uppercase tracking-[0.3em] text-primary-foreground hover:glow-ruby transition-all disabled:opacity-50"
           >
             {loading ? "..." : mode === "signin" ? "Entrar" : "Crear cuenta"}
           </button>

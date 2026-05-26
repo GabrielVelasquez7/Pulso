@@ -28,8 +28,8 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/70 backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant">
-      {/* gold halo on hover */}
-      <div aria-hidden className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-700 group-hover:opacity-100" style={{ background: "linear-gradient(135deg, oklch(0.78 0.14 85 / 0.25), transparent 50%, oklch(0.35 0.16 15 / 0.25))" }} />
+      {/* ruby halo on hover */}
+      <div aria-hidden className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-700 group-hover:opacity-100" style={{ background: "linear-gradient(135deg, oklch(0.52 0.22 15 / 0.35), transparent 50%, oklch(0.35 0.16 15 / 0.25))" }} />
 
       <div className="relative aspect-[3/4] overflow-hidden bg-muted">
         {product.image_url ? (
@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-serif text-3xl italic text-gradient-gold">
+          <div className="flex h-full w-full items-center justify-center font-serif text-3xl italic text-gradient-ruby">
             Noir
           </div>
         )}
@@ -69,17 +69,17 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="flex items-baseline gap-2">
             {product.is_promo && product.sale_price != null ? (
               <>
-                <span className="text-xl font-medium text-gradient-gold">{formatPrice(Number(product.sale_price))}</span>
+                <span className="text-xl font-medium text-gradient-ruby">{formatPrice(Number(product.sale_price))}</span>
                 <span className="text-sm text-muted-foreground line-through">{formatPrice(Number(product.price))}</span>
               </>
             ) : (
-              <span className="text-xl font-medium text-gradient-gold">{formatPrice(Number(product.price))}</span>
+              <span className="text-xl font-medium text-gradient-ruby">{formatPrice(Number(product.price))}</span>
             )}
           </div>
           <button
             onClick={onAdd}
             disabled={product.stock <= 0}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-foreground transition-silk hover:scale-105 hover:border-primary hover:bg-gradient-gold hover:text-primary-foreground hover:shadow-[0_0_25px_-5px_var(--gold)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-foreground transition-silk hover:scale-105 hover:border-primary hover:bg-gradient-ruby hover:text-primary-foreground hover:shadow-[0_0_25px_-5px_var(--ruby)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
           >
             <Plus className="h-3 w-3" />
             Añadir

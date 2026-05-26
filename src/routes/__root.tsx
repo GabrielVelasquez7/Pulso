@@ -25,7 +25,7 @@ function NotFoundComponent() {
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-gold transition-all"
+          className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-5 py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-ruby transition-all"
         >
           Volver al inicio
         </Link>
@@ -44,7 +44,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">Intenta de nuevo, por favor.</p>
         <button
           onClick={() => { router.invalidate(); reset(); }}
-          className="mt-6 rounded-md bg-primary px-5 py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-gold transition-all"
+          className="mt-6 rounded-md bg-primary px-5 py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-ruby transition-all"
         >
           Reintentar
         </button>
