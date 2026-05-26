@@ -5,9 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// dist/server is copied into api/dist-server during build
-// so it's always co-located with this function file
-const serverPath = path.join(__dirname, "dist-server/server.js");
+// dist/server is included via vercel.json functions configuration
+const serverPath = path.join(__dirname, "../dist/server/server.js");
 
 let _nodeHandler;
 let _initError;
@@ -18,7 +17,8 @@ async function getNodeHandler() {
 
     try {
         const { toNodeHandler } = await import("srvx/node");
-        const { default: serverModule } = await import(serverPath);
+        const { pathToFileURL } = await import("node:url");
+        const { default: serverModule } = await import(pathToFileURL(serverPath).href);
         _nodeHandler = toNodeHandler(serverModule.fetch.bind(serverModule));
         return _nodeHandler;
     } catch (err) {

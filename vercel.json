@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "bun run build && cp -r dist/server api/dist-server",
+  "buildCommand": "bun run build",
   "installCommand": "bun install",
   "framework": null,
   "outputDirectory": "dist/client",
@@ -12,7 +12,7 @@
   ],
   "functions": {
     "api/server.js": {
-      "includeFiles": "api/dist-server/**"
+      "includeFiles": "dist/server/**"
     }
   }
 }
