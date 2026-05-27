@@ -1,5 +1,5 @@
 import { useCart } from "@/lib/cart-context";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 export type Product = {
@@ -17,100 +17,88 @@ function formatPrice(n: number) {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
   }).format(n);
 }
 
 export function ProductCard({ product }: { product: Product }) {
-  const { add, open } = useCart();
-  const effectivePrice =
-    product.is_promo && product.sale_price != null ? product.sale_price : product.price;
-  const onAdd = () => {
+  const { add } = useCart();
+
+  const handleAdd = () => {
     add({
       id: product.id,
       title: product.title,
-      price: Number(effectivePrice),
+      price: product.is_promo && product.sale_price ? product.sale_price : product.price,
       image_url: product.image_url,
     });
-    toast.success("Añadido a tu bolsa", { description: product.title });
-    open();
+    toast.success("Añadido a la bolsa", {
+      description: product.title,
+    });
   };
 
-  return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant h-full">
-      {/* ruby halo on hover */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-px rounded-[8px] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
-        style={{
-          background:
-            "linear-gradient(135deg, oklch(0.55 0.22 15 / 0.4), transparent 50%, oklch(0.40 0.16 15 / 0.3))",
-        }}
-      />
+  const isOutOfStock = product.stock <= 0;
+  const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
-      <div className="relative overflow-hidden bg-muted aspect-square w-full shrink-0">
-        {product.image_url ? (
-          <img
-            src={product.image_url}
-            alt={product.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center font-serif text-3xl italic text-gradient-ruby">
-            PULSO
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
-        
-        {product.is_promo && (
-          <span className="absolute left-4 top-4 rounded-[5px] bg-primary px-3 py-1.5 text-xs uppercase tracking-[0.25em] text-primary-foreground font-bold shadow-ruby">
-            Promoción
+  return (
+    <article className="group relative flex overflow-hidden rounded-[8px] border border-border/80 bg-card aspect-square h-full w-full shadow-sm transition-transform duration-500 hover:scale-[1.02] hover:shadow-elegant">
+      {/* Background Image */}
+      {product.image_url ? (
+        <img
+          src={product.image_url}
+          alt={product.title}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <span className="font-serif text-3xl italic text-gradient-ruby opacity-50">PULSO</span>
+        </div>
+      )}
+
+      {/* Overlays to ensure text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-background/40 opacity-80 transition-opacity duration-500 group-hover:opacity-60" />
+
+      {/* Top Left: Price Badge */}
+      <div className="absolute top-4 left-4 flex flex-col gap-2">
+        <div className="inline-flex items-center rounded-full bg-background/80 backdrop-blur px-3 py-1.5 border border-border/50 shadow-sm">
+          <span className="text-sm font-bold text-foreground">
+            {formatPrice(currentPrice)}
           </span>
-        )}
-        {product.stock <= 0 && (
-          <span className="absolute right-4 top-4 rounded-[5px] border border-border bg-background/90 px-3 py-1.5 text-xs uppercase tracking-[0.25em] text-muted-foreground font-semibold backdrop-blur">
-            Agotado
+          {product.is_promo && product.sale_price && (
+            <span className="ml-2 text-[10px] line-through text-muted-foreground">
+              {formatPrice(product.price)}
+            </span>
+          )}
+        </div>
+        {product.is_promo && (
+          <span className="inline-flex w-fit items-center rounded-full bg-primary/20 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20">
+            Promo
           </span>
         )}
       </div>
 
-      <div className="relative flex flex-1 flex-col gap-4 p-6">
-        <div>
-          <h3 className="font-serif text-2xl leading-tight text-foreground transition-colors duration-500 group-hover:text-primary">
+      {/* Bottom Content Area */}
+      <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
+        {/* Bottom Left: Title */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-serif text-2xl font-medium leading-tight text-foreground truncate drop-shadow-md">
             {product.title}
           </h3>
-          {product.description && (
-            <p className="mt-2 line-clamp-2 text-base text-muted-foreground leading-relaxed">{product.description}</p>
+          {isOutOfStock && (
+            <p className="mt-1 text-xs uppercase tracking-widest text-rose-400 font-bold">
+              Agotado
+            </p>
           )}
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-4">
-          <div className="flex flex-col gap-1">
-            {product.is_promo && product.sale_price != null ? (
-              <>
-                <span className="text-sm text-muted-foreground line-through font-medium">
-                  {formatPrice(Number(product.price))}
-                </span>
-                <span className="text-2xl font-bold text-primary">
-                  {formatPrice(Number(product.sale_price))}
-                </span>
-              </>
-            ) : (
-              <span className="text-2xl font-bold text-primary">
-                {formatPrice(Number(product.price))}
-              </span>
-            )}
-          </div>
-          <button
-            onClick={onAdd}
-            disabled={product.stock <= 0}
-            className="inline-flex h-12 min-w-[100px] items-center justify-center gap-2 rounded-[5px] border border-border bg-input px-5 text-sm uppercase tracking-[0.2em] text-foreground font-medium transition-silk hover:scale-105 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-ruby focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-input disabled:hover:text-foreground disabled:hover:border-border disabled:hover:shadow-none"
-          >
-            <Plus className="h-4 w-4" />
-            Añadir
-          </button>
-        </div>
+        {/* Bottom Right: Add Button */}
+        <button
+          onClick={handleAdd}
+          disabled={isOutOfStock}
+          aria-label="Añadir a la bolsa"
+          className="shrink-0 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_20px_-5px_var(--ruby)] transition-all duration-300 hover:scale-110 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+        >
+          {isOutOfStock ? <ShoppingBag className="h-5 w-5 opacity-50" /> : <Plus className="h-6 w-6" />}
+        </button>
       </div>
     </article>
   );

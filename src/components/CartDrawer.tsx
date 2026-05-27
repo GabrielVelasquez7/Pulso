@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Minus, Plus, X, Trash2, ArrowLeft } from "lucide-react";
+import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 function generateOrderId() {
   const n = Math.floor(1000 + Math.random() * 9000);
-  return `#A${n}`;
+  return `#P${n}`; // Changed to P for PULSO
 }
 
 function formatPrice(n: number) {
@@ -19,7 +19,9 @@ function formatPrice(n: number) {
 
 export function CartDrawer() {
   const { items, isOpen, close, setQty, remove, total: subtotal, clear } = useCart();
+  
   const [waNumber, setWaNumber] = useState<string>("");
+  const [pmData, setPmData] = useState({ banco: "", telefono: "", cedula: "", nombre: "" });
 
   // Checkout form states
   const [step, setStep] = useState<"cart" | "checkout">("cart");
@@ -27,17 +29,24 @@ export function CartDrawer() {
   const [phone, setPhone] = useState("");
   const [deliveryType, setDeliveryType] = useState<"home" | "pickup">("home");
   const [address, setAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"transfer" | "cod" | "card">("transfer");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     supabase
       .from("site_settings")
-      .select("value")
-      .eq("key", "whatsapp_number")
-      .maybeSingle()
+      .select("*")
       .then(({ data }) => {
-        if (data?.value) setWaNumber(data.value);
+        if (data) {
+          const dict: Record<string, string> = {};
+          data.forEach(d => dict[d.key] = d.value);
+          if (dict.whatsapp_number) setWaNumber(dict.whatsapp_number);
+          setPmData({
+            banco: dict.pago_movil_banco || "",
+            telefono: dict.pago_movil_telefono || "",
+            cedula: dict.pago_movil_cedula || "",
+            nombre: dict.pago_movil_nombre || "",
+          });
+        }
       });
   }, []);
 
@@ -56,15 +65,7 @@ export function CartDrawer() {
 
   // Pricing calculations
   const shippingCost = deliveryType === "pickup" ? 0 : subtotal >= 100 ? 0 : 10;
-
-  let paymentAdjustment = 0;
-  if (paymentMethod === "transfer") {
-    paymentAdjustment = -Math.round(subtotal * 0.05 * 100) / 100;
-  } else if (paymentMethod === "cod") {
-    paymentAdjustment = 5;
-  }
-
-  const grandTotal = subtotal + shippingCost + paymentAdjustment;
+  const grandTotal = subtotal + shippingCost; // Removed payment adjustment for Pago Movil
 
   const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,15 +85,10 @@ export function CartDrawer() {
       customer_phone: phone,
       delivery_type: deliveryType === "home" ? "Envío a domicilio" : "Retiro discreto",
       delivery_address: deliveryType === "home" ? address : "N/A (Retiro Discreto)",
-      payment_method:
-        paymentMethod === "transfer"
-          ? "Transferencia Bancaria"
-          : paymentMethod === "cod"
-            ? "Pago contra entrega"
-            : "Tarjeta de Crédito/Débito",
+      payment_method: "Pago Móvil",
       subtotal,
       shipping_cost: shippingCost,
-      payment_adjustment: paymentAdjustment,
+      payment_adjustment: 0,
       total: grandTotal,
       items,
       status: "pending",
@@ -110,10 +106,11 @@ export function CartDrawer() {
     const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
     const msg =
       `Hola PULSO.\n\n` +
+      `Adjunto el comprobante de Pago Móvil para el pedido ${orderId}.\n\n` +
       `Nombre: ${name}\n` +
-      `ID del pedido: ${orderId}\n` +
       `Productos:\n` +
       `${resumen}\n\n` +
+      `Total pagado: ${formatPrice(grandTotal)}\n` +
       `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
@@ -297,22 +294,24 @@ export function CartDrawer() {
                   </div>
                 )}
 
-                <div>
-                  <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium">
-                    Método de Pago
-                  </label>
-                  <select
-                    value={paymentMethod}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value as "transfer" | "cod" | "card")
-                    }
-                    className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
-                  >
-                    <option value="transfer">Transferencia Bancaria (5% de desc.)</option>
-                    <option value="cod">Pago contra entrega (+$5.00)</option>
-                    <option value="card">Tarjeta de Crédito / Débito</option>
-                  </select>
+                {/* Pago Movil Instructions */}
+                <div className="pt-4 border-t border-border/50">
+                  <h3 className="flex items-center gap-2 font-serif text-xl text-primary mb-4">
+                    <SmartphoneNfc className="h-5 w-5" /> Instrucciones de Pago Móvil
+                  </h3>
+                  <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
+                    <p className="text-sm text-foreground/90">
+                      Realiza el pago a los siguientes datos y haz clic en "Confirmar" para enviar el comprobante por WhatsApp.
+                    </p>
+                    <ul className="text-sm space-y-2 mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40">
+                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Banco:</span> {pmData.banco || "-"}</li>
+                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Teléfono:</span> {pmData.telefono || "-"}</li>
+                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Cédula:</span> {pmData.cedula || "-"}</li>
+                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Nombre:</span> {pmData.nombre || "-"}</li>
+                    </ul>
+                  </div>
                 </div>
+
               </form>
             )}
           </div>
@@ -326,28 +325,17 @@ export function CartDrawer() {
                   <span className="text-foreground">{formatPrice(subtotal)}</span>
                 </div>
                 {step === "checkout" && (
-                  <>
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Envío discreto</span>
-                      <span className="text-foreground">{shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}</span>
-                    </div>
-                    {paymentAdjustment !== 0 && (
-                      <div className="flex justify-between text-muted-foreground">
-                        <span>Ajuste de Pago</span>
-                        <span className={paymentAdjustment < 0 ? "text-primary font-medium" : "text-foreground"}>
-                          {paymentAdjustment < 0 ? "-" : "+"}
-                          {formatPrice(Math.abs(paymentAdjustment))}
-                        </span>
-                      </div>
-                    )}
-                  </>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Envío discreto</span>
+                    <span className="text-foreground">{shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}</span>
+                  </div>
                 )}
               </div>
             )}
 
             <div className="flex items-end justify-between">
               <span className="text-sm uppercase tracking-[0.25em] text-muted-foreground font-bold">
-                Total
+                Total a Pagar
               </span>
               <span className="font-serif text-3xl font-bold text-primary leading-none">
                 {formatPrice(step === "checkout" ? grandTotal : subtotal)}
@@ -369,7 +357,7 @@ export function CartDrawer() {
                 disabled={items.length === 0 || isSubmitting}
                 className="w-full rounded-[8px] bg-primary py-5 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-ruby focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSubmitting ? "Procesando..." : "Enviar por WhatsApp"}
+                {isSubmitting ? "Procesando..." : "Confirmar y Enviar Comprobante"}
               </button>
             )}
 

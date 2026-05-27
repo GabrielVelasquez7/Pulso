@@ -78,7 +78,14 @@ export function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState<FormState>(empty);
+  
+  // Settings States
   const [waNumber, setWaNumber] = useState("");
+  const [pmBanco, setPmBanco] = useState("");
+  const [pmTelefono, setPmTelefono] = useState("");
+  const [pmCedula, setPmCedula] = useState("");
+  const [pmNombre, setPmNombre] = useState("");
+
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -119,8 +126,17 @@ export function AdminPage() {
           setIsAdmin(false);
         }
         
-        const { data: ws } = await supabase.from("site_settings").select("value").eq("key", "whatsapp_number").maybeSingle();
-        if (ws?.value) setWaNumber(ws.value);
+        // Load Settings
+        const { data: settingsData } = await supabase.from("site_settings").select("*");
+        if (settingsData) {
+          settingsData.forEach(s => {
+            if (s.key === "whatsapp_number") setWaNumber(s.value);
+            if (s.key === "pago_movil_banco") setPmBanco(s.value);
+            if (s.key === "pago_movil_telefono") setPmTelefono(s.value);
+            if (s.key === "pago_movil_cedula") setPmCedula(s.value);
+            if (s.key === "pago_movil_nombre") setPmNombre(s.value);
+          });
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -182,10 +198,26 @@ export function AdminPage() {
     load();
   };
 
-  const saveWhatsApp = async () => {
-    const { error } = await supabase.from("site_settings").update({ value: waNumber }).eq("key", "whatsapp_number");
-    if (error) return toast.error(error.message);
-    toast.success("Número actualizado correctamente");
+  const saveSettings = async () => {
+    const keys = [
+      { key: "whatsapp_number", value: waNumber },
+      { key: "pago_movil_banco", value: pmBanco },
+      { key: "pago_movil_telefono", value: pmTelefono },
+      { key: "pago_movil_cedula", value: pmCedula },
+      { key: "pago_movil_nombre", value: pmNombre },
+    ];
+    
+    try {
+      for (const item of keys) {
+        // Upsert logic using count to check if exists, or simply upsert if primary key is set.
+        // Assuming 'key' is unique constraint in site_settings.
+        const { error } = await supabase.from("site_settings").upsert(item, { onConflict: "key" });
+        if (error) throw error;
+      }
+      toast.success("Configuración guardada correctamente");
+    } catch (err: any) {
+      toast.error(`Error guardando configuración: ${err.message}`);
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -355,11 +387,11 @@ export function AdminPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Precio (USD)" type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
+                        <Field label="Precio" type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
                         <Field label="Stock" type="number" value={form.stock} onChange={(v) => setForm({ ...form, stock: v })} />
                       </div>
                       
-                      <Field label="Precio Promo (USD)" type="number" value={form.sale_price} onChange={(v) => setForm({ ...form, sale_price: v })} placeholder="Opcional" />
+                      <Field label="Precio Promo" type="number" value={form.sale_price} onChange={(v) => setForm({ ...form, sale_price: v })} placeholder="Opcional" />
                       
                       <label className="flex items-center gap-4 rounded-[8px] border border-border/60 bg-background/50 p-4 cursor-pointer hover:border-primary/50 transition-colors">
                         <input type="checkbox" checked={form.is_promo} onChange={(e) => setForm({ ...form, is_promo: e.target.checked })} className="h-5 w-5 rounded border-border accent-primary bg-input" />
@@ -564,14 +596,14 @@ export function AdminPage() {
           )}
 
           {activeTab === "settings" && (
-            <div className="animate-in fade-in duration-500 max-w-2xl">
-              <header className="mb-10">
+            <div className="animate-in fade-in duration-500 max-w-2xl space-y-10">
+              <header>
                 <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Ajustes</h1>
                 <p className="mt-2 text-muted-foreground">Configuraciones generales del sistema.</p>
               </header>
 
               <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
-                <h2 className="font-serif text-2xl mb-2 text-primary">Recepción de Pedidos</h2>
+                <h2 className="font-serif text-2xl mb-2 text-primary">Atención al Cliente</h2>
                 <p className="text-sm text-muted-foreground mb-6">Configura el número de WhatsApp a donde llegarán las órdenes de los clientes.</p>
                 
                 <div className="space-y-3">
@@ -586,13 +618,28 @@ export function AdminPage() {
                         className="w-full rounded-[8px] border border-border bg-input pl-8 pr-4 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
                       />
                     </div>
-                    <button onClick={saveWhatsApp} className="h-[58px] min-w-[140px] rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40">
-                      Guardar
-                    </button>
                   </div>
                   <p className="text-xs text-muted-foreground">Incluye el código de país sin el símbolo "+". Ejemplo para México: 5215512345678</p>
                 </div>
               </section>
+
+              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+                <h2 className="font-serif text-2xl mb-2 text-primary">Métodos de Pago</h2>
+                <p className="text-sm text-muted-foreground mb-6">Datos para recibir pagos por Pago Móvil (Venezuela).</p>
+                
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <Field label="Banco" placeholder="Ej. Banesco (0134)" value={pmBanco} onChange={setPmBanco} />
+                  <Field label="Teléfono" placeholder="Ej. 04141234567" value={pmTelefono} onChange={setPmTelefono} />
+                  <Field label="Cédula / RIF" placeholder="Ej. V-12345678" value={pmCedula} onChange={setPmCedula} />
+                  <Field label="Nombre del Titular" placeholder="Ej. Juan Pérez" value={pmNombre} onChange={setPmNombre} />
+                </div>
+              </section>
+
+              <div className="sticky bottom-5 border-t border-border/40 pt-5 flex justify-end">
+                <button onClick={saveSettings} className="inline-flex h-[58px] min-w-[200px] items-center justify-center rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40 shadow-lg">
+                  Guardar Cambios
+                </button>
+              </div>
             </div>
           )}
         </div>
