@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon, Clock } from "lucide-react";
+import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon, Clock, Package, ShoppingBag, Settings, Menu } from "lucide-react";
 
 export const Route = createFileRoute("/atelier-privado")({
   component: AdminPage,
@@ -61,10 +61,14 @@ type Order = {
   shipping_cost: number;
   payment_adjustment: number;
   total: number;
-  items: any; // will be parsed as OrderItem[]
+  items: any;
   status: string;
   created_at: string;
 };
+
+function formatPrice(n: number) {
+  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n);
+}
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -75,8 +79,9 @@ export function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState<FormState>(empty);
   const [waNumber, setWaNumber] = useState("");
-  const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const load = useCallback(async () => {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -99,8 +104,7 @@ export function AdminPage() {
         }
         setUserId(user.id);
 
-        // Verify admin role in user_roles table
-        const { data: roleData, error: roleError } = await supabase
+        const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
@@ -156,7 +160,7 @@ export function AdminPage() {
     load();
   };
 
-  const edit = (p: Product) =>
+  const edit = (p: Product) => {
     setForm({
       id: p.id,
       title: p.title,
@@ -167,19 +171,21 @@ export function AdminPage() {
       is_promo: p.is_promo,
       stock: String(p.stock),
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const remove = async (id: string) => {
-    if (!confirm("¿Eliminar este producto?")) return;
+    if (!confirm("¿Eliminar este producto permanentemente?")) return;
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Eliminado");
+    toast.success("Producto eliminado");
     load();
   };
 
   const saveWhatsApp = async () => {
     const { error } = await supabase.from("site_settings").update({ value: waNumber }).eq("key", "whatsapp_number");
     if (error) return toast.error(error.message);
-    toast.success("Número actualizado");
+    toast.success("Número actualizado correctamente");
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,20 +198,14 @@ export function AdminPage() {
     try {
       const { data, error } = await supabase.storage
         .from("product-images")
-        .upload(fileName, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        .upload(fileName, file, { cacheControl: "3600", upsert: false });
 
       if (error) {
         toast.error(`Error al subir imagen: ${error.message}`);
         return;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(data.path);
-
+      const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(data.path);
       setForm((prev) => ({ ...prev, image_url: publicUrl }));
       toast.success("Imagen subida con éxito");
     } catch (err) {
@@ -219,7 +219,7 @@ export function AdminPage() {
   const updateOrderStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success(`Pedido actualizado a: ${status}`);
+    toast.success(`Pedido marcado como: ${status === "completed" ? "Completado" : status === "cancelled" ? "Cancelado" : "Pendiente"}`);
     loadOrders();
   };
 
@@ -232,334 +232,395 @@ export function AdminPage() {
   };
 
   if (!authChecked) {
-    return <div className="p-20 text-center text-muted-foreground">Cargando…</div>;
+    return <div className="flex h-screen items-center justify-center text-muted-foreground"><div className="h-8 w-8 rounded-full border-4 border-primary border-t-transparent animate-spin" /></div>;
   }
 
   if (!isAdmin) {
     return (
-      <main className="mx-auto max-w-xl px-5 py-20 text-center">
-        <h1 className="font-serif text-3xl">Acceso restringido</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Tu cuenta no tiene rol de administrador. Pídele al propietario que asigne el rol{" "}
-          <code className="text-primary font-bold">admin</code> a tu user_id:
-        </p>
-        <code className="mt-4 inline-block rounded-[5px] border border-border bg-card px-4 py-2 text-xs text-primary font-mono select-all">
-          {userId}
-        </code>
-        <p className="mt-4 text-xs text-muted-foreground">
-          (Inserta una fila en la tabla <code>user_roles</code> con role = 'admin'.)
-        </p>
-        <button onClick={logout} className="mt-8 text-xs uppercase tracking-[0.25em] text-primary hover:underline">
-          Cerrar sesión
-        </button>
+      <main className="flex h-screen items-center justify-center px-5">
+        <div className="max-w-xl text-center rounded-[8px] bg-card p-10 border border-border/80 shadow-elegant">
+          <h1 className="font-serif text-4xl text-primary">Acceso restringido</h1>
+          <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+            Tu cuenta no tiene privilegios de administrador. Solicita al propietario que asigne el rol <code className="text-primary font-bold">admin</code> a tu ID de usuario:
+          </p>
+          <code className="mt-6 block rounded-[8px] border border-border bg-input/50 px-5 py-4 text-sm text-primary font-mono select-all">
+            {userId}
+          </code>
+          <button onClick={logout} className="mt-10 inline-flex items-center gap-2 rounded-[5px] bg-muted px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-foreground hover:bg-border transition-colors">
+            <LogOut className="h-4 w-4" /> Cerrar sesión
+          </button>
+        </div>
       </main>
     );
   }
 
+  const pendingOrdersCount = orders.filter(o => o.status === "pending").length;
+
   return (
-    <main className="mx-auto max-w-7xl px-5 sm:px-8 py-12">
-      <div className="flex items-center justify-between mb-10">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-primary font-medium">Panel</p>
-          <h1 className="mt-2 font-serif text-4xl">Administración</h1>
+    <div className="min-h-screen bg-background flex flex-col lg:flex-row">
+      {/* Mobile Header */}
+      <div className="lg:hidden flex items-center justify-between p-5 border-b border-border/80 bg-card/50 backdrop-blur sticky top-0 z-30">
+        <div className="flex items-baseline gap-2">
+          <span className="font-serif text-2xl text-primary">Noir</span>
+          <span className="font-serif text-2xl italic text-foreground/90">&amp; Or</span>
         </div>
-        <button onClick={logout} className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-muted-foreground hover:text-primary transition-colors">
-          <LogOut className="h-4 w-4" /> Salir
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-foreground focus:outline-none">
+          {isMobileMenuOpen ? <XIcon className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      {/* WhatsApp settings */}
-      <section className="mb-10 rounded-[5px] border border-border/60 bg-card/70 p-6">
-        <h2 className="font-serif text-xl mb-4">Número de WhatsApp para recibir pedidos</h2>
-        <div className="flex gap-3">
-          <input
-            value={waNumber}
-            onChange={(e) => setWaNumber(e.target.value)}
-            placeholder="5215555555555 (con código de país sin +)"
-            className="flex-1 rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
-          />
-          <button onClick={saveWhatsApp} className="rounded-[5px] bg-primary px-6 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-ruby transition-all">
-            Guardar
-          </button>
+      {/* Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-20 w-72 transform border-r border-border/80 bg-card/80 backdrop-blur-xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex h-full flex-col">
+          <div className="hidden lg:flex items-baseline gap-2 p-8 pb-4">
+            <span className="font-serif text-3xl tracking-wide text-primary">Noir</span>
+            <span className="font-serif text-3xl italic text-foreground/90">&amp; Or</span>
+          </div>
+          <p className="hidden lg:block px-8 text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-bold mb-8">Atelier Admin</p>
+
+          <nav className="flex-1 space-y-2 px-4 py-8 lg:py-0">
+            <SidebarItem 
+              icon={<Package className="h-5 w-5" />} 
+              label="Catálogo" 
+              active={activeTab === "products"} 
+              onClick={() => { setActiveTab("products"); setIsMobileMenuOpen(false); }} 
+            />
+            <SidebarItem 
+              icon={<ShoppingBag className="h-5 w-5" />} 
+              label="Pedidos" 
+              badge={pendingOrdersCount > 0 ? pendingOrdersCount : undefined}
+              active={activeTab === "orders"} 
+              onClick={() => { setActiveTab("orders"); setIsMobileMenuOpen(false); }} 
+            />
+            <SidebarItem 
+              icon={<Settings className="h-5 w-5" />} 
+              label="Ajustes" 
+              active={activeTab === "settings"} 
+              onClick={() => { setActiveTab("settings"); setIsMobileMenuOpen(false); }} 
+            />
+          </nav>
+
+          <div className="p-4 border-t border-border/40">
+            <button onClick={logout} className="flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/40">
+              <LogOut className="h-5 w-5" /> Cerrar sesión
+            </button>
+          </div>
         </div>
-      </section>
+      </aside>
 
-      {/* Tabs */}
-      <div className="flex gap-6 border-b border-border/40 mb-8">
-        <button
-          onClick={() => setActiveTab("products")}
-          className={`pb-3 text-xs uppercase tracking-[0.25em] font-medium border-b-2 transition-all ${
-            activeTab === "products"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Catálogo de Productos
-        </button>
-        <button
-          onClick={() => setActiveTab("orders")}
-          className={`pb-3 text-xs uppercase tracking-[0.25em] font-medium border-b-2 transition-all ${
-            activeTab === "orders"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Historial de Pedidos ({orders.length})
-        </button>
-      </div>
+      {/* Overlay for mobile menu */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-10 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+      )}
 
-      {activeTab === "products" ? (
-        /* Tab 1: Products Catalogo */
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
-          {/* Form */}
-          <section className="rounded-[5px] border border-border/60 bg-card/70 p-6 h-fit sticky top-20">
-            <h2 className="font-serif text-2xl mb-5">{form.id ? "Editar producto" : "Nuevo producto"}</h2>
-            <form onSubmit={submit} className="space-y-4">
-              <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
-              <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
-              
-              {/* Local Image upload field */}
-              <div>
-                <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Imagen del Producto</label>
-                <div className="mt-2 space-y-3">
-                  {form.image_url && (
-                    <div className="h-28 w-28 rounded-[5px] overflow-hidden bg-muted border border-border/40">
-                      <img src={form.image_url} alt="Vista previa" className="h-full w-full object-cover" />
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.image_url}
-                      onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                      placeholder="https://... o selecciona archivo"
-                      className="flex-1 rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
-                    />
-                    <label className="cursor-pointer inline-flex items-center justify-center rounded-[5px] border border-border bg-background/50 px-4 text-xs uppercase tracking-[0.15em] text-foreground hover:border-primary transition-all hover:bg-muted select-none">
-                      {isUploading ? "..." : <Upload className="h-4 w-4" />}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={isUploading}
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
+      {/* Main Content */}
+      <main className="flex-1 p-5 sm:p-8 lg:p-12 overflow-y-auto w-full">
+        <div className="max-w-6xl mx-auto">
+          {activeTab === "products" && (
+            <div className="animate-in fade-in duration-500">
+              <header className="mb-10">
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Catálogo</h1>
+                <p className="mt-2 text-muted-foreground">Gestiona los productos, precios y disponibilidad.</p>
+              </header>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Precio" type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
-                <Field label="Stock" type="number" value={form.stock} onChange={(v) => setForm({ ...form, stock: v })} />
-              </div>
-              <Field label="Precio de promoción (opcional)" type="number" value={form.sale_price} onChange={(v) => setForm({ ...form, sale_price: v })} />
-              <label className="flex items-center gap-3 text-sm cursor-pointer select-none">
-                <input type="checkbox" checked={form.is_promo} onChange={(e) => setForm({ ...form, is_promo: e.target.checked })} className="accent-primary h-4 w-4" />
-                Activar oferta (mostrar precio tachado)
-              </label>
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="flex-1 inline-flex items-center justify-center gap-2 rounded-[5px] bg-primary py-3 text-xs uppercase tracking-[0.25em] text-primary-foreground hover:glow-ruby transition-all">
-                  <Plus className="h-4 w-4" /> {form.id ? "Guardar" : "Crear"}
-                </button>
-                {form.id && (
-                  <button type="button" onClick={() => setForm(empty)} className="rounded-[5px] border border-border px-5 text-xs uppercase tracking-[0.25em] hover:border-primary transition-all">
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </form>
-          </section>
-
-          {/* List */}
-          <section>
-            <h2 className="font-serif text-2xl mb-5">Catálogo ({products.length})</h2>
-            <ul className="space-y-3">
-              {products.map((p) => (
-                <li key={p.id} className="flex items-center gap-4 rounded-[5px] border border-border bg-card p-4 shadow-sm">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[5px] bg-muted/80">
-                    {p.image_url && <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-xl truncate text-foreground">{p.title}</h3>
-                    <p className="text-sm text-foreground/80 mt-1 font-medium">
-                      Stock: {p.stock} ·{" "}
-                      {p.is_promo && p.sale_price != null ? (
-                        <span><span className="text-primary">${p.sale_price}</span> <span className="line-through text-muted-foreground text-xs ml-1">${p.price}</span></span>
-                      ) : (
-                        <span className="text-primary">${p.price}</span>
-                      )}
-                    </p>
-                  </div>
-                  <button onClick={() => edit(p)} className="p-3 text-muted-foreground hover:text-primary transition-colors bg-input/20 rounded-[5px]" aria-label="Editar"><Pencil className="h-4 w-4" /></button>
-                  <button onClick={() => remove(p.id)} className="p-3 text-muted-foreground hover:text-destructive transition-colors bg-input/20 rounded-[5px]" aria-label="Eliminar"><Trash2 className="h-4 w-4" /></button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-      ) : (
-        /* Tab 2: Orders History */
-        <section className="space-y-6">
-          <h2 className="font-serif text-2xl mb-5">Historial de Pedidos registrados ({orders.length})</h2>
-          {orders.length === 0 ? (
-            <p className="text-center text-muted-foreground py-12">No hay pedidos registrados en el sistema.</p>
-          ) : (
-            <div className="space-y-6">
-              {orders.map((order) => {
-                const orderItems = (order.items || []) as OrderItem[];
-                return (
-                  <div key={order.id} className="rounded-[5px] border border-border/80 bg-card p-6 shadow-md space-y-4">
-                    {/* Header info */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-4">
+              <div className="grid gap-10 xl:grid-cols-[400px_1fr]">
+                {/* Product Form Card */}
+                <div className="xl:order-2">
+                  <section className="rounded-[8px] border border-border/80 bg-card p-6 sm:p-8 shadow-sm xl:sticky xl:top-12">
+                    <h2 className="font-serif text-2xl mb-6 text-primary">{form.id ? "Editar Pieza" : "Nueva Pieza"}</h2>
+                    <form onSubmit={submit} className="space-y-5">
+                      <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
+                      <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
+                      
                       <div>
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-serif text-xl text-primary font-bold">{order.order_id}</h3>
-                          <span className={`px-2.5 py-0.5 rounded-[5px] text-[10px] uppercase tracking-wider font-semibold border ${
-                            order.status === "completed"
-                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                              : order.status === "cancelled"
-                              ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                              : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                          }`}>
-                            {order.status === "completed"
-                              ? "Completado"
-                              : order.status === "cancelled"
-                              ? "Cancelado"
-                              : "Pendiente"}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Realizado el: {new Date(order.created_at).toLocaleString("es-MX")}
-                        </p>
-                      </div>
-
-                      {/* Status and Action Buttons */}
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => updateOrderStatus(order.id, "pending")}
-                          title="Marcar como Pendiente"
-                          className={`p-2 rounded-[5px] transition-colors ${
-                            order.status === "pending"
-                              ? "bg-amber-500/20 text-amber-400"
-                              : "bg-input/20 text-muted-foreground hover:text-amber-400"
-                          }`}
-                        >
-                          <Clock className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => updateOrderStatus(order.id, "completed")}
-                          title="Marcar como Completado"
-                          className={`p-2 rounded-[5px] transition-colors ${
-                            order.status === "completed"
-                              ? "bg-emerald-500/20 text-emerald-400"
-                              : "bg-input/20 text-muted-foreground hover:text-emerald-400"
-                          }`}
-                        >
-                          <Check className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => updateOrderStatus(order.id, "cancelled")}
-                          title="Cancelar Pedido"
-                          className={`p-2 rounded-[5px] transition-colors ${
-                            order.status === "cancelled"
-                              ? "bg-rose-500/20 text-rose-400"
-                              : "bg-input/20 text-muted-foreground hover:text-rose-400"
-                          }`}
-                        >
-                          <XIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => removeOrder(order.id)}
-                          title="Eliminar registro"
-                          className="p-2 rounded-[5px] bg-input/20 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors ml-4"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Order Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6">
-                      {/* Customer info & Items list */}
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Datos del Cliente</h4>
-                          <div className="mt-2 text-sm space-y-1">
-                            <p><strong>Cliente:</strong> {order.customer_name}</p>
-                            <p className="flex items-center gap-2">
-                              <strong>WhatsApp:</strong> {order.customer_phone}
-                              <a
-                                href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                              >
-                                <MessageSquare className="h-3 w-3" /> Chatear
-                              </a>
-                            </p>
-                            <p><strong>Entrega:</strong> {order.delivery_type}</p>
-                            <p><strong>Dirección:</strong> {order.delivery_address}</p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">Productos</h4>
-                          <ul className="space-y-2">
-                            {orderItems.map((item, idx) => (
-                              <li key={idx} className="flex items-center gap-3 text-sm bg-background/30 p-2 rounded-[5px] border border-border/40">
-                                <div className="h-10 w-10 shrink-0 rounded-[5px] bg-muted overflow-hidden">
-                                  {item.image_url && <img src={item.image_url} alt={item.title} className="h-full w-full object-cover" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-serif text-base truncate">{item.title}</p>
-                                  <p className="text-xs text-muted-foreground">{item.quantity} unidad(es) x ${item.price}</p>
-                                </div>
-                                <span className="font-semibold text-primary">${(item.price * item.quantity).toFixed(2)}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      {/* Pricing Breakdown Card */}
-                      <div className="bg-background/40 p-4 rounded-[5px] border border-border/40 h-fit space-y-3">
-                        <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground border-b border-border/40 pb-2">Resumen de Cuenta</h4>
-                        <div className="text-sm space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Subtotal</span>
-                            <span>${order.subtotal.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Envío</span>
-                            <span>{order.shipping_cost === 0 ? "Gratis" : `$${order.shipping_cost.toFixed(2)}`}</span>
-                          </div>
-                          {order.payment_adjustment !== 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Ajuste ({order.payment_method})</span>
-                              <span className={order.payment_adjustment < 0 ? "text-emerald-400" : ""}>
-                                {order.payment_adjustment < 0 ? "-" : "+"}${Math.abs(order.payment_adjustment).toFixed(2)}
-                              </span>
+                        <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Fotografía</label>
+                        <div className="mt-3 space-y-4">
+                          {form.image_url && (
+                            <div className="h-40 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
+                              <img src={form.image_url} alt="Vista previa" className="h-full w-full object-cover" />
                             </div>
                           )}
-                          <div className="flex justify-between border-t border-border/40 pt-2 font-serif text-lg font-bold text-primary">
-                            <span>Total</span>
-                            <span>${order.total.toFixed(2)}</span>
-                          </div>
-                          <div className="pt-2 text-xs text-muted-foreground">
-                            <strong>Método elegido:</strong> {order.payment_method}
+                          <div className="flex gap-3">
+                            <input
+                              type="url"
+                              value={form.image_url}
+                              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                              placeholder="URL de imagen..."
+                              className="flex-1 rounded-[8px] border border-border bg-input px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                            />
+                            <label className="cursor-pointer inline-flex min-w-[50px] items-center justify-center rounded-[8px] border border-border bg-background px-4 text-foreground hover:border-primary hover:bg-muted transition-all focus-within:ring-2 focus-within:ring-primary/40">
+                              {isUploading ? <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-5 w-5" />}
+                              <input type="file" accept="image/*" disabled={isUploading} onChange={handleImageUpload} className="sr-only" />
+                            </label>
                           </div>
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field label="Precio (USD)" type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
+                        <Field label="Stock" type="number" value={form.stock} onChange={(v) => setForm({ ...form, stock: v })} />
+                      </div>
+                      
+                      <Field label="Precio Promo (USD)" type="number" value={form.sale_price} onChange={(v) => setForm({ ...form, sale_price: v })} placeholder="Opcional" />
+                      
+                      <label className="flex items-center gap-4 rounded-[8px] border border-border/60 bg-background/50 p-4 cursor-pointer hover:border-primary/50 transition-colors">
+                        <input type="checkbox" checked={form.is_promo} onChange={(e) => setForm({ ...form, is_promo: e.target.checked })} className="h-5 w-5 rounded border-border accent-primary bg-input" />
+                        <span className="text-sm font-medium">Activar etiqueta de promoción</span>
+                      </label>
+
+                      <div className="flex gap-4 pt-4 border-t border-border/40">
+                        <button type="submit" className="flex-1 inline-flex h-12 items-center justify-center gap-2 rounded-[8px] bg-primary text-sm uppercase tracking-[0.2em] font-bold text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40">
+                          <Plus className="h-4 w-4" /> {form.id ? "Guardar" : "Crear Pieza"}
+                        </button>
+                        {form.id && (
+                          <button type="button" onClick={() => setForm(empty)} className="inline-flex h-12 items-center justify-center rounded-[8px] border border-border bg-background px-6 text-sm uppercase tracking-[0.2em] font-bold hover:bg-muted transition-all focus:outline-none">
+                            Cancelar
+                          </button>
+                        )}
+                      </div>
+                    </form>
+                  </section>
+                </div>
+
+                {/* Product List */}
+                <div className="xl:order-1 space-y-4">
+                  <h2 className="font-serif text-2xl mb-6 flex items-center justify-between">
+                    <span>Colección</span>
+                    <span className="text-sm font-sans bg-muted px-3 py-1 rounded-full">{products.length} piezas</span>
+                  </h2>
+                  
+                  {products.length === 0 ? (
+                    <div className="p-10 text-center rounded-[8px] border border-border/40 bg-card/30">
+                      <p className="text-muted-foreground">No hay productos en el catálogo.</p>
                     </div>
-                  </div>
-                );
-              })}
+                  ) : (
+                    products.map((p) => (
+                      <article key={p.id} className="group flex flex-col sm:flex-row gap-5 rounded-[8px] border border-border/60 bg-card p-5 shadow-sm hover:border-primary/40 transition-colors">
+                        <div className="h-40 sm:h-28 w-full sm:w-28 shrink-0 overflow-hidden rounded-[5px] bg-muted border border-border/40">
+                          {p.image_url ? (
+                            <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Sin foto</div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                          <h3 className="font-serif text-xl truncate text-foreground">{p.title}</h3>
+                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                            <span className="inline-flex items-center gap-1.5 font-medium">
+                              <span className="h-2 w-2 rounded-full bg-border" /> Stock: {p.stock}
+                            </span>
+                            <span className="font-medium">
+                              {p.is_promo && p.sale_price != null ? (
+                                <>
+                                  <span className="text-primary mr-2">{formatPrice(p.sale_price)}</span>
+                                  <span className="line-through text-muted-foreground text-xs">{formatPrice(p.price)}</span>
+                                </>
+                              ) : (
+                                <span className="text-foreground">{formatPrice(p.price)}</span>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex sm:flex-col gap-2 justify-end sm:justify-center border-t sm:border-t-0 sm:border-l border-border/40 pt-4 sm:pt-0 sm:pl-4">
+                          <button onClick={() => edit(p)} className="flex-1 sm:flex-none inline-flex items-center justify-center h-10 w-full sm:w-10 rounded-[5px] bg-input/50 text-foreground hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Editar">
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => remove(p.id)} className="flex-1 sm:flex-none inline-flex items-center justify-center h-10 w-full sm:w-10 rounded-[5px] bg-input/50 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors" aria-label="Eliminar">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           )}
-        </section>
+
+          {activeTab === "orders" && (
+            <div className="animate-in fade-in duration-500">
+              <header className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                  <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Pedidos</h1>
+                  <p className="mt-2 text-muted-foreground">Historial y gestión de órdenes recientes.</p>
+                </div>
+                <div className="inline-flex items-center bg-card rounded-[8px] border border-border/80 px-4 py-2">
+                  <span className="text-sm font-medium">Total: {orders.length}</span>
+                </div>
+              </header>
+
+              {orders.length === 0 ? (
+                <div className="p-20 text-center rounded-[8px] border border-border/40 bg-card/30">
+                  <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+                  <p className="text-lg text-muted-foreground">No hay pedidos registrados.</p>
+                </div>
+              ) : (
+                <div className="grid gap-6">
+                  {orders.map((order) => {
+                    const orderItems = (order.items || []) as OrderItem[];
+                    return (
+                      <div key={order.id} className="rounded-[8px] border border-border/80 bg-card p-6 shadow-md flex flex-col gap-6 lg:flex-row">
+                        {/* Order Meta & Status */}
+                        <div className="flex-1 min-w-[250px] space-y-5 border-b lg:border-b-0 lg:border-r border-border/40 pb-6 lg:pb-0 lg:pr-6">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="font-serif text-2xl font-bold text-primary">{order.order_id}</h3>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {new Date(order.created_at).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                              order.status === "completed" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                              : order.status === "cancelled" ? "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                              : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                            }`}>
+                              {order.status === "completed" ? "Completado" : order.status === "cancelled" ? "Cancelado" : "Pendiente"}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3 bg-background/50 rounded-[5px] p-4 border border-border/40">
+                            <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Cliente</h4>
+                            <p className="text-sm font-medium">{order.customer_name}</p>
+                            <p className="text-sm flex items-center justify-between">
+                              <span>{order.customer_phone}</span>
+                              <a href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary bg-primary/10 px-2 py-1 rounded-[5px] hover:bg-primary/20 transition-colors">
+                                <MessageSquare className="h-3 w-3" /> Chat
+                              </a>
+                            </p>
+                          </div>
+
+                          <div className="flex gap-2 pt-2">
+                            <button onClick={() => updateOrderStatus(order.id, "pending")} title="Pendiente" className={`flex-1 inline-flex items-center justify-center h-10 rounded-[5px] transition-colors border ${order.status === "pending" ? "bg-amber-500/20 text-amber-500 border-amber-500/30" : "bg-input text-muted-foreground border-border hover:border-amber-500/50"}`}>
+                              <Clock className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => updateOrderStatus(order.id, "completed")} title="Completado" className={`flex-1 inline-flex items-center justify-center h-10 rounded-[5px] transition-colors border ${order.status === "completed" ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" : "bg-input text-muted-foreground border-border hover:border-emerald-500/50"}`}>
+                              <Check className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => updateOrderStatus(order.id, "cancelled")} title="Cancelar" className={`flex-1 inline-flex items-center justify-center h-10 rounded-[5px] transition-colors border ${order.status === "cancelled" ? "bg-rose-500/20 text-rose-500 border-rose-500/30" : "bg-input text-muted-foreground border-border hover:border-rose-500/50"}`}>
+                              <XIcon className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => removeOrder(order.id)} title="Eliminar" className="flex-1 inline-flex items-center justify-center h-10 rounded-[5px] transition-colors bg-input border border-border text-muted-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Order Details */}
+                        <div className="flex-[2] grid sm:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Entrega y Pago</h4>
+                            <ul className="text-sm space-y-3">
+                              <li className="flex gap-2"><span className="text-muted-foreground font-medium w-16">Tipo:</span> <span>{order.delivery_type}</span></li>
+                              {order.delivery_address && order.delivery_address !== "N/A (Retiro Discreto)" && (
+                                <li className="flex gap-2"><span className="text-muted-foreground font-medium w-16">Lugar:</span> <span>{order.delivery_address}</span></li>
+                              )}
+                              <li className="flex gap-2"><span className="text-muted-foreground font-medium w-16">Pago:</span> <span>{order.payment_method}</span></li>
+                            </ul>
+
+                            <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold pt-4 border-t border-border/40">Resumen Financiero</h4>
+                            <div className="bg-background/40 p-4 rounded-[5px] border border-border/40 space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Subtotal</span><span>{formatPrice(order.subtotal)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Envío</span><span>{order.shipping_cost === 0 ? "Gratis" : formatPrice(order.shipping_cost)}</span>
+                              </div>
+                              {order.payment_adjustment !== 0 && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Ajuste</span>
+                                  <span className={order.payment_adjustment < 0 ? "text-emerald-500 font-medium" : ""}>
+                                    {order.payment_adjustment < 0 ? "-" : "+"}{formatPrice(Math.abs(order.payment_adjustment))}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex justify-between border-t border-border/40 pt-2 font-serif text-xl font-bold text-primary">
+                                <span>Total</span><span>{formatPrice(order.total)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Piezas ({orderItems.length})</h4>
+                            <ul className="space-y-3">
+                              {orderItems.map((item, idx) => (
+                                <li key={idx} className="flex items-center gap-3 bg-background/50 p-3 rounded-[5px] border border-border/40">
+                                  <div className="h-12 w-12 shrink-0 rounded-[5px] bg-muted overflow-hidden border border-border/20">
+                                    {item.image_url && <img src={item.image_url} alt={item.title} className="h-full w-full object-cover" />}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-serif text-base truncate">{item.title}</p>
+                                    <p className="text-xs text-muted-foreground">{item.quantity} x {formatPrice(item.price)}</p>
+                                  </div>
+                                  <span className="font-bold text-foreground">{formatPrice(item.price * item.quantity)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "settings" && (
+            <div className="animate-in fade-in duration-500 max-w-2xl">
+              <header className="mb-10">
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Ajustes</h1>
+                <p className="mt-2 text-muted-foreground">Configuraciones generales del sistema.</p>
+              </header>
+
+              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+                <h2 className="font-serif text-2xl mb-2 text-primary">Recepción de Pedidos</h2>
+                <p className="text-sm text-muted-foreground mb-6">Configura el número de WhatsApp a donde llegarán las órdenes de los clientes.</p>
+                
+                <div className="space-y-3">
+                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Número de WhatsApp</label>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">+</span>
+                      <input
+                        value={waNumber}
+                        onChange={(e) => setWaNumber(e.target.value)}
+                        placeholder="52 1 555 555 5555"
+                        className="w-full rounded-[8px] border border-border bg-input pl-8 pr-4 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                      />
+                    </div>
+                    <button onClick={saveWhatsApp} className="h-[58px] min-w-[140px] rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40">
+                      Guardar
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Incluye el código de país sin el símbolo "+". Ejemplo para México: 5215512345678</p>
+                </div>
+              </section>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function SidebarItem({ icon, label, active, onClick, badge }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void, badge?: number }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center justify-between gap-3 px-4 py-4 rounded-[8px] transition-all focus:outline-none ${
+        active ? "bg-primary/10 text-primary font-bold border border-primary/20" : "text-muted-foreground hover:bg-input hover:text-foreground font-medium border border-transparent"
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        {icon}
+        <span className="text-base">{label}</span>
+      </div>
+      {badge !== undefined && (
+        <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+          {badge}
+        </span>
       )}
-    </main>
+    </button>
   );
 }
 
@@ -571,14 +632,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{label}</label>
+      <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">{label}</label>
       {textarea ? (
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={3}
           placeholder={placeholder}
-          className="mt-2 w-full rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
+          className="mt-3 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none resize-none"
         />
       ) : (
         <input
@@ -588,7 +649,7 @@ function Field({
           required={required}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="mt-2 w-full rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
+          className="mt-3 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
         />
       )}
     </div>

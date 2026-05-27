@@ -35,88 +35,54 @@
   --font-serif: "Playfair Display", "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
-  /* Afterglo typography scale */
-  --text-caption: 13px;
-  --leading-caption: 1.3;
-  --text-body-sm: 15px;
-  --leading-body-sm: 1.2;
-  --text-body: 22px;
-  --leading-body: 1.1;
-  --text-subheading: 33px;
-  --leading-subheading: 1.1;
-  --text-heading: 42px;
-  --leading-heading: 1.1;
-  --text-heading-lg: 50px;
-  --leading-heading-lg: 1;
-  --text-display: 132px;
-  --leading-display: 0.8;
-
-  /* Afterglo spacing scale */
-  --spacing-4: 4px;
-  --spacing-5: 5px;
-  --spacing-8: 8px;
-  --spacing-10: 10px;
-  --spacing-13: 13px;
-  --spacing-17: 17px;
-  --spacing-25: 25px;
-  --spacing-29: 29px;
-  --spacing-33: 33px;
-  --spacing-44: 44px;
-  --spacing-50: 50px;
-  --spacing-58: 58px;
-  --spacing-67: 67px;
-  --spacing-83: 83px;
-  --spacing-216: 216px;
-  --spacing-231: 231px;
-
   /* Custom radii */
-  --radius-default: 5px;
+  --radius-default: 8px;
 }
 
 :root {
-  --radius: 5px;
+  --radius: 8px;
 
-  /* Dark by default — sensual nocturnal theme */
-  --background: oklch(0.14 0.005 270);          /* #0B0C10 deep black */
-  --foreground: oklch(0.94 0.005 80);           /* warm off-white */
+  /* Dark by default — warm wine/ruby theme to avoid being overly black */
+  --background: oklch(0.16 0.03 15);          /* deep dark wine/red */
+  --foreground: oklch(0.96 0.01 15);           /* warm off-white for legibility */
 
-  --card: oklch(0.17 0.006 270);
-  --card-foreground: oklch(0.94 0.005 80);
+  --card: oklch(0.20 0.04 15);                /* slightly lighter wine for cards */
+  --card-foreground: oklch(0.96 0.01 15);
 
-  --popover: oklch(0.17 0.006 270);
-  --popover-foreground: oklch(0.94 0.005 80);
+  --popover: oklch(0.20 0.04 15);
+  --popover-foreground: oklch(0.96 0.01 15);
 
-  --primary: oklch(0.52 0.22 15);               /* rich ruby red */
-  --primary-foreground: oklch(0.97 0.01 15);
+  --primary: oklch(0.55 0.22 15);               /* rich ruby red */
+  --primary-foreground: oklch(0.98 0.01 15);
 
-  --secondary: oklch(0.18 0.02 15);
-  --secondary-foreground: oklch(0.94 0.005 80);
+  --secondary: oklch(0.25 0.06 15);
+  --secondary-foreground: oklch(0.96 0.01 15);
 
-  --muted: oklch(0.22 0.008 270);
-  --muted-foreground: oklch(0.66 0.01 80);
+  --muted: oklch(0.26 0.05 15);
+  --muted-foreground: oklch(0.75 0.02 15);      /* Lighter muted foreground for legibility */
 
-  --accent: oklch(0.35 0.12 15);                /* wine accent */
-  --accent-foreground: oklch(0.97 0.005 80);
+  --accent: oklch(0.40 0.16 15);                /* wine accent */
+  --accent-foreground: oklch(0.98 0.01 15);
 
   --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.97 0.005 80);
+  --destructive-foreground: oklch(0.98 0.01 15);
 
-  --border: oklch(0.27 0.008 270 / 0.7);
-  --input: oklch(0.22 0.008 270);
-  --ring: oklch(0.52 0.22 15);
+  --border: oklch(0.30 0.06 15 / 0.8);
+  --input: oklch(0.24 0.05 15);
+  --ring: oklch(0.55 0.22 15);
 
-  --ruby: oklch(0.52 0.22 15);
-  --wine: oklch(0.35 0.12 15);
+  --ruby: oklch(0.55 0.22 15);
+  --wine: oklch(0.40 0.16 15);
 
-  --gradient-night: radial-gradient(1200px 700px at 50% -10%, oklch(0.35 0.14 15 / 0.45), transparent 65%),
-                    radial-gradient(900px 500px at 90% 20%, oklch(0.25 0.05 15 / 0.18), transparent 70%),
-                    radial-gradient(700px 500px at 10% 80%, oklch(0.4 0.2 15 / 0.15), transparent 70%);
-  --gradient-ruby: linear-gradient(135deg, oklch(0.55 0.23 18), oklch(0.42 0.18 12));
-  --gradient-wine: linear-gradient(135deg, oklch(0.4 0.16 15), oklch(0.28 0.12 10));
-  --shadow-ruby: 0 0 40px -8px oklch(0.52 0.22 15 / 0.55);
-  --shadow-ruby-soft: 0 10px 50px -15px oklch(0.52 0.22 15 / 0.35);
-  --shadow-elegant: 0 30px 70px -25px oklch(0 0 0 / 0.75), 0 0 0 1px oklch(0.52 0.22 15 / 0.15);
-  --shadow-wine: 0 20px 60px -20px oklch(0.35 0.16 15 / 0.6);
+  --gradient-night: radial-gradient(1200px 700px at 50% -10%, oklch(0.40 0.16 15 / 0.45), transparent 65%),
+                    radial-gradient(900px 500px at 90% 20%, oklch(0.30 0.10 15 / 0.25), transparent 70%),
+                    radial-gradient(700px 500px at 10% 80%, oklch(0.45 0.22 15 / 0.15), transparent 70%);
+  --gradient-ruby: linear-gradient(135deg, oklch(0.60 0.23 18), oklch(0.45 0.18 12));
+  --gradient-wine: linear-gradient(135deg, oklch(0.45 0.16 15), oklch(0.30 0.12 10));
+  --shadow-ruby: 0 0 40px -8px oklch(0.55 0.22 15 / 0.55);
+  --shadow-ruby-soft: 0 10px 50px -15px oklch(0.55 0.22 15 / 0.35);
+  --shadow-elegant: 0 30px 70px -25px oklch(0 0 0 / 0.75), 0 0 0 1px oklch(0.55 0.22 15 / 0.15);
+  --shadow-wine: 0 20px 60px -20px oklch(0.40 0.16 15 / 0.6);
   --transition-silk: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -127,6 +93,8 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    font-size: 16px; /* Base 16px as per SKILL.md */
+    line-height: 1.6; /* Better line height */
   }
   body {
     background-image: var(--gradient-night);
@@ -135,6 +103,7 @@
   h1, h2, h3, h4, .font-serif {
     font-family: var(--font-serif);
     letter-spacing: -0.01em;
+    line-height: 1.2;
   }
   ::selection { background: var(--ruby); color: var(--foreground); }
 }
@@ -160,7 +129,7 @@
     100% { background-position: 200% 0; }
   }
   .shimmer {
-    background: linear-gradient(110deg, transparent 35%, oklch(0.52 0.22 15 / 0.35) 50%, transparent 65%);
+    background: linear-gradient(110deg, transparent 35%, oklch(0.55 0.22 15 / 0.35) 50%, transparent 65%);
     background-size: 200% 100%;
     animation: shimmer-x 3s infinite;
   }
@@ -172,8 +141,8 @@
   .float-slow { animation: float-slow 7s ease-in-out infinite; }
 
   @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 30px -10px oklch(0.52 0.22 15 / 0.4); }
-    50% { box-shadow: 0 0 60px -8px oklch(0.52 0.22 15 / 0.7); }
+    0%, 100% { box-shadow: 0 0 30px -10px oklch(0.55 0.22 15 / 0.4); }
+    50% { box-shadow: 0 0 60px -8px oklch(0.55 0.22 15 / 0.7); }
   }
   .glow-pulse { animation: glow-pulse 3.5s ease-in-out infinite; }
 }

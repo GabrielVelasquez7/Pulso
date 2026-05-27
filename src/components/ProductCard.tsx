@@ -37,66 +37,67 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[5px] border border-border/60 bg-card/70 backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant">
+    <article className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant">
       {/* ruby halo on hover */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-px rounded-[5px] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+        className="pointer-events-none absolute -inset-px rounded-[8px] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.52 0.22 15 / 0.35), transparent 50%, oklch(0.35 0.16 15 / 0.25))",
+            "linear-gradient(135deg, oklch(0.55 0.22 15 / 0.4), transparent 50%, oklch(0.40 0.16 15 / 0.3))",
         }}
       />
 
-      <div className="relative overflow-hidden bg-muted min-h-[20rem] sm:aspect-[4/5] sm:min-h-0">
+      <div className="relative overflow-hidden bg-muted min-h-[22rem] sm:aspect-[4/5] sm:min-h-0">
         {product.image_url ? (
           <img
             src={product.image_url}
             alt={product.title}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-serif text-3xl italic text-gradient-ruby">
+          <div className="flex h-full w-full items-center justify-center font-serif text-4xl italic text-gradient-ruby">
             Noir
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
+        
         {product.is_promo && (
-          <span className="absolute left-3 top-3 rounded-[5px] bg-gradient-wine px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-foreground shadow-wine">
+          <span className="absolute left-4 top-4 rounded-[5px] bg-primary px-3 py-1.5 text-xs uppercase tracking-[0.25em] text-primary-foreground font-bold shadow-ruby">
             Promoción
           </span>
         )}
         {product.stock <= 0 && (
-          <span className="absolute right-3 top-3 rounded-[5px] border border-border bg-background/80 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-muted-foreground backdrop-blur">
+          <span className="absolute right-4 top-4 rounded-[5px] border border-border bg-background/90 px-3 py-1.5 text-xs uppercase tracking-[0.25em] text-muted-foreground font-semibold backdrop-blur">
             Agotado
           </span>
         )}
       </div>
 
-      <div className="relative flex flex-1 flex-col gap-3 p-5">
+      <div className="relative flex flex-1 flex-col gap-4 p-6">
         <div>
-          <h3 className="font-serif text-xl leading-tight text-foreground transition-colors duration-500 group-hover:text-primary">
+          <h3 className="font-serif text-2xl leading-tight text-foreground transition-colors duration-500 group-hover:text-primary">
             {product.title}
           </h3>
           {product.description && (
-            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
+            <p className="mt-2 line-clamp-2 text-base text-muted-foreground leading-relaxed">{product.description}</p>
           )}
         </div>
 
-        <div className="mt-auto flex items-end justify-between pt-2">
-          <div className="flex items-baseline gap-2">
+        <div className="mt-auto flex items-center justify-between pt-4">
+          <div className="flex flex-col gap-1">
             {product.is_promo && product.sale_price != null ? (
               <>
-                <span className="text-xl font-medium text-gradient-ruby">
-                  {formatPrice(Number(product.sale_price))}
-                </span>
-                <span className="text-sm text-muted-foreground line-through">
+                <span className="text-sm text-muted-foreground line-through font-medium">
                   {formatPrice(Number(product.price))}
+                </span>
+                <span className="text-2xl font-bold text-primary">
+                  {formatPrice(Number(product.sale_price))}
                 </span>
               </>
             ) : (
-              <span className="text-xl font-medium text-gradient-ruby">
+              <span className="text-2xl font-bold text-primary">
                 {formatPrice(Number(product.price))}
               </span>
             )}
@@ -104,9 +105,9 @@ export function ProductCard({ product }: { product: Product }) {
           <button
             onClick={onAdd}
             disabled={product.stock <= 0}
-            className="inline-flex items-center gap-2 rounded-[5px] border border-border bg-background/60 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-foreground transition-silk hover:scale-105 hover:border-primary hover:bg-gradient-ruby hover:text-primary-foreground hover:shadow-[0_0_25px_-5px_var(--ruby)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="inline-flex h-12 min-w-[100px] items-center justify-center gap-2 rounded-[5px] border border-border bg-input px-5 text-sm uppercase tracking-[0.2em] text-foreground font-medium transition-silk hover:scale-105 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-ruby focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-input disabled:hover:text-foreground disabled:hover:border-border disabled:hover:shadow-none"
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-4 w-4" />
             Añadir
           </button>
         </div>

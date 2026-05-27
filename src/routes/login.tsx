@@ -20,7 +20,7 @@ function LoginPage() {
     setLoading(true);
     try {
       if (mode === "login") {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -56,57 +56,63 @@ function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-5 py-16">
-      <div className="w-full max-w-md rounded-[5px] border border-border/60 bg-card/80 p-8 shadow-elegant">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-primary text-center">
+    <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-5 py-16">
+      <div className="w-full max-w-lg rounded-[8px] border border-border/80 bg-card p-10 shadow-elegant">
+        <p className="text-xs uppercase tracking-[0.4em] text-primary text-center font-bold">
           {mode === "login" ? "Acceso privado" : "Crear administrador"}
         </p>
-        <h1 className="mt-3 text-center font-serif text-3xl">
+        <h1 className="mt-4 text-center font-serif text-4xl text-foreground">
           {mode === "login" ? "Iniciar sesión" : "Registrarse"}
         </h1>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
+        <p className="mt-3 text-center text-base text-muted-foreground">
           {mode === "login"
-            ? "Panel reservado para administración."
+            ? "Panel reservado para la administración de Noir & Or."
             : "Registra una cuenta para gestionar la tienda."}
         </p>
 
-        <form onSubmit={handle} className="mt-8 space-y-4">
+        <form onSubmit={handle} className="mt-10 space-y-6">
           <div>
-            <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Correo</label>
+            <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium" htmlFor="email">
+              Correo Electrónico
+            </label>
             <input
+              id="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
+              className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Contraseña</label>
+            <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium" htmlFor="password">
+              Contraseña
+            </label>
             <input
+              id="password"
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
+              className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-[5px] bg-primary py-3 text-xs uppercase tracking-[0.3em] text-primary-foreground hover:glow-ruby transition-all disabled:opacity-50"
+            className="mt-4 w-full rounded-[8px] bg-primary py-4 text-sm font-bold uppercase tracking-[0.3em] text-primary-foreground hover:glow-ruby transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-primary/40"
           >
-            {loading ? "..." : mode === "login" ? "Entrar" : "Crear Cuenta"}
+            {loading ? "Procesando..." : mode === "login" ? "Entrar al Atelier" : "Crear Cuenta"}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center border-t border-border/40 pt-6">
           <button
             onClick={() => setMode(mode === "login" ? "signup" : "login")}
-            className="text-xs text-muted-foreground hover:text-primary transition-colors uppercase tracking-[0.1em]"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors uppercase tracking-[0.1em] font-medium p-2 rounded-[5px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            {mode === "login" ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
+            {mode === "login" ? "¿No tienes cuenta? Regístrate aquí" : "¿Ya tienes cuenta? Inicia sesión"}
           </button>
         </div>
       </div>
