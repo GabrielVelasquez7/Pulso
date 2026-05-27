@@ -6,7 +6,7 @@ import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon,
 
 export const Route = createFileRoute("/atelier-privado")({
   component: AdminPage,
-  head: () => ({ meta: [{ title: "Atelier · Noir & Or" }] }),
+  head: () => ({ meta: [{ title: "Atelier · PULSO" }] }),
 });
 
 type Product = {
@@ -260,9 +260,8 @@ export function AdminPage() {
     <div className="min-h-screen bg-background flex flex-col lg:flex-row">
       {/* Mobile Header */}
       <div className="lg:hidden flex items-center justify-between p-5 border-b border-border/80 bg-card/50 backdrop-blur sticky top-0 z-30">
-        <div className="flex items-baseline gap-2">
-          <span className="font-serif text-2xl text-primary">Noir</span>
-          <span className="font-serif text-2xl italic text-foreground/90">&amp; Or</span>
+        <div className="flex items-center gap-2">
+          <span className="font-serif text-2xl text-primary font-bold tracking-widest">PULSO</span>
         </div>
         <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-foreground focus:outline-none">
           {isMobileMenuOpen ? <XIcon className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -272,9 +271,8 @@ export function AdminPage() {
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-20 w-72 transform border-r border-border/80 bg-card/80 backdrop-blur-xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-full flex-col">
-          <div className="hidden lg:flex items-baseline gap-2 p-8 pb-4">
-            <span className="font-serif text-3xl tracking-wide text-primary">Noir</span>
-            <span className="font-serif text-3xl italic text-foreground/90">&amp; Or</span>
+          <div className="hidden lg:flex items-center gap-2 p-8 pb-4">
+            <span className="font-serif text-3xl font-bold tracking-widest text-primary">PULSO</span>
           </div>
           <p className="hidden lg:block px-8 text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-bold mb-8">Atelier Admin</p>
 

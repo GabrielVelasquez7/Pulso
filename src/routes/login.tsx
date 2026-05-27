@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Acceso · Noir & Or" }] }),
+  head: () => ({ meta: [{ title: "Acceso · PULSO" }] }),
 });
 
 function LoginPage() {
@@ -66,7 +66,7 @@ function LoginPage() {
         </h1>
         <p className="mt-3 text-center text-base text-muted-foreground">
           {mode === "login"
-            ? "Panel reservado para la administración de Noir & Or."
+            ? "Panel reservado para la administración de PULSO."
             : "Registra una cuenta para gestionar la tienda."}
         </p>
 

@@ -134,6 +134,24 @@
     animation: shimmer-x 3s infinite;
   }
 
+  @keyframes marquee-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.333333%); }
+  }
+  @keyframes marquee-right {
+    0% { transform: translateX(-33.333333%); }
+    100% { transform: translateX(0); }
+  }
+  .animate-marquee-left {
+    animation: marquee-left 25s linear infinite;
+  }
+  .animate-marquee-right {
+    animation: marquee-right 25s linear infinite;
+  }
+  .pause-hover:hover {
+    animation-play-state: paused;
+  }
+
   @keyframes float-slow {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-12px); }

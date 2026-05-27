@@ -109,7 +109,7 @@ export function CartDrawer() {
 
     const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
     const msg =
-      `Hola Noir & Or.\n\n` +
+      `Hola PULSO.\n\n` +
       `Nombre: ${name}\n` +
       `ID del pedido: ${orderId}\n` +
       `Productos:\n` +
@@ -198,7 +198,7 @@ export function CartDrawer() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground">Noir</div>
+                        <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground">PULSO</div>
                       )}
                     </div>
                     <div className="flex flex-1 flex-col justify-between">

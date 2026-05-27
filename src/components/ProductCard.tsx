@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant">
+    <article className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant h-full">
       {/* ruby halo on hover */}
       <div
         aria-hidden
@@ -48,7 +48,7 @@ export function ProductCard({ product }: { product: Product }) {
         }}
       />
 
-      <div className="relative overflow-hidden bg-muted min-h-[22rem] sm:aspect-[4/5] sm:min-h-0">
+      <div className="relative overflow-hidden bg-muted aspect-square w-full shrink-0">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -57,8 +57,8 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-serif text-4xl italic text-gradient-ruby">
-            Noir
+          <div className="flex h-full w-full items-center justify-center font-serif text-3xl italic text-gradient-ruby">
+            PULSO
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-95" />

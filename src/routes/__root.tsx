@@ -58,7 +58,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Noir & Or — Bienestar íntimo, elegancia nocturna" },
+      { title: "PULSO — Bienestar íntimo, elegancia nocturna" },
       { name: "description", content: "Colección curada de bienestar íntimo y juguetes premium para adultos. Confidencial, sofisticado, sensual." },
       { name: "theme-color", content: "#0B0C10" },
     ],
