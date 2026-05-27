@@ -42,7 +42,7 @@ function CarouselRow({ products, direction = "left" }: { products: Product[], di
       if (scrollRef.current && !isHovered) {
         const el = scrollRef.current;
         // Speed: pixels per millisecond
-        const speed = 0.03; 
+        const speed = 0.03;
         const move = speed * delta;
 
         if (direction === "left") {
@@ -72,13 +72,13 @@ function CarouselRow({ products, direction = "left" }: { products: Product[], di
   };
 
   return (
-    <div 
+    <div
       className="relative group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Manual Controls */}
-      <button 
+      <button
         onClick={() => handleManualScroll(-350)}
         className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
         aria-label="Anterior"
@@ -86,7 +86,7 @@ function CarouselRow({ products, direction = "left" }: { products: Product[], di
         <ChevronLeft className="h-6 w-6" />
       </button>
 
-      <div 
+      <div
         ref={scrollRef}
         className="flex gap-10 px-5 overflow-x-auto no-scrollbar py-2"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -98,7 +98,7 @@ function CarouselRow({ products, direction = "left" }: { products: Product[], di
         ))}
       </div>
 
-      <button 
+      <button
         onClick={() => handleManualScroll(350)}
         className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
         aria-label="Siguiente"
@@ -127,7 +127,7 @@ function Index() {
 
   // Filter products based on search query (ignoring case and accents)
   const normalizedSearch = searchQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  
+
   const filteredProducts = products.filter(p => {
     const titleMatch = p.title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(normalizedSearch);
     const descMatch = p.description && p.description.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(normalizedSearch);
@@ -149,21 +149,21 @@ function Index() {
           <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] translate-x-1/3 translate-y-1/3 rounded-full bg-gradient-wine opacity-[0.20] blur-[120px] float-slow" style={{ animationDelay: "2s" }} />
           <div className="absolute top-1/2 left-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary opacity-[0.05] blur-[100px] glow-pulse" />
         </div>
-        
+
         <div className="relative z-10 max-w-4xl mx-auto space-y-8">
           <div className="flex justify-center mb-6">
-             <img src={pulsoLogo} alt="PULSO Logo" className="h-16 md:h-24 opacity-90 drop-shadow-lg" />
+            <img src={pulsoLogo} alt="PULSO Logo" className="h-16 md:h-24 opacity-90 drop-shadow-lg" />
           </div>
-          
+
           <p className="inline-flex items-center gap-3 rounded-full border border-primary/30 bg-background/80 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-primary backdrop-blur shadow-sm mx-auto">
             <span className="h-2 w-2 rounded-full bg-primary glow-pulse" />
-            Solo para adultos · 100% Confidencial
+            Solo para adultos
           </p>
-          
+
           <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl leading-[0.95] text-balance text-foreground drop-shadow-sm">
             Encuentra <span className="italic text-gradient-ruby">tu ritmo</span>.
           </h1>
-          
+
           <p className="mx-auto max-w-2xl text-lg sm:text-xl text-muted-foreground text-balance leading-relaxed mb-6">
             Una selección exclusiva para quienes exploran el placer sin restricciones.
             Materiales premium, empaques discretos y una experiencia inolvidable.
@@ -172,9 +172,9 @@ function Index() {
           {/* Search Bar */}
           <div className="relative max-w-md mx-auto mt-8">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Buscar piezas, categorías..." 
+            <input
+              type="text"
+              placeholder="Buscar piezas, categorías..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full bg-input/40 backdrop-blur-md border border-border/80 rounded-full py-4 pl-14 pr-6 text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 transition-all shadow-sm"
@@ -209,8 +209,8 @@ function Index() {
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-10">
-             <p className="font-serif text-3xl text-muted-foreground">Próximamente.</p>
-             <p className="mt-2 text-muted-foreground/70">Nuestra selección está siendo curada.</p>
+            <p className="font-serif text-3xl text-muted-foreground">Próximamente.</p>
+            <p className="mt-2 text-muted-foreground/70">Nuestra selección está siendo curada.</p>
           </div>
         ) : (
           // Carousel View
@@ -229,7 +229,7 @@ function Index() {
       </section>
 
       <footer className="shrink-0 border-t border-border/80 bg-background py-4 text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground z-10">
-        <p>© PULSO · Envío discreto garantizado</p>
+        <p>© PULSO </p>
       </footer>
     </main>
   );
