@@ -1,5 +1,6 @@
 import { useCart } from "@/lib/cart-context";
-import { Plus, ShoppingBag } from "lucide-react";
+import { Plus, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export type Product = {
@@ -23,6 +24,7 @@ function formatPrice(n: number) {
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleAdd = () => {
     add({
@@ -40,7 +42,7 @@ export function ProductCard({ product }: { product: Product }) {
   const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
   return (
-    <article className="group relative flex overflow-hidden rounded-[8px] border border-border/80 bg-card aspect-square h-full w-full shadow-sm transition-transform duration-500 hover:scale-[1.02] hover:shadow-elegant">
+    <article className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card aspect-square h-full w-full shadow-sm transition-transform duration-500 hover:scale-[1.02] hover:shadow-elegant">
       {/* Background Image */}
       {product.image_url ? (
         <img
@@ -55,10 +57,10 @@ export function ProductCard({ product }: { product: Product }) {
       )}
 
       {/* Overlays to ensure text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/10 to-background/40 opacity-80 transition-opacity duration-500 group-hover:opacity-60" />
+      <div className={`absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 ${isExpanded ? 'opacity-95' : 'opacity-80 group-hover:opacity-60'}`} />
 
       {/* Top Left: Price Badge */}
-      <div className="absolute top-4 left-4 flex flex-col gap-2">
+      <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
         <div className="inline-flex items-center rounded-full bg-background/80 backdrop-blur px-3 py-1.5 border border-border/50 shadow-sm">
           <span className="text-sm font-bold text-foreground">
             {formatPrice(currentPrice)}
@@ -70,35 +72,53 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         {product.is_promo && (
-          <span className="inline-flex w-fit items-center rounded-full bg-primary/20 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20">
+          <span className="inline-flex w-fit items-center rounded-full bg-primary/20 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20 shadow-sm">
             Promo
           </span>
         )}
       </div>
 
-      {/* Bottom Content Area */}
-      <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
-        {/* Bottom Left: Title */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-serif text-2xl font-medium leading-tight text-foreground truncate drop-shadow-md">
-            {product.title}
-          </h3>
-          {isOutOfStock && (
-            <p className="mt-1 text-xs uppercase tracking-widest text-rose-400 font-bold">
-              Agotado
-            </p>
-          )}
-        </div>
+      {/* Top Right: Add Button */}
+      <button
+        onClick={handleAdd}
+        disabled={isOutOfStock}
+        aria-label="Añadir a la bolsa"
+        className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-primary/95 backdrop-blur text-primary-foreground shadow-[0_0_20px_-5px_var(--ruby)] transition-all duration-300 hover:scale-110 hover:bg-primary focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+      >
+        {isOutOfStock ? <ShoppingBag className="h-5 w-5 opacity-50" /> : <Plus className="h-6 w-6" />}
+      </button>
 
-        {/* Bottom Right: Add Button */}
-        <button
-          onClick={handleAdd}
-          disabled={isOutOfStock}
-          aria-label="Añadir a la bolsa"
-          className="shrink-0 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_20px_-5px_var(--ruby)] transition-all duration-300 hover:scale-110 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-        >
-          {isOutOfStock ? <ShoppingBag className="h-5 w-5 opacity-50" /> : <Plus className="h-6 w-6" />}
-        </button>
+      {/* Bottom Content Area: Title & Description */}
+      <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-1">
+        <h3 className="font-serif text-2xl font-medium leading-tight text-foreground drop-shadow-md">
+          {product.title}
+        </h3>
+        {isOutOfStock && (
+          <p className="mt-1 text-xs uppercase tracking-widest text-rose-400 font-bold drop-shadow-md">
+            Agotado
+          </p>
+        )}
+        
+        {/* Expandable Description */}
+        {product.description && (
+          <div className="w-full mt-1">
+            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-40 opacity-100 mb-2' : 'max-h-0 opacity-0'}`}>
+              <p className="text-sm text-foreground/90 leading-relaxed text-pretty drop-shadow-md">
+                {product.description}
+              </p>
+            </div>
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="inline-flex items-center gap-1.5 text-xs text-primary/90 hover:text-primary font-medium uppercase tracking-widest transition-colors focus:outline-none bg-background/40 hover:bg-background/80 px-2 py-1 rounded-md backdrop-blur-sm"
+            >
+              {isExpanded ? (
+                <>Ver menos <ChevronUp className="h-3 w-3" /></>
+              ) : (
+                <>Ver más <ChevronDown className="h-3 w-3" /></>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </article>
   );
