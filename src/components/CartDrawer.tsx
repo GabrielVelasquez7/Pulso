@@ -109,14 +109,14 @@ export function CartDrawer() {
     }
 
     // Build the WhatsApp message template
-    const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("%0A");
+    const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
 
     const msg =
-      `Hola Noir & Or.%0A%0A` +
-      `Nombre: ${name}%0A` +
-      `ID del pedido: ${orderId}%0A` +
-      `Productos:%0A` +
-      `${resumen}%0A%0A` +
+      `Hola Noir & Or.\n\n` +
+      `Nombre: ${name}\n` +
+      `ID del pedido: ${orderId}\n` +
+      `Productos:\n` +
+      `${resumen}\n\n` +
       `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
