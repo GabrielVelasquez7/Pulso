@@ -10,7 +10,11 @@ function generateOrderId() {
 }
 
 function formatPrice(n: number) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n);
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  }).format(n);
 }
 
 export function CartDrawer() {
@@ -84,13 +88,13 @@ export function CartDrawer() {
         paymentMethod === "transfer"
           ? "Transferencia Bancaria"
           : paymentMethod === "cod"
-          ? "Pago contra entrega"
-          : "Tarjeta de Crédito/Débito",
+            ? "Pago contra entrega"
+            : "Tarjeta de Crédito/Débito",
       subtotal,
       shipping_cost: shippingCost,
       payment_adjustment: paymentAdjustment,
       total: grandTotal,
-      items: items as any, // Cast to any to bypass strict JSONB checks in compiler
+      items,
       status: "pending",
     };
 
@@ -105,37 +109,15 @@ export function CartDrawer() {
     }
 
     // Build the WhatsApp message template
-    const resumen = items
-      .map((i) => `• ${i.quantity}x ${i.title} — ${formatPrice(i.price * i.quantity)}`)
-      .join("%0A");
+    const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("%0A");
 
     const msg =
-      `Hola Noir & Or.%0A` +
-      `Deseo realizar la siguiente compra (Pedido: *${orderId}*):%0A%0A` +
-      `👤 *CLIENTE*%0A` +
+      `Hola Noir & Or.%0A%0A` +
       `Nombre: ${name}%0A` +
-      `Contacto: ${phone}%0A%0A` +
-      `📦 *ENTREGA*%0A` +
-      `Tipo: ${deliveryType === "home" ? "Envío a domicilio" : "Retiro discreto"}%0A` +
-      (deliveryType === "home" ? `Dirección: ${address}%0A%0A` : `%0A`) +
-      `💳 *PAGO*%0A` +
-      `Método: ${
-        paymentMethod === "transfer"
-          ? "Transferencia Bancaria (5% desc.)"
-          : paymentMethod === "cod"
-          ? "Pago contra entrega"
-          : "Tarjeta de Crédito/Débito"
-      }%0A%0A` +
-      `🛒 *DETALLE DEL PEDIDO*%0A` +
+      `ID del pedido: ${orderId}%0A` +
+      `Productos:%0A` +
       `${resumen}%0A%0A` +
-      `💰 *RESUMEN*%0A` +
-      `Subtotal: ${formatPrice(subtotal)}%0A` +
-      `Envío: ${shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}%0A` +
-      (paymentAdjustment !== 0
-        ? `Ajuste de Pago: ${paymentAdjustment < 0 ? "-" : "+"}${formatPrice(Math.abs(paymentAdjustment))}%0A`
-        : "") +
-      `*Total a Pagar: ${formatPrice(grandTotal)}*%0A%0A` +
-      `Quedo atento a las instrucciones para completar mi compra. ¡Muchas gracias!`;
+      `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
     const url = `https://wa.me/${cleanWaNumber}?text=${msg}`;
@@ -173,13 +155,17 @@ export function CartDrawer() {
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Datos del Pedido</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                    Datos del Pedido
+                  </p>
                   <h2 className="font-serif text-2xl text-foreground">Checkout</h2>
                 </div>
               </div>
             ) : (
               <div>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Tu selección</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                  Tu selección
+                </p>
                 <h2 className="font-serif text-2xl text-foreground">Bolsa privada</h2>
               </div>
             )}
@@ -208,7 +194,11 @@ export function CartDrawer() {
                   <li key={i.id} className="flex gap-4 border-b border-border/40 pb-5">
                     <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[5px] bg-muted">
                       {i.image_url && (
-                        <img src={i.image_url} alt={i.title} className="h-full w-full object-cover" />
+                        <img
+                          src={i.image_url}
+                          alt={i.title}
+                          className="h-full w-full object-cover"
+                        />
                       )}
                     </div>
                     <div className="flex flex-1 flex-col justify-between">
@@ -250,7 +240,9 @@ export function CartDrawer() {
               /* Step 2: Checkout Form */
               <form onSubmit={handleConfirmOrder} className="space-y-4">
                 <div>
-                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Nombre Completo</label>
+                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    Nombre Completo
+                  </label>
                   <input
                     type="text"
                     required
@@ -262,7 +254,9 @@ export function CartDrawer() {
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">WhatsApp / Celular</label>
+                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    WhatsApp / Celular
+                  </label>
                   <input
                     type="tel"
                     required
@@ -274,7 +268,9 @@ export function CartDrawer() {
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Tipo de Entrega</label>
+                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    Tipo de Entrega
+                  </label>
                   <select
                     value={deliveryType}
                     onChange={(e) => setDeliveryType(e.target.value as "home" | "pickup")}
@@ -287,7 +283,9 @@ export function CartDrawer() {
 
                 {deliveryType === "home" && (
                   <div>
-                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dirección Completa</label>
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                      Dirección Completa
+                    </label>
                     <textarea
                       required
                       rows={2}
@@ -300,10 +298,14 @@ export function CartDrawer() {
                 )}
 
                 <div>
-                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Método de Pago</label>
+                  <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    Método de Pago
+                  </label>
                   <select
                     value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as "transfer" | "cod" | "card")}
+                    onChange={(e) =>
+                      setPaymentMethod(e.target.value as "transfer" | "cod" | "card")
+                    }
                     className="mt-2 w-full rounded-[5px] border border-border bg-input/50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
                   >
                     <option value="transfer">Transferencia Bancaria (5% de desc.)</option>
@@ -333,7 +335,8 @@ export function CartDrawer() {
                       <div className="flex justify-between text-muted-foreground">
                         <span>Ajuste de Pago</span>
                         <span className={paymentAdjustment < 0 ? "text-emerald-500" : ""}>
-                          {paymentAdjustment < 0 ? "-" : "+"}{formatPrice(Math.abs(paymentAdjustment))}
+                          {paymentAdjustment < 0 ? "-" : "+"}
+                          {formatPrice(Math.abs(paymentAdjustment))}
                         </span>
                       </div>
                     )}
@@ -343,7 +346,9 @@ export function CartDrawer() {
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Total</span>
+              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                Total
+              </span>
               <span className="font-serif text-2xl text-primary">
                 {formatPrice(step === "checkout" ? grandTotal : subtotal)}
               </span>

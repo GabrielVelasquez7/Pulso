@@ -14,14 +14,24 @@ export type Product = {
 };
 
 function formatPrice(n: number) {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n);
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  }).format(n);
 }
 
 export function ProductCard({ product }: { product: Product }) {
   const { add, open } = useCart();
-  const effectivePrice = product.is_promo && product.sale_price != null ? product.sale_price : product.price;
+  const effectivePrice =
+    product.is_promo && product.sale_price != null ? product.sale_price : product.price;
   const onAdd = () => {
-    add({ id: product.id, title: product.title, price: Number(effectivePrice), image_url: product.image_url });
+    add({
+      id: product.id,
+      title: product.title,
+      price: Number(effectivePrice),
+      image_url: product.image_url,
+    });
     toast.success("Añadido a tu bolsa", { description: product.title });
     open();
   };
@@ -29,9 +39,16 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-[5px] border border-border/60 bg-card/70 backdrop-blur-sm transition-silk hover:-translate-y-1 hover:border-primary/60 hover:shadow-elegant">
       {/* ruby halo on hover */}
-      <div aria-hidden className="pointer-events-none absolute -inset-px rounded-[5px] opacity-0 transition-opacity duration-700 group-hover:opacity-100" style={{ background: "linear-gradient(135deg, oklch(0.52 0.22 15 / 0.35), transparent 50%, oklch(0.35 0.16 15 / 0.25))" }} />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-px rounded-[5px] opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+        style={{
+          background:
+            "linear-gradient(135deg, oklch(0.52 0.22 15 / 0.35), transparent 50%, oklch(0.35 0.16 15 / 0.25))",
+        }}
+      />
 
-      <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+      <div className="relative overflow-hidden bg-muted min-h-[20rem] sm:aspect-[4/5] sm:min-h-0">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -59,7 +76,9 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="relative flex flex-1 flex-col gap-3 p-5">
         <div>
-          <h3 className="font-serif text-xl leading-tight text-foreground transition-colors duration-500 group-hover:text-primary">{product.title}</h3>
+          <h3 className="font-serif text-xl leading-tight text-foreground transition-colors duration-500 group-hover:text-primary">
+            {product.title}
+          </h3>
           {product.description && (
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
           )}
@@ -69,11 +88,17 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="flex items-baseline gap-2">
             {product.is_promo && product.sale_price != null ? (
               <>
-                <span className="text-xl font-medium text-gradient-ruby">{formatPrice(Number(product.sale_price))}</span>
-                <span className="text-sm text-muted-foreground line-through">{formatPrice(Number(product.price))}</span>
+                <span className="text-xl font-medium text-gradient-ruby">
+                  {formatPrice(Number(product.sale_price))}
+                </span>
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(Number(product.price))}
+                </span>
               </>
             ) : (
-              <span className="text-xl font-medium text-gradient-ruby">{formatPrice(Number(product.price))}</span>
+              <span className="text-xl font-medium text-gradient-ruby">
+                {formatPrice(Number(product.price))}
+              </span>
             )}
           </div>
           <button
