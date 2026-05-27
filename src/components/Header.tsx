@@ -19,9 +19,9 @@ export function Header() {
         <button
           onClick={open}
           aria-label="Abrir carrito"
-          className="relative inline-flex h-11 w-11 items-center justify-center rounded-[6px] bg-background/90 border border-border/70 text-foreground/95 shadow-sm transition-all hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="relative inline-flex h-11 w-11 items-center justify-center rounded-[6px] bg-background/80 border border-border/60 text-primary hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
         >
-          <ShoppingBag className="h-5 w-5" />
+          <ShoppingBag className="h-5 w-5 text-primary" />
           {count > 0 && (
             <span className="absolute -top-1 -right-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground shadow-sm">
               {count}

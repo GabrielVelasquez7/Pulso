@@ -120,7 +120,7 @@ export function CartDrawer() {
       `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
-    const url = `https://wa.me/${cleanWaNumber}?text=${msg}`;
+    const url = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(msg)}`;
 
     setIsSubmitting(false);
     clear();
