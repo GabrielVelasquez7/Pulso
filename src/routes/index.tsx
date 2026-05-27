@@ -20,8 +20,9 @@ function CarouselRow({ products, direction = "left" }: { products: Product[], di
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Repeat the products to simulate infinite scrolling
-  const repeatedItems = Array(15).fill(products).flat();
+  // Reduce duplicate items to prevent heavy DOM rendering (lag)
+  // 4 sets is enough for a seamless loop
+  const repeatedItems = Array(4).fill(products).flat();
 
   // Initial scroll position to the middle so we can scroll left or right
   useEffect(() => {
@@ -86,13 +87,13 @@ function CarouselRow({ products, direction = "left" }: { products: Product[], di
         <ChevronLeft className="h-6 w-6" />
       </button>
 
-      <div
+      <div 
         ref={scrollRef}
-        className="flex gap-10 px-5 overflow-x-auto no-scrollbar py-2"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="flex gap-10 px-5 overflow-x-auto no-scrollbar py-2 will-change-scroll"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', transform: 'translateZ(0)' }}
       >
         {repeatedItems.map((p, i) => (
-          <div key={`${i}-${p.id}`} className="w-[260px] sm:w-[320px] shrink-0">
+          <div key={`${i}-${p.id}`} className="w-[260px] sm:w-[320px] shrink-0 transform-gpu">
             <ProductCard product={p} />
           </div>
         ))}
