@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
 import pulsoLogo from "@/routes/img/pulsgo.png";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import AutoScroll from "embla-carousel-auto-scroll";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -15,93 +17,54 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-// A reusable Carousel component that auto-scrolls and supports manual arrows
-function CarouselRow({ products, direction = "left" }: { products: Product[], direction?: "left" | "right" }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
+function CarouselRow({ products, direction = "forward" }: { products: Product[], direction?: "forward" | "backward" }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { 
+      loop: true, 
+      dragFree: true,
+      align: "start"
+    },
+    [
+      AutoScroll({
+        playOnInit: true,
+        speed: 0.6,
+        direction: direction,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      })
+    ]
+  );
 
-  // Reduce duplicate items to prevent heavy DOM rendering (lag)
-  // 4 sets is enough for a seamless loop
-  const repeatedItems = Array(4).fill(products).flat();
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
 
-  // Initial scroll position to the middle so we can scroll left or right
-  useEffect(() => {
-    if (scrollRef.current) {
-      const el = scrollRef.current;
-      el.scrollLeft = el.scrollWidth / 2;
-    }
-  }, [products]);
-
-  useEffect(() => {
-    let animationId: number;
-    let lastTime = performance.now();
-
-    const step = (time: number) => {
-      const delta = time - lastTime;
-      lastTime = time;
-
-      if (scrollRef.current && !isHovered) {
-        const el = scrollRef.current;
-        // Speed: pixels per millisecond
-        const speed = 0.03;
-        const move = speed * delta;
-
-        if (direction === "left") {
-          el.scrollLeft += move;
-        } else {
-          el.scrollLeft -= move;
-        }
-
-        // Loop back to middle if reaching bounds to keep it "infinite"
-        if (el.scrollLeft <= 0) {
-          el.scrollLeft = el.scrollWidth / 2;
-        } else if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 10) {
-          el.scrollLeft = (el.scrollWidth / 2) - el.clientWidth;
-        }
-      }
-      animationId = requestAnimationFrame(step);
-    };
-
-    animationId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationId);
-  }, [isHovered, direction]);
-
-  const handleManualScroll = (amount: number) => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
-    }
-  };
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
 
   return (
-    <div
-      className="relative group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="relative group overflow-hidden px-5 py-2" ref={emblaRef}>
       {/* Manual Controls */}
       <button
-        onClick={() => handleManualScroll(-350)}
-        className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
+        onClick={scrollPrev}
+        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
         aria-label="Anterior"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
 
-      <div 
-        ref={scrollRef}
-        className="flex gap-10 px-5 overflow-x-auto no-scrollbar py-2 will-change-scroll"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', transform: 'translateZ(0)' }}
-      >
-        {repeatedItems.map((p, i) => (
-          <div key={`${i}-${p.id}`} className="w-[260px] sm:w-[320px] shrink-0 transform-gpu">
+      <div className="flex gap-10" style={{ touchAction: 'pan-y pinch-zoom' }}>
+        {products.map((p, i) => (
+          <div key={`${i}-${p.id}`} className="flex-[0_0_auto] w-[260px] sm:w-[320px] transform-gpu">
             <ProductCard product={p} />
           </div>
         ))}
       </div>
 
       <button
-        onClick={() => handleManualScroll(350)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
+        onClick={scrollNext}
+        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
         aria-label="Siguiente"
       >
         <ChevronRight className="h-6 w-6" />
@@ -126,7 +89,6 @@ function Index() {
       });
   }, []);
 
-  // Filter products based on search query (ignoring case and accents)
   const normalizedSearch = searchQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
   const filteredProducts = products.filter(p => {
@@ -220,9 +182,9 @@ function Index() {
             <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10" />
 
             <div className="flex flex-col gap-10 md:gap-16">
-              <CarouselRow products={products} direction="left" />
+              <CarouselRow products={products} direction="forward" />
               {products.length > 1 && (
-                <CarouselRow products={row2Products} direction="right" />
+                <CarouselRow products={row2Products} direction="backward" />
               )}
             </div>
           </>
