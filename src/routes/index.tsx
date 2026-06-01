@@ -219,23 +219,6 @@ function Index() {
         )}
       </section>
 
-          </div>
-        ) : (
-          // Carousel View
-          <>
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background via-background/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10" />
-
-            <div className="flex flex-col gap-10 md:gap-16">
-              <CarouselRow products={products} direction="forward" />
-              {products.length > 1 && (
-                <CarouselRow products={row2Products} direction="backward" />
-              )}
-            </div>
-          </>
-        )}
-      </section>
-
       <footer className="shrink-0 border-t border-border/80 bg-background py-4 text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground z-10">
         <p>© PULSO </p>
       </footer>
