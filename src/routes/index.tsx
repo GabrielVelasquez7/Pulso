@@ -30,7 +30,7 @@ function CarouselRow({ products, direction = "forward" }: { products: Product[],
         speed: 0.6,
         direction: direction,
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
+        stopOnMouseEnter: false, // We'll handle this manually on the parent
       })
     ]
   );
@@ -43,8 +43,24 @@ function CarouselRow({ products, direction = "forward" }: { products: Product[],
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
+  const onMouseEnter = useCallback(() => {
+    if (!emblaApi) return;
+    const autoScroll = emblaApi.plugins().autoScroll;
+    if (autoScroll) autoScroll.stop();
+  }, [emblaApi]);
+
+  const onMouseLeave = useCallback(() => {
+    if (!emblaApi) return;
+    const autoScroll = emblaApi.plugins().autoScroll;
+    if (autoScroll) autoScroll.play();
+  }, [emblaApi]);
+
   return (
-    <div className="relative group px-5 py-2">
+    <div 
+      className="relative group px-5 py-2"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* Manual Controls */}
       <button
         onClick={scrollPrev}
