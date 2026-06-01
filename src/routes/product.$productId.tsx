@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductDetail } from "@/components/ProductDetail";
 import { Product } from "@/components/ProductCard";
 
-export const Route = createFileRoute()({
+export const Route = createFileRoute('/product/:productId')({
   component: ProductPage,
   head: () => ({
     meta: [
