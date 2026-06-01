@@ -1,4 +1,4 @@
-import { Airplane, BedDouble, Check, Home, Sparkles, Star } from "lucide-react";
+import { BedDouble, Check, Home, MapPin, Sparkles, Star } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Product } from "@/components/ProductCard";
@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 const usageIcons = [
   { icon: Home, label: "Hogar" },
   { icon: BedDouble, label: "Dormitorio" },
-  { icon: Airplane, label: "Viaje" },
+  { icon: MapPin, label: "Viaje" },
   { icon: Sparkles, label: "Spa" },
 ];
 
