@@ -373,138 +373,130 @@ export function AdminPage() {
         <div className="max-w-6xl mx-auto">
           {activeTab === "products" && (
             <div className="animate-in fade-in duration-500">
+              {/* Form Section - Full Width */}
               <header className="mb-10">
-                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Catálogo</h1>
-                <p className="mt-2 text-muted-foreground">Gestiona los productos, precios y disponibilidad.</p>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">{form.id ? "Editar Pieza" : "Nueva Pieza"}</h1>
+                <p className="mt-2 text-muted-foreground">Completa los datos del producto para añadirlo al catálogo.</p>
               </header>
 
-              <div className="grid gap-10 xl:grid-cols-[400px_1fr]">
-                {/* Product Form Card */}
-                <div className="xl:order-2">
-                  <section className="rounded-[8px] border border-border/80 bg-card p-6 sm:p-8 shadow-sm xl:sticky xl:top-12">
-                    <h2 className="font-serif text-2xl mb-6 text-primary">{form.id ? "Editar Pieza" : "Nueva Pieza"}</h2>
-                    <form onSubmit={submit} className="space-y-5">
-                      <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
-                      <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
-                      
-                      <div>
-                        <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Fotografía</label>
-                        <div className="mt-3 space-y-4">
-                          {form.image_url && (
-                            <div className="h-40 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
-                              <img src={form.image_url} alt="Vista previa" className="h-full w-full object-cover" />
-                            </div>
+              <section className="rounded-[8px] border border-border/80 bg-card p-6 sm:p-8 shadow-sm max-w-2xl">
+                <form onSubmit={submit} className="space-y-5">
+                  <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
+                  <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
+                  
+                  <div>
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Fotografía</label>
+                    <div className="mt-3 space-y-4">
+                      {form.image_url && (
+                        <div className="h-40 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
+                          <img src={form.image_url} alt="Vista previa" className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                      <div className="flex gap-3">
+                        <input
+                          type="url"
+                          value={form.image_url}
+                          onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                          placeholder="URL de imagen..."
+                          className="flex-1 rounded-[8px] border border-border bg-input px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                        />
+                        <label className="cursor-pointer inline-flex min-w-[50px] items-center justify-center rounded-[8px] border border-border bg-background px-4 text-foreground hover:border-primary hover:bg-muted transition-all focus-within:ring-2 focus-within:ring-primary/40">
+                          {isUploading ? <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-5 w-5" />}
+                          <input type="file" accept="image/*" disabled={isUploading} onChange={handleImageUpload} className="sr-only" />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <Field label="Precio" type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
+                    <Field label="Stock" type="number" value={form.stock} onChange={(v) => setForm({ ...form, stock: v })} />
+                    <Field label="Precio Promo" type="number" value={form.sale_price} onChange={(v) => setForm({ ...form, sale_price: v })} placeholder="Opcional" />
+                  </div>
+                  
+                  <label className="flex items-center gap-4 rounded-[8px] border border-border/60 bg-background/50 p-4 cursor-pointer hover:border-primary/50 transition-colors">
+                    <input type="checkbox" checked={form.is_promo} onChange={(e) => setForm({ ...form, is_promo: e.target.checked })} className="h-5 w-5 rounded border-border accent-primary bg-input" />
+                    <span className="text-sm font-medium">Activar etiqueta de promoción</span>
+                  </label>
+
+                  <div className="flex gap-4 pt-4 border-t border-border/40">
+                    <button type="submit" className="flex-1 inline-flex h-12 items-center justify-center gap-2 rounded-[8px] bg-primary text-sm uppercase tracking-[0.2em] font-bold text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40">
+                      <Plus className="h-4 w-4" /> {form.id ? "Guardar" : "Crear Pieza"}
+                    </button>
+                    {form.id && (
+                      <button type="button" onClick={() => setForm(empty)} className="inline-flex h-12 items-center justify-center rounded-[8px] border border-border bg-background px-6 text-sm uppercase tracking-[0.2em] font-bold hover:bg-muted transition-all focus:outline-none">
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
+                </form>
+              </section>
+
+              {/* Catalog Section - Below Form */}
+              <div className="mt-16 border-t border-border/40 pt-12">
+                <header className="mb-8 flex items-end justify-between">
+                  <div>
+                    <h2 className="font-serif text-4xl sm:text-5xl text-foreground">Catálogo</h2>
+                    <p className="mt-2 text-muted-foreground">Todos los productos disponibles en la tienda.</p>
+                  </div>
+                  <span className="text-sm font-sans bg-muted text-muted-foreground px-4 py-1.5 rounded-full font-medium">{products.length} piezas</span>
+                </header>
+                
+                {products.length === 0 ? (
+                  <div className="p-10 text-center rounded-[8px] border border-border/40 bg-card/30">
+                    <p className="text-muted-foreground">No hay productos en el catálogo.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                    {products.map((p) => (
+                      <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/60 bg-card shadow-sm hover:border-primary/40 hover:shadow-md transition-all duration-300">
+                        {/* Image */}
+                        <div className="relative aspect-square overflow-hidden bg-muted border-b border-border/40">
+                          {p.image_url ? (
+                            <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground/50 text-lg">PULSO</div>
                           )}
-                          <div className="flex gap-3">
-                            <input
-                              type="url"
-                              value={form.image_url}
-                              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                              placeholder="URL de imagen..."
-                              className="flex-1 rounded-[8px] border border-border bg-input px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
-                            />
-                            <label className="cursor-pointer inline-flex min-w-[50px] items-center justify-center rounded-[8px] border border-border bg-background px-4 text-foreground hover:border-primary hover:bg-muted transition-all focus-within:ring-2 focus-within:ring-primary/40">
-                              {isUploading ? <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-5 w-5" />}
-                              <input type="file" accept="image/*" disabled={isUploading} onChange={handleImageUpload} className="sr-only" />
-                            </label>
+                          {/* Promo Badge */}
+                          {p.is_promo && (
+                            <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/20 backdrop-blur-sm px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20 font-bold">
+                              Promo
+                            </span>
+                          )}
+                          {/* Hover Actions Overlay */}
+                          <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button onClick={() => edit(p)} className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform" aria-label="Editar">
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => remove(p.id)} className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-destructive text-destructive-foreground shadow-lg hover:scale-110 transition-transform" aria-label="Eliminar">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <Field label="Precio" type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
-                        <Field label="Stock" type="number" value={form.stock} onChange={(v) => setForm({ ...form, stock: v })} />
-                      </div>
-                      
-                      <Field label="Precio Promo" type="number" value={form.sale_price} onChange={(v) => setForm({ ...form, sale_price: v })} placeholder="Opcional" />
-                      
-                      <label className="flex items-center gap-4 rounded-[8px] border border-border/60 bg-background/50 p-4 cursor-pointer hover:border-primary/50 transition-colors">
-                        <input type="checkbox" checked={form.is_promo} onChange={(e) => setForm({ ...form, is_promo: e.target.checked })} className="h-5 w-5 rounded border-border accent-primary bg-input" />
-                        <span className="text-sm font-medium">Activar etiqueta de promoción</span>
-                      </label>
-
-                      <div className="flex gap-4 pt-4 border-t border-border/40">
-                        <button type="submit" className="flex-1 inline-flex h-12 items-center justify-center gap-2 rounded-[8px] bg-primary text-sm uppercase tracking-[0.2em] font-bold text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40">
-                          <Plus className="h-4 w-4" /> {form.id ? "Guardar" : "Crear Pieza"}
-                        </button>
-                        {form.id && (
-                          <button type="button" onClick={() => setForm(empty)} className="inline-flex h-12 items-center justify-center rounded-[8px] border border-border bg-background px-6 text-sm uppercase tracking-[0.2em] font-bold hover:bg-muted transition-all focus:outline-none">
-                            Cancelar
-                          </button>
-                        )}
-                      </div>
-                    </form>
-                  </section>
-                </div>
-
-                {/* Product List */}
-                <div className="xl:order-1">
-                  <h2 className="font-serif text-2xl mb-6 flex items-center justify-between">
-                    <span>Colección</span>
-                    <span className="text-sm font-sans bg-muted px-3 py-1 rounded-full">{products.length} piezas</span>
-                  </h2>
-                  
-                  {products.length === 0 ? (
-                    <div className="p-10 text-center rounded-[8px] border border-border/40 bg-card/30">
-                      <p className="text-muted-foreground">No hay productos en el catálogo.</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                      {products.map((p) => (
-                        <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/60 bg-card shadow-sm hover:border-primary/40 hover:shadow-md transition-all duration-300">
-                          {/* Image */}
-                          <div className="relative aspect-square overflow-hidden bg-muted border-b border-border/40">
-                            {p.image_url ? (
-                              <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {/* Info */}
+                        <div className="p-3 flex flex-col gap-1.5">
+                          <h3 className="font-serif text-sm font-medium leading-tight truncate text-foreground" title={p.title}>{p.title}</h3>
+                          <div className="flex items-center gap-2">
+                            {p.is_promo && p.sale_price != null ? (
+                              <>
+                                <span className="text-sm font-bold text-primary">{formatPrice(p.sale_price)}</span>
+                                <span className="text-[10px] line-through text-muted-foreground">{formatPrice(p.price)}</span>
+                              </>
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground/50 text-lg">PULSO</div>
+                              <span className="text-sm font-bold text-foreground">{formatPrice(p.price)}</span>
                             )}
-                            {/* Stock Badge */}
-                            <span className={`absolute top-2 left-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border backdrop-blur-sm ${
-                              p.stock <= 0 ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' 
-                              : p.stock <= 5 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' 
-                              : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                            }`}>
-                              <span className={`h-1.5 w-1.5 rounded-full ${
-                                p.stock <= 0 ? 'bg-rose-400' : p.stock <= 5 ? 'bg-amber-400' : 'bg-emerald-400'
-                              }`} />
-                              {p.stock <= 0 ? 'Agotado' : `${p.stock} uds`}
-                            </span>
-                            {/* Promo Badge */}
-                            {p.is_promo && (
-                              <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/20 backdrop-blur-sm px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20 font-bold">
-                                Promo
-                              </span>
-                            )}
-                            {/* Hover Actions Overlay */}
-                            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <button onClick={() => edit(p)} className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform" aria-label="Editar">
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button onClick={() => remove(p.id)} className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-destructive text-destructive-foreground shadow-lg hover:scale-110 transition-transform" aria-label="Eliminar">
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
                           </div>
-                          {/* Info */}
-                          <div className="p-3 flex flex-col gap-1">
-                            <h3 className="font-serif text-sm font-medium leading-tight truncate text-foreground" title={p.title}>{p.title}</h3>
-                            <div className="flex items-center gap-2">
-                              {p.is_promo && p.sale_price != null ? (
-                                <>
-                                  <span className="text-sm font-bold text-primary">{formatPrice(p.sale_price)}</span>
-                                  <span className="text-[10px] line-through text-muted-foreground">{formatPrice(p.price)}</span>
-                                </>
-                              ) : (
-                                <span className="text-sm font-bold text-foreground">{formatPrice(p.price)}</span>
-                              )}
-                            </div>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <span className={`h-1.5 w-1.5 rounded-full ${
+                              p.stock <= 0 ? 'bg-rose-400' : p.stock <= 5 ? 'bg-amber-400' : 'bg-emerald-400'
+                            }`} />
+                            {p.stock <= 0 ? 'Agotado' : `Stock: ${p.stock}`}
                           </div>
-                        </article>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
