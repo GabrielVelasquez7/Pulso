@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductDetail } from "@/components/ProductDetail";
 import { Product } from "@/components/ProductCard";
 
-export const Route = createFileRoute('/product/:productId')({
+export const Route = createFileRoute('/productos/:productId')({
   component: ProductPage,
   head: () => ({
     meta: [
@@ -63,7 +63,7 @@ function ProductPage({ params }: { params: { productId: string } }) {
       product={product}
       recommendedProducts={[]}
       onBack={() => { window.location.href = '/'; }}
-      onSelectProduct={(p) => { window.location.href = `/product/${p.id}`; }}
+      onSelectProduct={(p) => { window.location.href = `/productos/${p.id}`; }}
     />
   );
 }

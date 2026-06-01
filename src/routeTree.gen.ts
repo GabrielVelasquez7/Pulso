@@ -36,8 +36,8 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductRoute = ProductRouteImport.update({
-  id: '/product/:productId',
-  path: '/product/:productId',
+  id: '/productos/:productId',
+  path: '/productos/:productId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -46,14 +46,14 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/atelier-privado': typeof AtelierPrivadoRoute
   '/login': typeof LoginRoute
-  '/product/:productId': typeof ProductRoute
+  '/productos/:productId': typeof ProductRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/atelier-privado': typeof AtelierPrivadoRoute
   '/login': typeof LoginRoute
-  '/product/:productId': typeof ProductRoute
+  '/productos/:productId': typeof ProductRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +61,14 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/atelier-privado': typeof AtelierPrivadoRoute
   '/login': typeof LoginRoute
-  '/product/:productId': typeof ProductRoute
+  '/productos/:productId': typeof ProductRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/atelier-privado' | '/login' | '/product/:productId'
+  fullPaths: '/' | '/admin' | '/atelier-privado' | '/login' | '/productos/:productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/atelier-privado' | '/login' | '/product/:productId'
-  id: '__root__' | '/' | '/admin' | '/atelier-privado' | '/login' | '/product/:productId'
+  to: '/' | '/admin' | '/atelier-privado' | '/login' | '/productos/:productId'
+  id: '__root__' | '/' | '/admin' | '/atelier-privado' | '/login' | '/productos/:productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,10 +116,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/product/:productId': {
-      id: '/product/:productId'
-      path: '/product/:productId'
-      fullPath: '/product/:productId'
+    '/productos/:productId': {
+      id: '/productos/:productId'
+      path: '/productos/:productId'
+      fullPath: '/productos/:productId'
       preLoaderRoute: typeof ProductRouteImport
       parentRoute: typeof rootRouteImport
     }

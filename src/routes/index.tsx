@@ -184,7 +184,7 @@ function Index() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map(p => (
-                  <ProductCard key={p.id} product={p} onSelect={() => { window.location.href = `/product/${p.id}`; }} />
+                  <ProductCard key={p.id} product={p} onSelect={() => { window.location.href = `/productos/${p.id}`; }} />
                 ))}
               </div>
             )}
@@ -201,9 +201,9 @@ function Index() {
             <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10" />
 
             <div className="flex flex-col gap-10 md:gap-16">
-              <CarouselRow products={products} direction="forward" onSelect={(p) => { window.location.href = `/product/${p.id}`; }} />
+              <CarouselRow products={products} direction="forward" onSelect={(p) => { window.location.href = `/productos/${p.id}`; }} />
               {products.length > 1 && (
-                <CarouselRow products={row2Products} direction="backward" onSelect={(p) => { window.location.href = `/product/${p.id}`; }} />
+                <CarouselRow products={row2Products} direction="backward" onSelect={(p) => { window.location.href = `/productos/${p.id}`; }} />
               )}
             </div>
           </>
