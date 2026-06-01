@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function CarouselRow({ products, direction = "forward" }: { products: Product[], direction?: "forward" | "backward" }) {
+function CarouselRow({ products, direction = "forward", onSelect }: { products: Product[], direction?: "forward" | "backward", onSelect?: (p: Product) => void }) {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { 
       loop: true, 
@@ -75,7 +75,7 @@ function CarouselRow({ products, direction = "forward" }: { products: Product[],
         <div className="flex" style={{ touchAction: 'pan-y pinch-zoom' }}>
           {products.map((p, i) => (
             <div key={`${i}-${p.id}`} className="flex-[0_0_auto] w-[260px] sm:w-[320px] transform-gpu pr-8">
-              <ProductCard product={p} />
+              <ProductCard product={p} onSelect={onSelect} />
             </div>
           ))}
         </div>
@@ -210,9 +210,9 @@ function Index() {
             <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10" />
 
             <div className="flex flex-col gap-10 md:gap-16">
-              <CarouselRow products={products} direction="forward" />
+              <CarouselRow products={products} direction="forward" onSelect={setSelectedProduct} />
               {products.length > 1 && (
-                <CarouselRow products={row2Products} direction="backward" />
+                <CarouselRow products={row2Products} direction="backward" onSelect={setSelectedProduct} />
               )}
             </div>
           </>
