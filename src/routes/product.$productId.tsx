@@ -20,15 +20,26 @@ function ProductPage({ params }: { params: { productId: string } }) {
   useEffect(() => {
     const id = params.productId;
     if (!id) return;
-    supabase
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single()
-      .then(({ data }) => {
-        setProduct(data as Product);
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (error) {
+          console.error('[Supabase] Fetch product error:', error);
+          setProduct(null);
+        } else {
+          setProduct(data as Product);
+        }
+      } catch (err) {
+        console.error('[Supabase] Exception fetching product:', err);
+        setProduct(null);
+      } finally {
         setLoading(false);
-      });
+      }
+    })();
   }, [params.productId]);
 
   if (loading) {
