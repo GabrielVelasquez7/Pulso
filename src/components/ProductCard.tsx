@@ -1,3 +1,4 @@
+﻿import type { MouseEvent } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Plus, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
@@ -22,27 +23,44 @@ function formatPrice(n: number) {
   }).format(n);
 }
 
-export function ProductCard({ product }: { product: Product }) {
-  const { add } = useCart();
+export function ProductCard({
+  product,
+  onSelect,
+}: {
+  product: Product;
+  onSelect?: (product: Product) => void;
+}) {
+  const { add, open } = useCart();
   const [isExpanded, setIsExpanded] = useState(false);
+  const isOutOfStock = product.stock <= 0;
+  const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
-  const handleAdd = () => {
+  const handleAdd = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     add({
       id: product.id,
       title: product.title,
-      price: product.is_promo && product.sale_price ? product.sale_price : product.price,
+      price: currentPrice,
       image_url: product.image_url,
     });
     toast.success("Añadido a la bolsa", {
       description: product.title,
     });
+    open();
   };
 
-  const isOutOfStock = product.stock <= 0;
-  const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
-
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card aspect-square h-full w-full shadow-sm transition-transform duration-500 hover:scale-[1.02] hover:shadow-elegant">
+    <article
+      onClick={() => onSelect?.(product)}
+      onKeyDown={(event) => {
+        if ((event.key === "Enter" || event.key === " ") && onSelect) {
+          event.preventDefault();
+          onSelect(product);
+        }
+      }}
+      tabIndex={onSelect ? 0 : undefined}
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[8px] border border-border/80 bg-card aspect-square h-full w-full shadow-sm transition-transform duration-500 hover:scale-[1.02] hover:shadow-elegant"
+    >
       {/* Background Image */}
       {product.image_url ? (
         <img
@@ -57,7 +75,7 @@ export function ProductCard({ product }: { product: Product }) {
       )}
 
       {/* Overlays to ensure text legibility */}
-      <div className={`absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 ${isExpanded ? 'opacity-95' : 'opacity-80 group-hover:opacity-60'}`} />
+      <div className={bsolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 } />
 
       {/* Top Left: Price Badge */}
       <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
@@ -98,17 +116,18 @@ export function ProductCard({ product }: { product: Product }) {
             Agotado
           </p>
         )}
-        
-        {/* Expandable Description */}
         {product.description && (
           <div className="w-full mt-1">
-            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-40 opacity-100 mb-2' : 'max-h-0 opacity-0'}`}>
+            <div className={overflow-hidden transition-all duration-500 ease-in-out }>
               <p className="text-sm text-foreground/90 leading-relaxed text-pretty drop-shadow-md">
                 {product.description}
               </p>
             </div>
-            <button 
-              onClick={() => setIsExpanded(!isExpanded)}
+            <button
+              onClick={(event) => {
+                event.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
               className="inline-flex items-center gap-1.5 text-xs text-primary/90 hover:text-primary font-medium uppercase tracking-widest transition-colors focus:outline-none bg-background/40 hover:bg-background/80 px-2 py-1 rounded-md backdrop-blur-sm"
             >
               {isExpanded ? (
