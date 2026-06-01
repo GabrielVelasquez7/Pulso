@@ -93,7 +93,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const pathname = router?.state?.location?.pathname ?? "";
-  const hideHeader = pathname.startsWith("/product");
+  const hideHeader = pathname.startsWith("/productos");
 
   return (
     <QueryClientProvider client={queryClient}>
