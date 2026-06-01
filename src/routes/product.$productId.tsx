@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductDetail } from "@/components/ProductDetail";
 import { Product } from "@/components/ProductCard";
 
-export const Route = createFileRoute("/product/:productId")({
+export const Route = createFileRoute()({
   component: ProductPage,
-  head: ({ params }) => ({
+  head: () => ({
     meta: [
-      { title: `PULSO — Producto ${params.productId}` },
+      { title: `PULSO — Producto` },
     ],
   }),
 });
