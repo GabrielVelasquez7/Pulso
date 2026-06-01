@@ -91,10 +91,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const pathname = router?.state?.location?.pathname ?? "";
+  const hideHeader = pathname.startsWith("/product");
+
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <Header />
+        {!hideHeader && <Header />}
         <Outlet />
         <CartDrawer />
         <Toaster theme="dark" position="bottom-center" />
