@@ -45,7 +45,8 @@ export function ProductDetail({
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-5 sm:px-8 py-20">
+    <div className="fixed inset-0 z-50 bg-background/95 overflow-auto p-6" role="dialog" aria-modal="true">
+      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-20">
       <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
         <div className="group relative overflow-hidden rounded-[24px] border border-border/50 bg-card/60 p-4 shadow-elegant backdrop-blur-lg lg:max-w-[45%]">
           {product.image_url ? (
@@ -174,6 +175,7 @@ export function ProductDetail({
           ))}
         </div>
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
