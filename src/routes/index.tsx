@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
-import { ProductDetail } from "@/components/ProductDetail";
 import pulsoLogo from "@/routes/img/pulsgo.png";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -94,7 +93,6 @@ function CarouselRow({ products, direction = "forward", onSelect }: { products: 
 
 function Index() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -186,7 +184,7 @@ function Index() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map(p => (
-                  <ProductCard key={p.id} product={p} onSelect={setSelectedProduct} />
+                  <ProductCard key={p.id} product={p} onSelect={() => { window.location.href = `/product/${p.id}`; }} />
                 ))}
               </div>
             )}
@@ -196,13 +194,6 @@ function Index() {
             <p className="font-serif text-3xl text-muted-foreground">Próximamente.</p>
             <p className="mt-2 text-muted-foreground/70">Nuestra selección está siendo curada.</p>
           </div>
-        ) : selectedProduct ? (
-          <ProductDetail
-            product={selectedProduct}
-            recommendedProducts={products.filter((product) => product.id !== selectedProduct.id).slice(0, 4)}
-            onBack={() => setSelectedProduct(null)}
-            onSelectProduct={setSelectedProduct}
-          />
         ) : (
           // Carousel View
           <>
@@ -210,9 +201,9 @@ function Index() {
             <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10" />
 
             <div className="flex flex-col gap-10 md:gap-16">
-              <CarouselRow products={products} direction="forward" onSelect={setSelectedProduct} />
+              <CarouselRow products={products} direction="forward" onSelect={(p) => { window.location.href = `/product/${p.id}`; }} />
               {products.length > 1 && (
-                <CarouselRow products={row2Products} direction="backward" onSelect={setSelectedProduct} />
+                <CarouselRow products={row2Products} direction="backward" onSelect={(p) => { window.location.href = `/product/${p.id}`; }} />
               )}
             </div>
           </>
