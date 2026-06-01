@@ -249,6 +249,31 @@ export function AdminPage() {
   };
 
   const updateOrderStatus = async (id: string, status: string) => {
+    // If marking as completed, first get the order to decrement stock
+    if (status === "completed") {
+      const order = orders.find(o => o.id === id);
+      if (order && order.status !== "completed") {
+        const orderItems = (order.items || []) as OrderItem[];
+        for (const item of orderItems) {
+          // Decrement stock for each product in the order
+          const { error: stockError } = await supabase.rpc('decrement_stock', {
+            product_id: item.id,
+            qty: item.quantity,
+          }).maybeSingle();
+          // Fallback: if RPC doesn't exist, do a manual update
+          if (stockError) {
+            const product = products.find(p => p.id === item.id);
+            if (product) {
+              const newStock = Math.max(0, product.stock - item.quantity);
+              await supabase.from("products").update({ stock: newStock }).eq("id", item.id);
+            }
+          }
+        }
+        // Reload products to reflect updated stock
+        load();
+      }
+    }
+
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success(`Pedido marcado como: ${status === "completed" ? "Completado" : status === "cancelled" ? "Cancelado" : "Pendiente"}`);
@@ -413,7 +438,7 @@ export function AdminPage() {
                 </div>
 
                 {/* Product List */}
-                <div className="xl:order-1 space-y-4">
+                <div className="xl:order-1">
                   <h2 className="font-serif text-2xl mb-6 flex items-center justify-between">
                     <span>Colección</span>
                     <span className="text-sm font-sans bg-muted px-3 py-1 rounded-full">{products.length} piezas</span>
@@ -424,43 +449,60 @@ export function AdminPage() {
                       <p className="text-muted-foreground">No hay productos en el catálogo.</p>
                     </div>
                   ) : (
-                    products.map((p) => (
-                      <article key={p.id} className="group flex flex-col sm:flex-row gap-5 rounded-[8px] border border-border/60 bg-card p-5 shadow-sm hover:border-primary/40 transition-colors">
-                        <div className="h-40 sm:h-28 w-full sm:w-28 shrink-0 overflow-hidden rounded-[5px] bg-muted border border-border/40">
-                          {p.image_url ? (
-                            <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Sin foto</div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <h3 className="font-serif text-xl truncate text-foreground">{p.title}</h3>
-                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-                            <span className="inline-flex items-center gap-1.5 font-medium">
-                              <span className="h-2 w-2 rounded-full bg-border" /> Stock: {p.stock}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {products.map((p) => (
+                        <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/60 bg-card shadow-sm hover:border-primary/40 hover:shadow-md transition-all duration-300">
+                          {/* Image */}
+                          <div className="relative aspect-square overflow-hidden bg-muted border-b border-border/40">
+                            {p.image_url ? (
+                              <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground/50 text-lg">PULSO</div>
+                            )}
+                            {/* Stock Badge */}
+                            <span className={`absolute top-2 left-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border backdrop-blur-sm ${
+                              p.stock <= 0 ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' 
+                              : p.stock <= 5 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' 
+                              : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            }`}>
+                              <span className={`h-1.5 w-1.5 rounded-full ${
+                                p.stock <= 0 ? 'bg-rose-400' : p.stock <= 5 ? 'bg-amber-400' : 'bg-emerald-400'
+                              }`} />
+                              {p.stock <= 0 ? 'Agotado' : `${p.stock} uds`}
                             </span>
-                            <span className="font-medium">
+                            {/* Promo Badge */}
+                            {p.is_promo && (
+                              <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/20 backdrop-blur-sm px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20 font-bold">
+                                Promo
+                              </span>
+                            )}
+                            {/* Hover Actions Overlay */}
+                            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <button onClick={() => edit(p)} className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform" aria-label="Editar">
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button onClick={() => remove(p.id)} className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-destructive text-destructive-foreground shadow-lg hover:scale-110 transition-transform" aria-label="Eliminar">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          {/* Info */}
+                          <div className="p-3 flex flex-col gap-1">
+                            <h3 className="font-serif text-sm font-medium leading-tight truncate text-foreground" title={p.title}>{p.title}</h3>
+                            <div className="flex items-center gap-2">
                               {p.is_promo && p.sale_price != null ? (
                                 <>
-                                  <span className="text-primary mr-2">{formatPrice(p.sale_price)}</span>
-                                  <span className="line-through text-muted-foreground text-xs">{formatPrice(p.price)}</span>
+                                  <span className="text-sm font-bold text-primary">{formatPrice(p.sale_price)}</span>
+                                  <span className="text-[10px] line-through text-muted-foreground">{formatPrice(p.price)}</span>
                                 </>
                               ) : (
-                                <span className="text-foreground">{formatPrice(p.price)}</span>
+                                <span className="text-sm font-bold text-foreground">{formatPrice(p.price)}</span>
                               )}
-                            </span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex sm:flex-col gap-2 justify-end sm:justify-center border-t sm:border-t-0 sm:border-l border-border/40 pt-4 sm:pt-0 sm:pl-4">
-                          <button onClick={() => edit(p)} className="flex-1 sm:flex-none inline-flex items-center justify-center h-10 w-full sm:w-10 rounded-[5px] bg-input/50 text-foreground hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Editar">
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button onClick={() => remove(p.id)} className="flex-1 sm:flex-none inline-flex items-center justify-center h-10 w-full sm:w-10 rounded-[5px] bg-input/50 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors" aria-label="Eliminar">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </article>
-                    ))
+                        </article>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
