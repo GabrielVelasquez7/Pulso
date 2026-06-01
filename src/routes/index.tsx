@@ -55,9 +55,9 @@ function CarouselRow({ products, direction = "forward" }: { products: Product[],
       </button>
 
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-10" style={{ touchAction: 'pan-y pinch-zoom' }}>
+        <div className="flex" style={{ touchAction: 'pan-y pinch-zoom' }}>
           {products.map((p, i) => (
-            <div key={`${i}-${p.id}`} className="flex-[0_0_auto] w-[260px] sm:w-[320px] transform-gpu">
+            <div key={`${i}-${p.id}`} className="flex-[0_0_auto] w-[260px] sm:w-[320px] transform-gpu pr-8">
               <ProductCard product={p} />
             </div>
           ))}
