@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import { useCart } from "@/lib/cart-context";
+import { useCurrency } from "@/lib/currency-context";
 import { Plus, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -23,13 +24,7 @@ export type Product = {
   related_product_id_4?: string | null;
 };
 
-function formatPrice(n: number) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-  }).format(n);
-}
+
 
 export function ProductCard({
   product,
@@ -39,6 +34,7 @@ export function ProductCard({
   onSelect?: (product: Product) => void;
 }) {
   const { add, open } = useCart();
+  const { formatPrice } = useCurrency();
   const [isExpanded, setIsExpanded] = useState(false);
   const isOutOfStock = product.stock <= 0;
   const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;

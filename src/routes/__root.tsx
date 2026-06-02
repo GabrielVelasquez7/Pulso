@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { CartProvider } from "@/lib/cart-context";
+import { CurrencyProvider } from "@/lib/currency-context";
 import { Header } from "@/components/Header";
 import { CartDrawer } from "@/components/CartDrawer";
 import { Toaster } from "@/components/ui/sonner";
@@ -97,12 +98,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        {!hideHeader && <Header />}
-        <Outlet />
-        <CartDrawer />
-        <Toaster theme="dark" position="bottom-center" />
-      </CartProvider>
+      <CurrencyProvider>
+        <CartProvider>
+          {!hideHeader && <Header />}
+          <Outlet />
+          <CartDrawer />
+          <Toaster theme="dark" position="bottom-center" />
+        </CartProvider>
+      </CurrencyProvider>
     </QueryClientProvider>
   );
 }

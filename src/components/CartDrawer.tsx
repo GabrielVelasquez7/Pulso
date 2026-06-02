@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useCurrency } from "@/lib/currency-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DEFAULT_ZONES, DeliveryZonesConfig } from "@/lib/default-zones";
@@ -10,16 +11,11 @@ function generateOrderId() {
   return `#P${n}`; // Changed to P for PULSO
 }
 
-function formatPrice(n: number) {
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(n);
-}
+
 
 export function CartDrawer() {
   const { items, isOpen, close, setQty, remove, total: subtotal, clear } = useCart();
+  const { formatPrice, currency } = useCurrency();
   
   const [waNumber, setWaNumber] = useState<string>("");
   const [pmData, setPmData] = useState({ banco: "", telefono: "", cedula: "", nombre: "" });
@@ -165,6 +161,7 @@ export function CartDrawer() {
       `${resumen}\n\n` +
       discountMsg +
       `Total a pagar: ${formatPrice(grandTotal)}\n` +
+      (paymentMethod === "pago_movil" && currency === "USD" ? `Monto en Bolívares: ${formatPrice(grandTotal, "VES")}\n` : "") +
       `Dirección: ${deliveryType === "home" ? `${selectedLocation} - ${address}` : "Retiro en persona"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
@@ -417,6 +414,9 @@ export function CartDrawer() {
                         <SmartphoneNfc className="h-5 w-5" /> Instrucciones de Pago Móvil
                       </h3>
                       <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
+                        <p className="text-sm text-foreground/90">
+                          Monto a transferir: <strong className="text-primary text-lg">{formatPrice(grandTotal, "VES")}</strong>
+                        </p>
                         <p className="text-sm text-foreground/90">
                           Realiza el pago a los siguientes datos y haz clic en "Confirmar" para enviar el comprobante por WhatsApp.
                         </p>

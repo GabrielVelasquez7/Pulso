@@ -1,6 +1,7 @@
 import { Check, Sparkles, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight, Star, Gift } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
+import { useCurrency } from "@/lib/currency-context";
 import { Product } from "@/components/ProductCard";
 import { ProductCard } from "@/components/ProductCard";
 import useEmblaCarousel from "embla-carousel-react";
@@ -22,6 +23,7 @@ export function ProductDetail({
   onSelectProduct,
 }: ProductDetailProps) {
   const { add, open } = useCart();
+  const { formatPrice } = useCurrency();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -153,7 +155,7 @@ export function ProductDetail({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-foreground uppercase tracking-widest">Oferta por Volumen</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">Lleva 2 piezas y te descontamos <span className="font-bold text-primary">${discount2}</span></p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Lleva 2 piezas y te descontamos <span className="font-bold text-primary">{formatPrice(discount2)}</span></p>
                 </div>
               </div>
             </div>
@@ -184,10 +186,10 @@ export function ProductDetail({
               <div className="space-y-1 sm:space-y-2 text-left sm:text-right mt-2 sm:mt-0">
                 <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground">Precio</p>
                 <p className="text-2xl sm:text-3xl font-semibold text-gradient-ruby">
-                  {product.is_promo && product.sale_price != null ? product.sale_price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 }) : product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 })}
+                  {formatPrice(product.is_promo && product.sale_price != null ? product.sale_price : product.price)}
                 </p>
                 {product.is_promo && product.sale_price != null ? (
-                  <p className="text-xs sm:text-sm text-muted-foreground line-through">{product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 })}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground line-through">{formatPrice(product.price)}</p>
                 ) : null}
               </div>
             </div>
@@ -301,13 +303,11 @@ export function ProductDetail({
           </span>
           <div className="flex items-baseline gap-1.5 mt-0.5">
             <span className="text-lg font-bold text-gradient-ruby leading-none">
-              {product.is_promo && product.sale_price != null 
-                ? product.sale_price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 0 }) 
-                : product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 0 })}
+              {formatPrice(product.is_promo && product.sale_price != null ? product.sale_price : product.price)}
             </span>
             {product.is_promo && product.sale_price != null && (
               <span className="text-xs line-through text-muted-foreground leading-none">
-                {product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 0 })}
+                {formatPrice(product.price)}
               </span>
             )}
           </div>
