@@ -1,4 +1,4 @@
-import { Check, Sparkles, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, Sparkles, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Product } from "@/components/ProductCard";
@@ -104,10 +104,26 @@ export function ProductDetail({
           <div className="mb-8 flex flex-col gap-4 rounded-[24px] border border-border/50 bg-card/80 p-6 sm:p-8 shadow-elegant backdrop-blur-xl">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.4em] text-primary">Detalle del producto</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-[10px] uppercase tracking-[0.4em] text-primary">Detalle del producto</p>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-background/50 border border-border/40 shadow-sm">
+                     <div className={`h-1.5 w-1.5 rounded-full ${product.stock > 0 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
+                     <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">{product.stock > 0 ? 'Disponible' : 'Agotado'}</span>
+                  </div>
+                </div>
                 <h1 className="mt-2 sm:mt-4 font-serif text-3xl sm:text-4xl leading-tight text-foreground">{product.title}</h1>
+                
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex items-center gap-0.5">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                      <Star key={idx} className="h-3.5 w-3.5 text-amber-400 fill-amber-400 drop-shadow-sm" />
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-foreground/80">5.0</span>
+                  <span className="text-xs text-muted-foreground">(+120 reviews)</span>
+                </div>
               </div>
-              <div className="space-y-1 sm:space-y-2 text-left sm:text-right">
+              <div className="space-y-1 sm:space-y-2 text-left sm:text-right mt-2 sm:mt-0">
                 <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground">Precio</p>
                 <p className="text-2xl sm:text-3xl font-semibold text-gradient-ruby">
                   {product.is_promo && product.sale_price != null ? product.sale_price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 }) : product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 })}
@@ -118,28 +134,13 @@ export function ProductDetail({
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
-              <div className="space-y-4">
-                {product.description && (
-                  <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-                    {product.description}
-                  </p>
-                )}
+            {product.description && (
+              <div className="mt-4 sm:mt-6 border-t border-border/30 pt-4 sm:pt-6">
+                <p className="text-sm leading-relaxed text-muted-foreground text-pretty max-w-3xl">
+                  {product.description}
+                </p>
               </div>
-
-              <div className="grid gap-3 rounded-[20px] bg-background/90 p-4 text-sm text-muted-foreground">
-                <div className="rounded-[16px] bg-muted/30 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">Disponible</p>
-                  <p className="mt-2 text-base font-semibold text-foreground">{product.stock > 0 ? "En stock" : "Agotado"}</p>
-                </div>
-                {product.usages && (
-                  <div className="rounded-[16px] bg-muted/20 p-4 border border-border/30">
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">Uso recomendado</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground leading-relaxed">{product.usages}</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
           </div>
 
           {product.usages && (
