@@ -14,5 +14,11 @@
     "api/server.js": {
       "includeFiles": "dist/server/**"
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 */5 * * *"
+    }
+  ]
 }
