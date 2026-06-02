@@ -32,7 +32,7 @@ export function ProductDetail({
 
   const [discount2, setDiscount2] = useState(0);
   const [discount3, setDiscount3] = useState(0);
-  const [relatedProduct, setRelatedProduct] = useState<Product | null>(null);
+  const [relatedProductsList, setRelatedProductsList] = useState<Product[]>([]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -50,19 +50,34 @@ export function ProductDetail({
        }
     });
 
-    if (product.related_product_id) {
-       const found = recommendedProducts.find(p => p.id === product.related_product_id);
-       if (found) {
-         setRelatedProduct(found);
-       } else {
-         supabase.from("products").select("*").eq("id", product.related_product_id).maybeSingle().then(({data}) => {
-           if (data) setRelatedProduct(data as Product);
+    const relatedIds = [
+      product.related_product_id,
+      product.related_product_id_2,
+      product.related_product_id_3,
+      product.related_product_id_4
+    ].filter(Boolean) as string[];
+
+    if (relatedIds.length > 0) {
+       const foundInRecommended = recommendedProducts.filter(p => relatedIds.includes(p.id));
+       const missingIds = relatedIds.filter(id => !foundInRecommended.find(p => p.id === id));
+       
+       if (missingIds.length > 0) {
+         supabase.from("products").select("*").in("id", missingIds).then(({data}) => {
+           const dbProducts = (data || []) as Product[];
+           const allRelated = [...foundInRecommended, ...dbProducts];
+           const uniqueRelated = Array.from(new Map(allRelated.map(item => [item.id, item])).values());
+           setRelatedProductsList(uniqueRelated);
          });
+       } else {
+         setRelatedProductsList(foundInRecommended);
        }
     } else {
-       setRelatedProduct(null);
+       setRelatedProductsList([]);
     }
   }, [product, recommendedProducts]);
+
+  const relatedIdsForFilter = relatedProductsList.map(rp => rp.id);
+  const filteredRecommended = recommendedProducts.filter(p => !relatedIdsForFilter.includes(p.id));
 
   const images = [product.image_url, product.image_2_url, product.image_3_url].filter(Boolean) as string[];
 
@@ -215,8 +230,8 @@ export function ProductDetail({
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card/45 sm:bg-transparent border border-border/30 sm:border-0 rounded-[24px] p-6 sm:p-0">
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Precios con envío discreto</p>
-              <p className="mt-2 text-base sm:text-lg text-muted-foreground">Compra ahora y recibe en urna sin marca.</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Envío Seguro</p>
+              <p className="mt-2 text-base sm:text-lg text-muted-foreground">Compra ahora y recibe tu pedido de forma segura.</p>
             </div>
             <button
               type="button"
@@ -231,7 +246,7 @@ export function ProductDetail({
           {/* Subtle WhatsApp Callout */}
           <div className="mt-12 pt-10 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-6 transition-all">
             <div className="text-left space-y-1.5">
-              <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-medium">Asesoría Discreta</h3>
+              <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-medium">Asesoría Personalizada</h3>
               <p className="text-sm text-muted-foreground">Consulta con uno de nuestros especialistas vía WhatsApp.</p>
             </div>
             <a
@@ -247,18 +262,20 @@ export function ProductDetail({
         </div>
       </div>
 
-      {relatedProduct && (
+      {relatedProductsList.length > 0 && (
         <div className="mt-16 pt-10 border-t border-border/30 animate-in slide-in-from-bottom-8 duration-700">
           <div className="mb-8 text-center sm:text-left">
              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs uppercase tracking-widest text-primary font-bold shadow-sm mb-3">
                <Sparkles className="h-3 w-3" /> Combinación Perfecta
              </span>
-             <h2 className="font-serif text-3xl sm:text-4xl text-foreground">El Complemento Ideal</h2>
-             <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto sm:mx-0">Llévalos juntos, aplica a nuestra oferta por cantidad y vive la experiencia completa.</p>
+             <h2 className="font-serif text-3xl sm:text-4xl text-foreground">Complemento Ideal</h2>
+             <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto sm:mx-0">Llévalos juntos, aplica a nuestra oferta por cantidad y eleva tu experiencia.</p>
           </div>
-          <div className="max-w-xs mx-auto sm:mx-0 sm:max-w-sm relative group">
-            <div className="absolute -inset-4 bg-gradient-ruby opacity-[0.04] blur-2xl rounded-full pointer-events-none group-hover:opacity-[0.08] transition-opacity duration-500" />
-            <ProductCard product={relatedProduct} onSelect={onSelectProduct} />
+          <div className={`grid gap-6 ${relatedProductsList.length > 1 ? 'sm:grid-cols-2 xl:grid-cols-4' : 'max-w-xs mx-auto sm:mx-0 sm:max-w-sm'} relative group`}>
+            <div className="absolute -inset-4 bg-gradient-ruby opacity-[0.02] blur-2xl rounded-full pointer-events-none group-hover:opacity-[0.06] transition-opacity duration-500" />
+            {relatedProductsList.map((rp) => (
+              <ProductCard key={rp.id} product={rp} onSelect={onSelectProduct} />
+            ))}
           </div>
         </div>
       )}
@@ -269,7 +286,7 @@ export function ProductDetail({
           <p className="text-sm text-muted-foreground">Sigue explorando otras piezas</p>
         </div>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {recommendedProducts.map((recommended) => (
+          {filteredRecommended.map((recommended) => (
             <ProductCard key={recommended.id} product={recommended} onSelect={onSelectProduct} />
           ))}
         </div>

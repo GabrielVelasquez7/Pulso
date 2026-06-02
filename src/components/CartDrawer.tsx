@@ -107,8 +107,8 @@ export function CartDrawer() {
       order_id: orderId,
       customer_name: name,
       customer_phone: phone,
-      delivery_type: deliveryType === "home" ? "Envío a domicilio" : "Retiro discreto",
-      delivery_address: deliveryType === "home" ? address : "N/A (Retiro Discreto)",
+      delivery_type: deliveryType === "home" ? "Envío a domicilio" : "Retiro en persona",
+      delivery_address: deliveryType === "home" ? address : "N/A (Retiro en persona)",
       payment_method: paymentMethodNames[paymentMethod],
       subtotal,
       shipping_cost: shippingCost,
@@ -146,7 +146,7 @@ export function CartDrawer() {
       `${resumen}\n\n` +
       discountMsg +
       `Total a pagar: ${formatPrice(grandTotal)}\n` +
-      `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
+      `Dirección: ${deliveryType === "home" ? address : "Retiro en persona"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
     const url = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(msg)}`;
@@ -309,7 +309,7 @@ export function CartDrawer() {
                     className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
                   >
                     <option value="home">Envío a domicilio</option>
-                    <option value="pickup">Retiro discreto (Punto acordado)</option>
+                    <option value="pickup">Retiro en persona (Punto acordado)</option>
                   </select>
                 </div>
 
@@ -428,7 +428,7 @@ export function CartDrawer() {
                       <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
                         <p className="text-sm text-foreground/90 leading-relaxed">
                           Has seleccionado pagar en efectivo. <br/><br/>
-                          Este método solo es aplicable si seleccionaste "Retiro discreto (Punto acordado)".
+                          Este método solo es aplicable si seleccionaste "Retiro en persona (Punto acordado)".
                           El pago se realizará en el momento exacto de la entrega personal, llevando el monto exacto por favor. <br/><br/>
                           Haz clic en Confirmar para coordinar la cita por WhatsApp.
                         </p>
@@ -457,7 +457,7 @@ export function CartDrawer() {
                 )}
                 {step === "checkout" && (
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Envío discreto</span>
+                    <span>Envío</span>
                     <span className="text-foreground">{shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}</span>
                   </div>
                 )}
@@ -502,7 +502,7 @@ export function CartDrawer() {
             )}
 
             <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground/60">
-              Compra 100% confidencial
+              Compra 100% segura
             </p>
           </div>
         </div>

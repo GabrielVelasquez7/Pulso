@@ -23,6 +23,9 @@ type Product = {
   is_promo: boolean;
   stock: number;
   related_product_id?: string | null;
+  related_product_id_2?: string | null;
+  related_product_id_3?: string | null;
+  related_product_id_4?: string | null;
 };
 
 type FormState = {
@@ -39,6 +42,9 @@ type FormState = {
   is_promo: boolean;
   stock: string;
   related_product_id: string;
+  related_product_id_2: string;
+  related_product_id_3: string;
+  related_product_id_4: string;
 };
 
 const empty: FormState = {
@@ -54,6 +60,9 @@ const empty: FormState = {
   is_promo: false,
   stock: "0",
   related_product_id: "",
+  related_product_id_2: "",
+  related_product_id_3: "",
+  related_product_id_4: "",
 };
 
 type OrderItem = {
@@ -189,6 +198,9 @@ export function AdminPage() {
       is_promo: form.is_promo,
       stock: Number(form.stock) || 0,
       related_product_id: form.related_product_id || null,
+      related_product_id_2: form.related_product_id_2 || null,
+      related_product_id_3: form.related_product_id_3 || null,
+      related_product_id_4: form.related_product_id_4 || null,
     };
     
     if (form.id) {
@@ -219,6 +231,9 @@ export function AdminPage() {
       is_promo: p.is_promo,
       stock: String(p.stock),
       related_product_id: p.related_product_id ?? "",
+      related_product_id_2: p.related_product_id_2 ?? "",
+      related_product_id_3: p.related_product_id_3 ?? "",
+      related_product_id_4: p.related_product_id_4 ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -495,17 +510,54 @@ export function AdminPage() {
                   </label>
 
                   <div className="pt-4 border-t border-border/40">
-                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Complemento Ideal (Producto Relacionado)</label>
-                    <select
-                      value={form.related_product_id}
-                      onChange={(e) => setForm({ ...form, related_product_id: e.target.value })}
-                      className="mt-3 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
-                    >
-                      <option value="">Ninguno</option>
-                      {products.filter(p => p.id !== form.id).map(p => (
-                        <option key={p.id} value={p.id}>{p.title}</option>
-                      ))}
-                    </select>
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Acompañantes Ideales (Cross-Selling)</label>
+                    <p className="text-sm text-muted-foreground mb-3">Selecciona hasta 4 productos para mostrar como combinación perfecta en la página de esta pieza.</p>
+                    
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <select
+                        value={form.related_product_id}
+                        onChange={(e) => setForm({ ...form, related_product_id: e.target.value })}
+                        className="w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
+                      >
+                        <option value="">Acompañante 1 (Ninguno)</option>
+                        {products.filter(p => p.id !== form.id).map(p => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={form.related_product_id_2}
+                        onChange={(e) => setForm({ ...form, related_product_id_2: e.target.value })}
+                        className="w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
+                      >
+                        <option value="">Acompañante 2 (Ninguno)</option>
+                        {products.filter(p => p.id !== form.id).map(p => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={form.related_product_id_3}
+                        onChange={(e) => setForm({ ...form, related_product_id_3: e.target.value })}
+                        className="w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
+                      >
+                        <option value="">Acompañante 3 (Ninguno)</option>
+                        {products.filter(p => p.id !== form.id).map(p => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={form.related_product_id_4}
+                        onChange={(e) => setForm({ ...form, related_product_id_4: e.target.value })}
+                        className="w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
+                      >
+                        <option value="">Acompañante 4 (Ninguno)</option>
+                        {products.filter(p => p.id !== form.id).map(p => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div className="flex gap-4 pt-4 border-t border-border/40">

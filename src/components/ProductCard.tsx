@@ -18,6 +18,9 @@ export type Product = {
   is_promo: boolean;
   stock: number;
   related_product_id?: string | null;
+  related_product_id_2?: string | null;
+  related_product_id_3?: string | null;
+  related_product_id_4?: string | null;
 };
 
 function formatPrice(n: number) {
