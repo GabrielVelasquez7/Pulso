@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc } from "lucide-react";
+import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,6 +22,8 @@ export function CartDrawer() {
   
   const [waNumber, setWaNumber] = useState<string>("");
   const [pmData, setPmData] = useState({ banco: "", telefono: "", cedula: "", nombre: "" });
+  const [zelleEmail, setZelleEmail] = useState("");
+  const [binanceId, setBinanceId] = useState("");
 
   // Checkout form states
   const [step, setStep] = useState<"cart" | "checkout">("cart");
@@ -29,6 +31,7 @@ export function CartDrawer() {
   const [phone, setPhone] = useState("");
   const [deliveryType, setDeliveryType] = useState<"home" | "pickup">("home");
   const [address, setAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"pago_movil" | "zelle" | "binance" | "cash">("pago_movil");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -46,6 +49,8 @@ export function CartDrawer() {
             cedula: dict.pago_movil_cedula || "",
             nombre: dict.pago_movil_nombre || "",
           });
+          if (dict.zelle_email) setZelleEmail(dict.zelle_email);
+          if (dict.binance_id) setBinanceId(dict.binance_id);
         }
       });
   }, []);
@@ -79,13 +84,20 @@ export function CartDrawer() {
     const orderId = generateOrderId();
 
     // Prepare order details for Supabase
+    const paymentMethodNames = {
+      "pago_movil": "Pago Móvil",
+      "zelle": "Zelle",
+      "binance": "Binance Pay",
+      "cash": "Efectivo",
+    };
+
     const orderPayload = {
       order_id: orderId,
       customer_name: name,
       customer_phone: phone,
       delivery_type: deliveryType === "home" ? "Envío a domicilio" : "Retiro discreto",
       delivery_address: deliveryType === "home" ? address : "N/A (Retiro Discreto)",
-      payment_method: "Pago Móvil",
+      payment_method: paymentMethodNames[paymentMethod],
       subtotal,
       shipping_cost: shippingCost,
       payment_adjustment: 0,
@@ -104,13 +116,18 @@ export function CartDrawer() {
     }
 
     const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
+    let paymentMsg = `Adjunto el comprobante de pago por ${paymentMethodNames[paymentMethod]} para el pedido ${orderId}.`;
+    if (paymentMethod === "cash") {
+        paymentMsg = `He seleccionado realizar el pago en Efectivo para el pedido ${orderId} al momento del retiro.`;
+    }
+
     const msg =
       `Hola PULSO.\n\n` +
-      `Adjunto el comprobante de Pago Móvil para el pedido ${orderId}.\n\n` +
+      `${paymentMsg}\n\n` +
       `Nombre: ${name}\n` +
       `Productos:\n` +
       `${resumen}\n\n` +
-      `Total pagado: ${formatPrice(grandTotal)}\n` +
+      `Total a pagar: ${formatPrice(grandTotal)}\n` +
       `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
@@ -294,22 +311,112 @@ export function CartDrawer() {
                   </div>
                 )}
 
-                {/* Pago Movil Instructions */}
+                {/* Payment Methods */}
                 <div className="pt-4 border-t border-border/50">
-                  <h3 className="flex items-center gap-2 font-serif text-xl text-primary mb-4">
-                    <SmartphoneNfc className="h-5 w-5" /> Instrucciones de Pago Móvil
-                  </h3>
-                  <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
-                    <p className="text-sm text-foreground/90">
-                      Realiza el pago a los siguientes datos y haz clic en "Confirmar" para enviar el comprobante por WhatsApp.
-                    </p>
-                    <ul className="text-sm space-y-2 mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40">
-                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Banco:</span> {pmData.banco || "-"}</li>
-                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Teléfono:</span> {pmData.telefono || "-"}</li>
-                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Cédula:</span> {pmData.cedula || "-"}</li>
-                      <li><span className="text-muted-foreground font-sans w-20 inline-block">Nombre:</span> {pmData.nombre || "-"}</li>
-                    </ul>
+                  <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium mb-3 block">
+                    Método de Pago
+                  </label>
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("pago_movil")}
+                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[12px] border transition-all ${paymentMethod === "pago_movil" ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(var(--ruby-rgb),0.2)]" : "bg-input border-border text-muted-foreground hover:bg-muted"}`}
+                    >
+                      <SmartphoneNfc className="h-6 w-6" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Pago Móvil</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("zelle")}
+                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[12px] border transition-all ${paymentMethod === "zelle" ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(var(--ruby-rgb),0.2)]" : "bg-input border-border text-muted-foreground hover:bg-muted"}`}
+                    >
+                      <DollarSign className="h-6 w-6" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Zelle</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("binance")}
+                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[12px] border transition-all ${paymentMethod === "binance" ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(var(--ruby-rgb),0.2)]" : "bg-input border-border text-muted-foreground hover:bg-muted"}`}
+                    >
+                      <Bitcoin className="h-6 w-6" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Binance</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("cash")}
+                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-[12px] border transition-all ${paymentMethod === "cash" ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(var(--ruby-rgb),0.2)]" : "bg-input border-border text-muted-foreground hover:bg-muted"}`}
+                    >
+                      <Banknote className="h-6 w-6" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Efectivo</span>
+                    </button>
                   </div>
+
+                  {paymentMethod === "pago_movil" && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <h3 className="flex items-center gap-2 font-serif text-xl text-primary mb-4">
+                        <SmartphoneNfc className="h-5 w-5" /> Instrucciones de Pago Móvil
+                      </h3>
+                      <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
+                        <p className="text-sm text-foreground/90">
+                          Realiza el pago a los siguientes datos y haz clic en "Confirmar" para enviar el comprobante por WhatsApp.
+                        </p>
+                        <ul className="text-sm space-y-2 mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40">
+                          <li><span className="text-muted-foreground font-sans w-20 inline-block">Banco:</span> {pmData.banco || "-"}</li>
+                          <li><span className="text-muted-foreground font-sans w-20 inline-block">Teléfono:</span> {pmData.telefono || "-"}</li>
+                          <li><span className="text-muted-foreground font-sans w-20 inline-block">Cédula:</span> {pmData.cedula || "-"}</li>
+                          <li><span className="text-muted-foreground font-sans w-20 inline-block">Nombre:</span> {pmData.nombre || "-"}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === "zelle" && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <h3 className="flex items-center gap-2 font-serif text-xl text-primary mb-4">
+                        <DollarSign className="h-5 w-5" /> Instrucciones de Zelle
+                      </h3>
+                      <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
+                        <p className="text-sm text-foreground/90">
+                          Transfiere el monto exacto en Zelle a la siguiente dirección de correo. Luego confirma y envía el comprobante.
+                        </p>
+                        <div className="mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40 text-center text-base">
+                          {zelleEmail || "-"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === "binance" && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <h3 className="flex items-center gap-2 font-serif text-xl text-primary mb-4">
+                        <Bitcoin className="h-5 w-5" /> Instrucciones de Binance Pay
+                      </h3>
+                      <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
+                        <p className="text-sm text-foreground/90">
+                          Envía el monto mediante Binance Pay al siguiente Pay ID o Correo. Confirma para notificar tu pago por WhatsApp.
+                        </p>
+                        <div className="mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40 text-center text-base">
+                          {binanceId || "-"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === "cash" && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <h3 className="flex items-center gap-2 font-serif text-xl text-primary mb-4">
+                        <Banknote className="h-5 w-5" /> Pago en Efectivo
+                      </h3>
+                      <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
+                        <p className="text-sm text-foreground/90 leading-relaxed">
+                          Has seleccionado pagar en efectivo. <br/><br/>
+                          Este método solo es aplicable si seleccionaste "Retiro discreto (Punto acordado)".
+                          El pago se realizará en el momento exacto de la entrega personal, llevando el monto exacto por favor. <br/><br/>
+                          Haz clic en Confirmar para coordinar la cita por WhatsApp.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
               </form>
@@ -357,7 +464,7 @@ export function CartDrawer() {
                 disabled={items.length === 0 || isSubmitting}
                 className="w-full rounded-[8px] bg-primary py-5 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-ruby focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSubmitting ? "Procesando..." : "Confirmar y Enviar Comprobante"}
+                {isSubmitting ? "Procesando..." : paymentMethod === "cash" ? "Confirmar y Coordinar" : "Confirmar y Enviar Comprobante"}
               </button>
             )}
 

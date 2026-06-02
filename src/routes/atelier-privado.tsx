@@ -97,6 +97,8 @@ export function AdminPage() {
   const [pmTelefono, setPmTelefono] = useState("");
   const [pmCedula, setPmCedula] = useState("");
   const [pmNombre, setPmNombre] = useState("");
+  const [zelleEmail, setZelleEmail] = useState("");
+  const [binanceId, setBinanceId] = useState("");
 
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
@@ -147,6 +149,8 @@ export function AdminPage() {
             if (s.key === "pago_movil_telefono") setPmTelefono(s.value);
             if (s.key === "pago_movil_cedula") setPmCedula(s.value);
             if (s.key === "pago_movil_nombre") setPmNombre(s.value);
+            if (s.key === "zelle_email") setZelleEmail(s.value);
+            if (s.key === "binance_id") setBinanceId(s.value);
           });
         }
       } catch (err) {
@@ -225,6 +229,8 @@ export function AdminPage() {
       { key: "pago_movil_telefono", value: pmTelefono },
       { key: "pago_movil_cedula", value: pmCedula },
       { key: "pago_movil_nombre", value: pmNombre },
+      { key: "zelle_email", value: zelleEmail },
+      { key: "binance_id", value: binanceId },
     ];
     
     try {
@@ -711,13 +717,35 @@ export function AdminPage() {
 
               <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
                 <h2 className="font-serif text-2xl mb-2 text-primary">Métodos de Pago</h2>
-                <p className="text-sm text-muted-foreground mb-6">Datos para recibir pagos por Pago Móvil (Venezuela).</p>
+                <p className="text-sm text-muted-foreground mb-8">Configura las credenciales para los distintos métodos de pago. Efectivo siempre estará activo.</p>
                 
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <Field label="Banco" placeholder="Ej. Banesco (0134)" value={pmBanco} onChange={setPmBanco} />
-                  <Field label="Teléfono" placeholder="Ej. 04141234567" value={pmTelefono} onChange={setPmTelefono} />
-                  <Field label="Cédula / RIF" placeholder="Ej. V-12345678" value={pmCedula} onChange={setPmCedula} />
-                  <Field label="Nombre del Titular" placeholder="Ej. Juan Pérez" value={pmNombre} onChange={setPmNombre} />
+                <div className="space-y-10">
+                  {/* Pago Movil */}
+                  <div>
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-border/40 pb-2">Pago Móvil (Venezuela)</h3>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <Field label="Banco" placeholder="Ej. Banesco (0134)" value={pmBanco} onChange={setPmBanco} />
+                      <Field label="Teléfono" placeholder="Ej. 04141234567" value={pmTelefono} onChange={setPmTelefono} />
+                      <Field label="Cédula / RIF" placeholder="Ej. V-12345678" value={pmCedula} onChange={setPmCedula} />
+                      <Field label="Nombre del Titular" placeholder="Ej. Juan Pérez" value={pmNombre} onChange={setPmNombre} />
+                    </div>
+                  </div>
+
+                  {/* Zelle */}
+                  <div>
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-border/40 pb-2">Zelle</h3>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <Field label="Correo Zelle" placeholder="ejemplo@correo.com" value={zelleEmail} onChange={setZelleEmail} />
+                    </div>
+                  </div>
+
+                  {/* Binance */}
+                  <div>
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-border/40 pb-2">Binance Pay</h3>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <Field label="Pay ID o Correo Binance" placeholder="Ej. 123456789 o email" value={binanceId} onChange={setBinanceId} />
+                    </div>
+                  </div>
                 </div>
               </section>
 
