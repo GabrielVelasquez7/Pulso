@@ -13,7 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AtelierPrivadoRouteImport } from './routes/atelier-privado'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProductRouteImport } from './routes/productos.$productId'
+import { Route as ProductRouteImport } from './routes/productos/$productId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
