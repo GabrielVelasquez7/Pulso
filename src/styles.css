@@ -32,7 +32,7 @@
   --color-ruby: var(--ruby);
   --color-wine: var(--wine);
 
-  --font-serif: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Outfit", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
   /* Custom radii */
