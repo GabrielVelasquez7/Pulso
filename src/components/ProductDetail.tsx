@@ -1,4 +1,4 @@
-import { BedDouble, Check, Home, MapPin, Sparkles, Star, MessageCircle } from "lucide-react";
+import { BedDouble, Check, Home, MapPin, Sparkles, Star, MessageCircle, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Product } from "@/components/ProductCard";
@@ -47,8 +47,15 @@ export function ProductDetail({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 overflow-auto p-6" role="dialog" aria-modal="true">
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-20">
+    <div className="fixed inset-0 z-50 bg-background/95 overflow-auto p-4 sm:p-6 pb-28 sm:pb-8" role="dialog" aria-modal="true">
+      <button
+        onClick={onBack}
+        className="fixed top-4 left-4 z-50 inline-flex items-center justify-center h-10 w-10 rounded-full border border-border/70 bg-background/80 backdrop-blur-md text-muted-foreground hover:text-primary transition shadow-md lg:hidden"
+        aria-label="Volver a la colección"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-10 sm:py-20">
       <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
         <div className="lg:sticky lg:top-6 group relative overflow-hidden rounded-[24px] border border-border/50 bg-card/60 p-4 shadow-elegant backdrop-blur-lg lg:max-w-[45%] w-full">
           {product.image_url ? (
@@ -68,24 +75,24 @@ export function ProductDetail({
         <div className="flex-1">
           <button
             onClick={onBack}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm uppercase tracking-[0.25em] text-muted-foreground transition hover:border-primary hover:text-primary"
+            className="hidden lg:inline-flex mb-6 items-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm uppercase tracking-[0.25em] text-muted-foreground transition hover:border-primary hover:text-primary"
           >
             Volver a la colección
           </button>
 
-          <div className="mb-8 flex flex-col gap-4 rounded-[24px] border border-border/50 bg-card/80 p-8 shadow-elegant backdrop-blur-xl">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="mb-8 flex flex-col gap-4 rounded-[24px] border border-border/50 bg-card/80 p-6 sm:p-8 shadow-elegant backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.4em] text-primary">Detalle del producto</p>
-                <h1 className="mt-4 font-serif text-4xl leading-tight text-foreground">{product.title}</h1>
+                <h1 className="mt-2 sm:mt-4 font-serif text-3xl sm:text-4xl leading-tight text-foreground">{product.title}</h1>
               </div>
-              <div className="space-y-2 text-right">
-                <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Precio</p>
-                <p className="text-3xl font-semibold text-gradient-ruby">
+              <div className="space-y-1 sm:space-y-2 text-left sm:text-right">
+                <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground">Precio</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-gradient-ruby">
                   {product.is_promo && product.sale_price != null ? product.sale_price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 }) : product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 })}
                 </p>
                 {product.is_promo && product.sale_price != null ? (
-                  <p className="text-sm text-muted-foreground line-through">{product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 })}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground line-through">{product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 2 })}</p>
                 ) : null}
               </div>
             </div>
@@ -128,37 +135,37 @@ export function ProductDetail({
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4 lg:gap-6">
             {usageIcons.map(({ icon: Icon, label }) => (
-              <div key={label} className="rounded-[20px] border border-border/50 bg-card/75 p-5 text-center">
-                <Icon className="mx-auto mb-3 h-8 w-8 text-primary" />
-                <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{label}</p>
+              <div key={label} className="rounded-[20px] border border-border/50 bg-card/75 p-4 sm:p-5 text-center transition-all duration-300 hover:border-primary/30">
+                <Icon className="mx-auto mb-2 sm:mb-3 h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-muted-foreground">{label}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 rounded-[24px] border border-border/50 bg-card/90 p-8 shadow-elegant backdrop-blur-xl">
+          <div className="mt-10 rounded-[24px] border border-border/50 bg-card/90 p-6 sm:p-8 shadow-elegant backdrop-blur-xl">
             <h2 className="font-serif text-2xl text-foreground">Pros</h2>
-            <ul className="mt-6 grid gap-3 text-sm text-muted-foreground">
+            <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
               {defaultPros.map((pro) => (
-                <li key={pro} className="flex items-start gap-3 rounded-[16px] border border-border/40 bg-background/70 p-4">
-                  <Check className="mt-1 h-4 w-4 text-primary" />
+                <li key={pro} className="flex items-start gap-3 rounded-[16px] border border-border/40 bg-background/70 p-4 transition-all duration-300 hover:border-primary/20">
+                  <Check className="mt-1 h-4 w-4 text-primary shrink-0" />
                   <span>{pro}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card/45 sm:bg-transparent border border-border/30 sm:border-0 rounded-[24px] p-6 sm:p-0">
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Precios con envío discreto</p>
-              <p className="mt-2 text-lg text-muted-foreground">Compra ahora y recibe en urna sin marca.</p>
+              <p className="mt-2 text-base sm:text-lg text-muted-foreground">Compra ahora y recibe en urna sin marca.</p>
             </div>
             <button
               type="button"
               disabled={product.stock <= 0}
               onClick={onAdd}
-              className="inline-flex items-center justify-center rounded-[12px] bg-gradient-ruby px-6 py-3 text-sm uppercase tracking-[0.3em] text-primary-foreground transition hover:scale-[1.01] hover:shadow-[0_0_35px_-10px_var(--ruby)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-[12px] bg-gradient-ruby px-6 py-3 text-sm uppercase tracking-[0.3em] text-primary-foreground transition hover:scale-[1.01] hover:shadow-[0_0_35px_-10px_var(--ruby)] disabled:cursor-not-allowed disabled:opacity-50 w-full sm:w-auto"
             >
               Añadir a la bolsa
             </button>
@@ -199,6 +206,35 @@ export function ProductDetail({
         </div>
       </div>
       </section>
+
+      {/* Sticky Mobile Purchase Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-t border-border/80 p-4 flex items-center justify-between shadow-elegant">
+        <div className="flex flex-col text-left">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground truncate max-w-[150px]">
+            {product.title}
+          </span>
+          <div className="flex items-baseline gap-1.5 mt-0.5">
+            <span className="text-lg font-bold text-gradient-ruby leading-none">
+              {product.is_promo && product.sale_price != null 
+                ? product.sale_price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 0 }) 
+                : product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 0 })}
+            </span>
+            {product.is_promo && product.sale_price != null && (
+              <span className="text-xs line-through text-muted-foreground leading-none">
+                {product.price.toLocaleString("es-MX", { style: "currency", currency: "USD", minimumFractionDigits: 0 })}
+              </span>
+            )}
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled={product.stock <= 0}
+          onClick={onAdd}
+          className="rounded-[10px] bg-gradient-ruby px-5 py-2.5 text-xs font-bold uppercase tracking-[0.2em] text-primary-foreground transition hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {product.stock > 0 ? "Añadir" : "Agotado"}
+        </button>
+      </div>
     </div>
   );
 }
