@@ -1,4 +1,4 @@
-import { Check, Sparkles, Star, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, Sparkles, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Product } from "@/components/ProductCard";
@@ -20,7 +20,6 @@ export function ProductDetail({
   onBack,
   onSelectProduct,
 }: ProductDetailProps) {
-  const [rating, setRating] = useState(4);
   const { add, open } = useCart();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -121,24 +120,6 @@ export function ProductDetail({
 
             <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => setRating(index + 1)}
-                      className="rounded-full p-1 transition hover:text-amber-300"
-                      aria-label={`Valorar ${index + 1} estrella${index + 1 === 1 ? "" : "s"}`}
-                    >
-                      <Star
-                        className={`h-6 w-6 ${index < rating ? "text-amber-400" : "text-muted-foreground/60"}`}
-                      />
-                    </button>
-                  ))}
-                  <span className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
-                    {rating}.0 / 5
-                  </span>
-                </div>
                 {product.description && (
                   <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
                     {product.description}
@@ -203,24 +184,20 @@ export function ProductDetail({
             </button>
           </div>
 
-          {/* WhatsApp Callout */}
-          <div className="mt-10 rounded-[24px] border border-emerald-500/20 bg-emerald-500/5 p-6 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-6 transition-all duration-300 hover:border-emerald-500/40 hover:bg-emerald-500/10">
-            <div className="flex items-center gap-4 text-left">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-                <MessageCircle className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-serif text-lg font-medium text-foreground">¿Tienes dudas sobre esta pieza?</h3>
-                <p className="text-sm text-muted-foreground mt-1">Pregúntanos por WhatsApp con total discreción y anonimato.</p>
-              </div>
+          {/* Subtle WhatsApp Callout */}
+          <div className="mt-12 pt-10 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-6 transition-all">
+            <div className="text-left space-y-1.5">
+              <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-medium">Asesoría Discreta</h3>
+              <p className="text-sm text-muted-foreground">Consulta con uno de nuestros especialistas vía WhatsApp.</p>
             </div>
             <a
-              href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, tengo dudas sobre el producto "${product.title}" (${window.location.href})`)}`}
+              href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, quisiera saber más sobre la pieza "${product.title}" (${window.location.href})`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-[12px] bg-emerald-600 hover:bg-emerald-500 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.4)]"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-3 rounded-full border border-border/60 bg-transparent px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground transition-all duration-300 hover:border-foreground/50 hover:bg-foreground/5 focus:outline-none"
             >
-              Consultar dudas
+              <MessageCircle className="h-4 w-4 opacity-70" />
+              <span>Contactar</span>
             </a>
           </div>
         </div>
