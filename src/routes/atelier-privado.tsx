@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon, Clock, Package, ShoppingBag, Settings, Menu, Gift } from "lucide-react";
+import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon, Clock, Package, ShoppingBag, Settings, Menu, Gift, MapPin } from "lucide-react";
+import { DEFAULT_ZONES, DeliveryZonesConfig } from "@/lib/default-zones";
 
 export const Route = createFileRoute("/atelier-privado")({
   component: AdminPage,
@@ -113,6 +114,7 @@ export function AdminPage() {
   const [binanceId, setBinanceId] = useState("");
   const [discount2, setDiscount2] = useState("0");
   const [discount3, setDiscount3] = useState("0");
+  const [zonesConfig, setZonesConfig] = useState<DeliveryZonesConfig>(DEFAULT_ZONES);
 
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "offers" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
@@ -167,6 +169,12 @@ export function AdminPage() {
             if (s.key === "binance_id") setBinanceId(s.value);
             if (s.key === "discount_2_items") setDiscount2(s.value || "0");
             if (s.key === "discount_3_items") setDiscount3(s.value || "0");
+            if (s.key === "delivery_zones") {
+              try {
+                const parsed = JSON.parse(s.value || "{}");
+                if (Object.keys(parsed).length > 0) setZonesConfig(parsed);
+              } catch (e) {}
+            }
           });
         }
       } catch (err) {
@@ -257,6 +265,7 @@ export function AdminPage() {
       { key: "binance_id", value: binanceId },
       { key: "discount_2_items", value: discount2 },
       { key: "discount_3_items", value: discount3 },
+      { key: "delivery_zones", value: JSON.stringify(zonesConfig) },
     ];
     
     try {
@@ -270,6 +279,35 @@ export function AdminPage() {
     } catch (err: any) {
       toast.error(`Error guardando configuración: ${err.message}`);
     }
+  };
+
+  const addZone = () => {
+    const num = Object.keys(zonesConfig).length + 1;
+    setZonesConfig({ ...zonesConfig, [`Zona ${num}`]: { precio: 0, locaciones: [] } });
+  };
+
+  const removeZone = (z: string) => {
+    if (!confirm(`¿Seguro que deseas eliminar la ${z}?`)) return;
+    const newConfig = { ...zonesConfig };
+    delete newConfig[z];
+    setZonesConfig(newConfig);
+  };
+
+  const renameZone = (oldName: string, newName: string) => {
+    if (oldName === newName || !newName.trim()) return;
+    const newConfig = { ...zonesConfig };
+    newConfig[newName] = newConfig[oldName];
+    delete newConfig[oldName];
+    setZonesConfig(newConfig);
+  };
+
+  const updateZonePrice = (z: string, val: number) => {
+    setZonesConfig({ ...zonesConfig, [z]: { ...zonesConfig[z], precio: val } });
+  };
+
+  const updateZoneLocations = (z: string, val: string) => {
+    const arr = val.split(",").map(s => s.trim()).filter(Boolean);
+    setZonesConfig({ ...zonesConfig, [z]: { ...zonesConfig[z], locaciones: arr } });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "image_url" | "image_2_url" | "image_3_url") => {
@@ -874,6 +912,58 @@ export function AdminPage() {
                       <Field label="Pay ID o Correo Binance" placeholder="Ej. 123456789 o email" value={binanceId} onChange={setBinanceId} />
                     </div>
                   </div>
+                </div>
+              </section>
+
+              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+                  <h2 className="font-serif text-2xl text-primary flex items-center gap-2">
+                    <MapPin className="h-5 w-5" /> Zonas de Envío
+                  </h2>
+                  <button onClick={addZone} className="text-xs uppercase tracking-widest text-primary font-bold hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+                    + Nueva Zona
+                  </button>
+                </div>
+                <p className="text-sm text-muted-foreground mb-8">Administra las locaciones y precios del delivery. Las locaciones deben ir separadas por coma.</p>
+
+                <div className="space-y-6">
+                  {Object.entries(zonesConfig).map(([zoneName, zoneData]) => (
+                    <div key={zoneName} className="p-5 border border-border/40 rounded-[8px] bg-background/50 relative group transition-all hover:border-border">
+                      <button onClick={() => removeZone(zoneName)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" title="Eliminar Zona">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                      <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Nombre de la Zona</label>
+                          <input
+                            value={zoneName}
+                            onChange={(e) => renameZone(zoneName, e.target.value)}
+                            className="mt-2 w-full rounded-[8px] border border-border bg-input px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Precio del Delivery ($)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={zoneData.precio}
+                            onChange={(e) => updateZonePrice(zoneName, Number(e.target.value))}
+                            className="mt-2 w-full rounded-[8px] border border-border bg-input px-3 py-2 text-sm focus:border-primary focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Locaciones (separadas por coma)</label>
+                        <textarea
+                          rows={3}
+                          value={zoneData.locaciones.join(", ")}
+                          onChange={(e) => updateZoneLocations(zoneName, e.target.value)}
+                          placeholder="Ej. Altamira, Chacao, Los Palos Grandes"
+                          className="mt-2 w-full rounded-[8px] border border-border bg-input px-3 py-2 text-sm focus:border-primary focus:outline-none resize-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </section>
 

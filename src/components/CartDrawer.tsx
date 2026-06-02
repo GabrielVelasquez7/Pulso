@@ -3,6 +3,7 @@ import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, 
 import { useCart } from "@/lib/cart-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { DEFAULT_ZONES, DeliveryZonesConfig } from "@/lib/default-zones";
 
 function generateOrderId() {
   const n = Math.floor(1000 + Math.random() * 9000);
@@ -26,12 +27,14 @@ export function CartDrawer() {
   const [binanceId, setBinanceId] = useState("");
   const [discount2, setDiscount2] = useState(0);
   const [discount3, setDiscount3] = useState(0);
+  const [zonesConfig, setZonesConfig] = useState<DeliveryZonesConfig>(DEFAULT_ZONES);
 
   // Checkout form states
   const [step, setStep] = useState<"cart" | "checkout">("cart");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [deliveryType, setDeliveryType] = useState<"home" | "pickup">("home");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"pago_movil" | "zelle" | "binance" | "cash">("pago_movil");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,6 +58,12 @@ export function CartDrawer() {
           if (dict.binance_id) setBinanceId(dict.binance_id);
           if (dict.discount_2_items) setDiscount2(Number(dict.discount_2_items));
           if (dict.discount_3_items) setDiscount3(Number(dict.discount_3_items));
+          if (dict.delivery_zones) {
+            try {
+              const parsed = JSON.parse(dict.delivery_zones);
+              if (Object.keys(parsed).length > 0) setZonesConfig(parsed);
+            } catch(e) {}
+          }
         }
       });
   }, []);
@@ -81,13 +90,23 @@ export function CartDrawer() {
     bundleDiscount = discount2;
   }
 
-  const shippingCost = deliveryType === "pickup" ? 0 : subtotal >= 100 ? 0 : 10;
+  let dynamicShipping = 10;
+  if (deliveryType === "home" && selectedLocation) {
+    for (const zone of Object.values(zonesConfig)) {
+      if (zone.locaciones.includes(selectedLocation)) {
+        dynamicShipping = zone.precio;
+        break;
+      }
+    }
+  }
+
+  const shippingCost = deliveryType === "pickup" ? 0 : subtotal >= 100 ? 0 : dynamicShipping;
   const grandTotal = Math.max(0, subtotal + shippingCost - bundleDiscount);
 
   const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
-    if (!name.trim() || !phone.trim() || (deliveryType === "home" && !address.trim())) {
+    if (!name.trim() || !phone.trim() || (deliveryType === "home" && (!address.trim() || !selectedLocation))) {
       toast.error("Por favor completa los campos requeridos");
       return;
     }
@@ -108,7 +127,7 @@ export function CartDrawer() {
       customer_name: name,
       customer_phone: phone,
       delivery_type: deliveryType === "home" ? "Envío a domicilio" : "Retiro en persona",
-      delivery_address: deliveryType === "home" ? address : "N/A (Retiro en persona)",
+      delivery_address: deliveryType === "home" ? `${selectedLocation} - ${address}` : "N/A (Retiro en persona)",
       payment_method: paymentMethodNames[paymentMethod],
       subtotal,
       shipping_cost: shippingCost,
@@ -146,7 +165,7 @@ export function CartDrawer() {
       `${resumen}\n\n` +
       discountMsg +
       `Total a pagar: ${formatPrice(grandTotal)}\n` +
-      `Dirección: ${deliveryType === "home" ? address : "Retiro en persona"}`;
+      `Dirección: ${deliveryType === "home" ? `${selectedLocation} - ${address}` : "Retiro en persona"}`;
 
     const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
     const url = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(msg)}`;
@@ -157,6 +176,10 @@ export function CartDrawer() {
     close();
     window.open(url, "_blank");
   };
+
+  const allLocations = Object.values(zonesConfig)
+    .flatMap((z) => z.locaciones)
+    .sort((a, b) => a.localeCompare(b));
 
   return (
     <>
@@ -314,18 +337,37 @@ export function CartDrawer() {
                 </div>
 
                 {deliveryType === "home" && (
-                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                    <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium">
-                      Dirección Completa
-                    </label>
-                    <textarea
-                      required
-                      rows={3}
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Calle, Número, Colonia, C.P., Ciudad"
-                      className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none resize-none"
-                    />
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-6 mt-2">
+                    <div>
+                      <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                        Locación (Zona de Caracas)
+                      </label>
+                      <select
+                        required
+                        value={selectedLocation}
+                        onChange={(e) => setSelectedLocation(e.target.value)}
+                        className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
+                      >
+                        <option value="">Selecciona tu zona...</option>
+                        {allLocations.map((loc) => (
+                          <option key={loc} value={loc}>{loc}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                        Dirección Detallada
+                      </label>
+                      <textarea
+                        required
+                        rows={3}
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Calle, Número de Edificio/Casa, Punto de referencia"
+                        className="mt-2 w-full rounded-[8px] border border-border bg-input px-5 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none resize-none"
+                      />
+                    </div>
                   </div>
                 )}
 
