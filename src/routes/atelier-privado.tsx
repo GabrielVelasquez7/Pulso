@@ -116,7 +116,7 @@ export function AdminPage() {
   const [discount3, setDiscount3] = useState("0");
   const [zonesConfig, setZonesConfig] = useState<DeliveryZonesConfig>(DEFAULT_ZONES);
 
-  const [activeTab, setActiveTab] = useState<"products" | "orders" | "offers" | "settings">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "offers" | "zones" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -416,12 +416,12 @@ export function AdminPage() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-20 w-72 transform border-r border-border/80 bg-card/80 backdrop-blur-xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-20 w-72 transform border-r border-white/5 bg-black/40 backdrop-blur-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-full flex-col">
           <div className="hidden lg:flex items-center gap-2 p-8 pb-4">
-            <span className="font-serif text-3xl font-bold tracking-widest text-primary">PULSO</span>
+            <span className="font-serif text-3xl font-bold tracking-widest text-primary drop-shadow-[0_0_15px_rgba(var(--ruby-rgb),0.5)]">PULSO</span>
           </div>
-          <p className="hidden lg:block px-8 text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-bold mb-8">Atelier Admin</p>
+          <p className="hidden lg:block px-8 text-[10px] uppercase tracking-[0.4em] text-muted-foreground/60 font-bold mb-8">Atelier Privado</p>
 
           <nav className="flex-1 space-y-2 px-4 py-8 lg:py-0">
             <SidebarItem 
@@ -442,6 +442,12 @@ export function AdminPage() {
               label="Ofertas" 
               active={activeTab === "offers"} 
               onClick={() => { setActiveTab("offers"); setIsMobileMenuOpen(false); }} 
+            />
+            <SidebarItem 
+              icon={<MapPin className="h-5 w-5" />} 
+              label="Zonas" 
+              active={activeTab === "zones"} 
+              onClick={() => { setActiveTab("zones"); setIsMobileMenuOpen(false); }} 
             />
             <SidebarItem 
               icon={<Settings className="h-5 w-5" />} 
@@ -465,17 +471,23 @@ export function AdminPage() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 p-5 sm:p-8 lg:p-12 overflow-y-auto w-full">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-1 p-5 sm:p-8 lg:p-12 overflow-y-auto w-full relative">
+        {/* Subtle background glow */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-ruby rounded-full opacity-[0.03] blur-[120px]" />
+          <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full opacity-[0.02] blur-[100px]" />
+        </div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
           {activeTab === "products" && (
             <div className="animate-in fade-in duration-500">
               {/* Form Section - Full Width */}
               <header className="mb-10">
-                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">{form.id ? "Editar Pieza" : "Nueva Pieza"}</h1>
-                <p className="mt-2 text-muted-foreground">Completa los datos del producto para añadirlo al catálogo.</p>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground tracking-tight">{form.id ? "Editar Pieza" : "Nueva Pieza"}</h1>
+                <p className="mt-2 text-muted-foreground/80">Completa los datos del producto para añadirlo al catálogo.</p>
               </header>
 
-              <section className="rounded-[8px] border border-border/80 bg-card p-6 sm:p-8 shadow-sm max-w-2xl">
+              <section className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-6 sm:p-8 shadow-elegant max-w-2xl">
                 <form onSubmit={submit} className="space-y-5">
                   <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
                   <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
@@ -628,7 +640,7 @@ export function AdminPage() {
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                     {products.map((p) => (
-                      <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-[8px] border border-border/60 bg-card shadow-sm hover:border-primary/40 hover:shadow-md transition-all duration-300">
+                      <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-elegant hover:border-primary/40 hover:shadow-[0_0_30px_rgba(var(--ruby-rgb),0.15)] transition-all duration-500">
                         {/* Image */}
                         <div className="relative aspect-square overflow-hidden bg-muted border-b border-border/40">
                           {p.image_url ? (
@@ -702,7 +714,7 @@ export function AdminPage() {
                   {orders.map((order) => {
                     const orderItems = (order.items || []) as OrderItem[];
                     return (
-                      <div key={order.id} className="rounded-[8px] border border-border/80 bg-card p-6 shadow-md flex flex-col gap-6 lg:flex-row">
+                      <div key={order.id} className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-6 shadow-elegant flex flex-col gap-6 lg:flex-row transition-all hover:border-white/10">
                         {/* Order Meta & Status */}
                         <div className="flex-1 min-w-[250px] space-y-5 border-b lg:border-b-0 lg:border-r border-border/40 pb-6 lg:pb-0 lg:pr-6">
                           <div className="flex items-start justify-between">
@@ -811,11 +823,11 @@ export function AdminPage() {
           {activeTab === "offers" && (
             <div className="animate-in fade-in duration-500 max-w-2xl space-y-10">
               <header>
-                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Ofertas y Combos</h1>
-                <p className="mt-2 text-muted-foreground">Configura los descuentos globales por llevar múltiples piezas (Bundles).</p>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground tracking-tight">Ofertas y Combos</h1>
+                <p className="mt-2 text-muted-foreground/80">Configura los descuentos globales por llevar múltiples piezas (Bundles).</p>
               </header>
 
-              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+              <section className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 shadow-elegant">
                 <h2 className="font-serif text-2xl mb-2 text-primary">Descuento Global por Volumen</h2>
                 <p className="text-sm text-muted-foreground mb-6">Esta regla aplica a cualquier par de ítems que el cliente agregue a su bolsa.</p>
                 
@@ -853,14 +865,81 @@ export function AdminPage() {
             </div>
           )}
 
+          {activeTab === "zones" && (
+            <div className="animate-in fade-in duration-500 max-w-3xl space-y-10">
+              <header>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground tracking-tight">Zonas de Envío</h1>
+                <p className="mt-2 text-muted-foreground/80">Administra las locaciones y los precios dinámicos del delivery.</p>
+              </header>
+
+              <section className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 shadow-elegant">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+                  <h2 className="font-serif text-2xl text-primary flex items-center gap-2">
+                    <MapPin className="h-5 w-5" /> Configuración de Zonas
+                  </h2>
+                  <button onClick={addZone} className="text-xs uppercase tracking-widest text-primary font-bold hover:text-primary/80 transition-colors bg-primary/10 px-4 py-2 rounded-full border border-primary/20 hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(var(--ruby-rgb),0.3)]">
+                    + Nueva Zona
+                  </button>
+                </div>
+                <p className="text-sm text-muted-foreground mb-8">Las locaciones de una zona determinan el costo del delivery. Separa cada urbanización con una coma.</p>
+
+                <div className="space-y-6">
+                  {Object.entries(zonesConfig).map(([zoneName, zoneData]) => (
+                    <div key={zoneName} className="p-6 border border-white/5 rounded-[12px] bg-black/20 relative group transition-all hover:border-white/10 hover:shadow-lg">
+                      <button onClick={() => removeZone(zoneName)} className="absolute top-5 right-5 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none" title="Eliminar Zona">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                      <div className="grid sm:grid-cols-2 gap-6 mb-6">
+                        <div>
+                          <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Nombre de la Zona</label>
+                          <input
+                            value={zoneName}
+                            onChange={(e) => renameZone(zoneName, e.target.value)}
+                            className="mt-2 w-full rounded-[8px] border border-white/10 bg-input/50 px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Precio del Delivery ($)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={zoneData.precio}
+                            onChange={(e) => updateZonePrice(zoneName, Number(e.target.value))}
+                            className="mt-2 w-full rounded-[8px] border border-white/10 bg-input/50 px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Locaciones (separadas por coma)</label>
+                        <textarea
+                          rows={3}
+                          value={zoneData.locaciones.join(", ")}
+                          onChange={(e) => updateZoneLocations(zoneName, e.target.value)}
+                          placeholder="Ej. Altamira, Chacao, Los Palos Grandes"
+                          className="mt-2 w-full rounded-[8px] border border-white/10 bg-input/50 px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none resize-none transition-all"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <div className="sticky bottom-5 border-t border-white/5 pt-5 flex justify-end">
+                <button onClick={saveSettings} className="inline-flex h-[58px] min-w-[200px] items-center justify-center rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40 shadow-lg hover:scale-[1.02]">
+                  Guardar Zonas
+                </button>
+              </div>
+            </div>
+          )}
+
           {activeTab === "settings" && (
             <div className="animate-in fade-in duration-500 max-w-2xl space-y-10">
               <header>
-                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Ajustes</h1>
-                <p className="mt-2 text-muted-foreground">Configuraciones generales del sistema.</p>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground tracking-tight">Ajustes Generales</h1>
+                <p className="mt-2 text-muted-foreground/80">Configura la atención al cliente y métodos de pago.</p>
               </header>
 
-              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+              <section className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 shadow-elegant">
                 <h2 className="font-serif text-2xl mb-2 text-primary">Atención al Cliente</h2>
                 <p className="text-sm text-muted-foreground mb-6">Configura el número de WhatsApp a donde llegarán las órdenes de los clientes.</p>
                 
@@ -873,7 +952,7 @@ export function AdminPage() {
                         value={waNumber}
                         onChange={(e) => setWaNumber(e.target.value)}
                         placeholder="52 1 555 555 5555"
-                        className="w-full rounded-[8px] border border-border bg-input pl-8 pr-4 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                        className="w-full rounded-[8px] border border-white/10 bg-input/50 pl-8 pr-4 py-4 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -881,14 +960,14 @@ export function AdminPage() {
                 </div>
               </section>
 
-              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+              <section className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 shadow-elegant">
                 <h2 className="font-serif text-2xl mb-2 text-primary">Métodos de Pago</h2>
                 <p className="text-sm text-muted-foreground mb-8">Configura las credenciales para los distintos métodos de pago. Efectivo siempre estará activo.</p>
                 
                 <div className="space-y-10">
                   {/* Pago Movil */}
                   <div>
-                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-border/40 pb-2">Pago Móvil (Venezuela)</h3>
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-white/10 pb-2">Pago Móvil (Venezuela)</h3>
                     <div className="grid sm:grid-cols-2 gap-6">
                       <Field label="Banco" placeholder="Ej. Banesco (0134)" value={pmBanco} onChange={setPmBanco} />
                       <Field label="Teléfono" placeholder="Ej. 04141234567" value={pmTelefono} onChange={setPmTelefono} />
@@ -899,7 +978,7 @@ export function AdminPage() {
 
                   {/* Zelle */}
                   <div>
-                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-border/40 pb-2">Zelle</h3>
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-white/10 pb-2">Zelle</h3>
                     <div className="grid sm:grid-cols-2 gap-6">
                       <Field label="Correo Zelle" placeholder="ejemplo@correo.com" value={zelleEmail} onChange={setZelleEmail} />
                     </div>
@@ -907,7 +986,7 @@ export function AdminPage() {
 
                   {/* Binance */}
                   <div>
-                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-border/40 pb-2">Binance Pay</h3>
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-widest text-foreground mb-4 border-b border-white/10 pb-2">Binance Pay</h3>
                     <div className="grid sm:grid-cols-2 gap-6">
                       <Field label="Pay ID o Correo Binance" placeholder="Ej. 123456789 o email" value={binanceId} onChange={setBinanceId} />
                     </div>
@@ -915,60 +994,8 @@ export function AdminPage() {
                 </div>
               </section>
 
-              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-                  <h2 className="font-serif text-2xl text-primary flex items-center gap-2">
-                    <MapPin className="h-5 w-5" /> Zonas de Envío
-                  </h2>
-                  <button onClick={addZone} className="text-xs uppercase tracking-widest text-primary font-bold hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-                    + Nueva Zona
-                  </button>
-                </div>
-                <p className="text-sm text-muted-foreground mb-8">Administra las locaciones y precios del delivery. Las locaciones deben ir separadas por coma.</p>
-
-                <div className="space-y-6">
-                  {Object.entries(zonesConfig).map(([zoneName, zoneData]) => (
-                    <div key={zoneName} className="p-5 border border-border/40 rounded-[8px] bg-background/50 relative group transition-all hover:border-border">
-                      <button onClick={() => removeZone(zoneName)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" title="Eliminar Zona">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                      <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Nombre de la Zona</label>
-                          <input
-                            value={zoneName}
-                            onChange={(e) => renameZone(zoneName, e.target.value)}
-                            className="mt-2 w-full rounded-[8px] border border-border bg-input px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Precio del Delivery ($)</label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={zoneData.precio}
-                            onChange={(e) => updateZonePrice(zoneName, Number(e.target.value))}
-                            className="mt-2 w-full rounded-[8px] border border-border bg-input px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Locaciones (separadas por coma)</label>
-                        <textarea
-                          rows={3}
-                          value={zoneData.locaciones.join(", ")}
-                          onChange={(e) => updateZoneLocations(zoneName, e.target.value)}
-                          placeholder="Ej. Altamira, Chacao, Los Palos Grandes"
-                          className="mt-2 w-full rounded-[8px] border border-border bg-input px-3 py-2 text-sm focus:border-primary focus:outline-none resize-none"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              <div className="sticky bottom-5 border-t border-border/40 pt-5 flex justify-end">
-                <button onClick={saveSettings} className="inline-flex h-[58px] min-w-[200px] items-center justify-center rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40 shadow-lg">
+              <div className="sticky bottom-5 border-t border-white/5 pt-5 flex justify-end">
+                <button onClick={saveSettings} className="inline-flex h-[58px] min-w-[200px] items-center justify-center rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40 shadow-lg hover:scale-[1.02]">
                   Guardar Cambios
                 </button>
               </div>
