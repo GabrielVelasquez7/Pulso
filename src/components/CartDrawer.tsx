@@ -24,6 +24,8 @@ export function CartDrawer() {
   const [pmData, setPmData] = useState({ banco: "", telefono: "", cedula: "", nombre: "" });
   const [zelleEmail, setZelleEmail] = useState("");
   const [binanceId, setBinanceId] = useState("");
+  const [discount2, setDiscount2] = useState(0);
+  const [discount3, setDiscount3] = useState(0);
 
   // Checkout form states
   const [step, setStep] = useState<"cart" | "checkout">("cart");
@@ -51,6 +53,8 @@ export function CartDrawer() {
           });
           if (dict.zelle_email) setZelleEmail(dict.zelle_email);
           if (dict.binance_id) setBinanceId(dict.binance_id);
+          if (dict.discount_2_items) setDiscount2(Number(dict.discount_2_items));
+          if (dict.discount_3_items) setDiscount3(Number(dict.discount_3_items));
         }
       });
   }, []);
@@ -69,8 +73,16 @@ export function CartDrawer() {
   }, [items]);
 
   // Pricing calculations
+  const totalQty = items.reduce((acc, i) => acc + i.quantity, 0);
+  let bundleDiscount = 0;
+  if (totalQty >= 3 && discount3 > 0) {
+    bundleDiscount = discount3;
+  } else if (totalQty >= 2 && discount2 > 0) {
+    bundleDiscount = discount2;
+  }
+
   const shippingCost = deliveryType === "pickup" ? 0 : subtotal >= 100 ? 0 : 10;
-  const grandTotal = subtotal + shippingCost; // Removed payment adjustment for Pago Movil
+  const grandTotal = Math.max(0, subtotal + shippingCost - bundleDiscount);
 
   const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +112,7 @@ export function CartDrawer() {
       payment_method: paymentMethodNames[paymentMethod],
       subtotal,
       shipping_cost: shippingCost,
-      payment_adjustment: 0,
+      payment_adjustment: -bundleDiscount,
       total: grandTotal,
       items,
       status: "pending",
@@ -121,12 +133,18 @@ export function CartDrawer() {
         paymentMsg = `He seleccionado realizar el pago en Efectivo para el pedido ${orderId} al momento del retiro.`;
     }
 
+    let discountMsg = "";
+    if (bundleDiscount > 0) {
+       discountMsg = `(Descuento Aplicado: -${formatPrice(bundleDiscount)})\n`;
+    }
+
     const msg =
       `Hola PULSO.\n\n` +
       `${paymentMsg}\n\n` +
       `Nombre: ${name}\n` +
       `Productos:\n` +
       `${resumen}\n\n` +
+      discountMsg +
       `Total a pagar: ${formatPrice(grandTotal)}\n` +
       `Dirección: ${deliveryType === "home" ? address : "Retiro discreto"}`;
 
@@ -431,6 +449,12 @@ export function CartDrawer() {
                   <span>Subtotal</span>
                   <span className="text-foreground">{formatPrice(subtotal)}</span>
                 </div>
+                {bundleDiscount > 0 && (
+                  <div className="flex justify-between text-primary font-medium animate-in fade-in slide-in-from-right-4">
+                    <span>Oferta por Volumen</span>
+                    <span>-{formatPrice(bundleDiscount)}</span>
+                  </div>
+                )}
                 {step === "checkout" && (
                   <div className="flex justify-between text-muted-foreground">
                     <span>Envío discreto</span>

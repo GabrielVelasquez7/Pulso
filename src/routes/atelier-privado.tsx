@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon, Clock, Package, ShoppingBag, Settings, Menu } from "lucide-react";
+import { Pencil, Plus, Trash2, LogOut, Upload, MessageSquare, Check, X as XIcon, Clock, Package, ShoppingBag, Settings, Menu, Gift } from "lucide-react";
 
 export const Route = createFileRoute("/atelier-privado")({
   component: AdminPage,
@@ -22,6 +22,7 @@ type Product = {
   sale_price: number | null;
   is_promo: boolean;
   stock: number;
+  related_product_id?: string | null;
 };
 
 type FormState = {
@@ -37,6 +38,7 @@ type FormState = {
   sale_price: string;
   is_promo: boolean;
   stock: string;
+  related_product_id: string;
 };
 
 const empty: FormState = {
@@ -51,6 +53,7 @@ const empty: FormState = {
   sale_price: "",
   is_promo: false,
   stock: "0",
+  related_product_id: "",
 };
 
 type OrderItem = {
@@ -99,8 +102,10 @@ export function AdminPage() {
   const [pmNombre, setPmNombre] = useState("");
   const [zelleEmail, setZelleEmail] = useState("");
   const [binanceId, setBinanceId] = useState("");
+  const [discount2, setDiscount2] = useState("0");
+  const [discount3, setDiscount3] = useState("0");
 
-  const [activeTab, setActiveTab] = useState<"products" | "orders" | "settings">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "orders" | "offers" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -151,6 +156,8 @@ export function AdminPage() {
             if (s.key === "pago_movil_nombre") setPmNombre(s.value);
             if (s.key === "zelle_email") setZelleEmail(s.value);
             if (s.key === "binance_id") setBinanceId(s.value);
+            if (s.key === "discount_2_items") setDiscount2(s.value || "0");
+            if (s.key === "discount_3_items") setDiscount3(s.value || "0");
           });
         }
       } catch (err) {
@@ -181,6 +188,7 @@ export function AdminPage() {
       sale_price: form.sale_price ? Number(form.sale_price) : null,
       is_promo: form.is_promo,
       stock: Number(form.stock) || 0,
+      related_product_id: form.related_product_id || null,
     };
     
     if (form.id) {
@@ -210,6 +218,7 @@ export function AdminPage() {
       sale_price: p.sale_price != null ? String(p.sale_price) : "",
       is_promo: p.is_promo,
       stock: String(p.stock),
+      related_product_id: p.related_product_id ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -231,6 +240,8 @@ export function AdminPage() {
       { key: "pago_movil_nombre", value: pmNombre },
       { key: "zelle_email", value: zelleEmail },
       { key: "binance_id", value: binanceId },
+      { key: "discount_2_items", value: discount2 },
+      { key: "discount_3_items", value: discount3 },
     ];
     
     try {
@@ -374,6 +385,12 @@ export function AdminPage() {
               onClick={() => { setActiveTab("orders"); setIsMobileMenuOpen(false); }} 
             />
             <SidebarItem 
+              icon={<Gift className="h-5 w-5" />} 
+              label="Ofertas" 
+              active={activeTab === "offers"} 
+              onClick={() => { setActiveTab("offers"); setIsMobileMenuOpen(false); }} 
+            />
+            <SidebarItem 
               icon={<Settings className="h-5 w-5" />} 
               label="Ajustes" 
               active={activeTab === "settings"} 
@@ -476,6 +493,20 @@ export function AdminPage() {
                     <input type="checkbox" checked={form.is_promo} onChange={(e) => setForm({ ...form, is_promo: e.target.checked })} className="h-5 w-5 rounded border-border accent-primary bg-input" />
                     <span className="text-sm font-medium">Activar etiqueta de promoción</span>
                   </label>
+
+                  <div className="pt-4 border-t border-border/40">
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Complemento Ideal (Producto Relacionado)</label>
+                    <select
+                      value={form.related_product_id}
+                      onChange={(e) => setForm({ ...form, related_product_id: e.target.value })}
+                      className="mt-3 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none appearance-none"
+                    >
+                      <option value="">Ninguno</option>
+                      {products.filter(p => p.id !== form.id).map(p => (
+                        <option key={p.id} value={p.id}>{p.title}</option>
+                      ))}
+                    </select>
+                  </div>
 
                   <div className="flex gap-4 pt-4 border-t border-border/40">
                     <button type="submit" className="flex-1 inline-flex h-12 items-center justify-center gap-2 rounded-[8px] bg-primary text-sm uppercase tracking-[0.2em] font-bold text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40">
@@ -684,6 +715,51 @@ export function AdminPage() {
                   })}
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === "offers" && (
+            <div className="animate-in fade-in duration-500 max-w-2xl space-y-10">
+              <header>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Ofertas y Combos</h1>
+                <p className="mt-2 text-muted-foreground">Configura los descuentos globales por llevar múltiples piezas (Bundles).</p>
+              </header>
+
+              <section className="rounded-[8px] border border-border/80 bg-card p-8 shadow-sm">
+                <h2 className="font-serif text-2xl mb-2 text-primary">Descuento Global por Volumen</h2>
+                <p className="text-sm text-muted-foreground mb-6">Esta regla aplica a cualquier par de ítems que el cliente agregue a su bolsa.</p>
+                
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Si llevan 2 piezas, descontar ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={discount2}
+                      onChange={(e) => setDiscount2(e.target.value)}
+                      placeholder="Ej. 5"
+                      className="mt-3 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Si llevan 3 piezas o más, descontar ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={discount3}
+                      onChange={(e) => setDiscount3(e.target.value)}
+                      placeholder="Ej. 10"
+                      className="mt-3 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <div className="sticky bottom-5 border-t border-border/40 pt-5 flex justify-end">
+                <button onClick={saveSettings} className="inline-flex h-[58px] min-w-[200px] items-center justify-center rounded-[8px] bg-primary text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground hover:glow-ruby transition-all focus:outline-none focus:ring-4 focus:ring-primary/40 shadow-lg">
+                  Guardar Ofertas
+                </button>
+              </div>
             </div>
           )}
 

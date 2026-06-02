@@ -1,9 +1,10 @@
-import { Check, Sparkles, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Check, Sparkles, MessageCircle, ArrowLeft, ChevronLeft, ChevronRight, Star, Gift } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Product } from "@/components/ProductCard";
 import { ProductCard } from "@/components/ProductCard";
 import useEmblaCarousel from "embla-carousel-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductDetailProps {
   product: Product;
@@ -29,11 +30,39 @@ export function ProductDetail({
     setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
+  const [discount2, setDiscount2] = useState(0);
+  const [discount3, setDiscount3] = useState(0);
+  const [relatedProduct, setRelatedProduct] = useState<Product | null>(null);
+
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.on("select", onSelectEmbla);
     onSelectEmbla();
   }, [emblaApi, onSelectEmbla]);
+
+  useEffect(() => {
+    supabase.from("site_settings").select("*").in("key", ["discount_2_items", "discount_3_items"]).then(({data}) => {
+       if (data) {
+         data.forEach(s => {
+           if (s.key === "discount_2_items") setDiscount2(Number(s.value));
+           if (s.key === "discount_3_items") setDiscount3(Number(s.value));
+         });
+       }
+    });
+
+    if (product.related_product_id) {
+       const found = recommendedProducts.find(p => p.id === product.related_product_id);
+       if (found) {
+         setRelatedProduct(found);
+       } else {
+         supabase.from("products").select("*").eq("id", product.related_product_id).maybeSingle().then(({data}) => {
+           if (data) setRelatedProduct(data as Product);
+         });
+       }
+    } else {
+       setRelatedProduct(null);
+    }
+  }, [product, recommendedProducts]);
 
   const images = [product.image_url, product.image_2_url, product.image_3_url].filter(Boolean) as string[];
 
@@ -100,6 +129,20 @@ export function ProductDetail({
           >
             Volver a la colección
           </button>
+
+          {discount2 > 0 && (
+            <div className="mb-6 rounded-[16px] border border-primary/30 bg-primary/5 p-4 flex items-center justify-between gap-4 shadow-sm animate-in fade-in zoom-in duration-500">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-ruby flex items-center justify-center text-primary-foreground shadow-[0_0_15px_rgba(var(--ruby-rgb),0.5)]">
+                  <Gift className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-foreground uppercase tracking-widest">Oferta por Volumen</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">Lleva 2 piezas y te descontamos <span className="font-bold text-primary">${discount2}</span></p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mb-8 flex flex-col gap-4 rounded-[24px] border border-border/50 bg-card/80 p-6 sm:p-8 shadow-elegant backdrop-blur-xl">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -203,6 +246,22 @@ export function ProductDetail({
           </div>
         </div>
       </div>
+
+      {relatedProduct && (
+        <div className="mt-16 pt-10 border-t border-border/30 animate-in slide-in-from-bottom-8 duration-700">
+          <div className="mb-8 text-center sm:text-left">
+             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs uppercase tracking-widest text-primary font-bold shadow-sm mb-3">
+               <Sparkles className="h-3 w-3" /> Combinación Perfecta
+             </span>
+             <h2 className="font-serif text-3xl sm:text-4xl text-foreground">El Complemento Ideal</h2>
+             <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto sm:mx-0">Llévalos juntos, aplica a nuestra oferta por cantidad y vive la experiencia completa.</p>
+          </div>
+          <div className="max-w-xs mx-auto sm:mx-0 sm:max-w-sm relative group">
+            <div className="absolute -inset-4 bg-gradient-ruby opacity-[0.04] blur-2xl rounded-full pointer-events-none group-hover:opacity-[0.08] transition-opacity duration-500" />
+            <ProductCard product={relatedProduct} onSelect={onSelectProduct} />
+          </div>
+        </div>
+      )}
 
       <div className="mt-20">
         <div className="flex items-center justify-between gap-4">
