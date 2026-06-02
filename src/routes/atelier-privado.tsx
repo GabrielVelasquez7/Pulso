@@ -14,6 +14,10 @@ type Product = {
   title: string;
   description: string | null;
   image_url: string | null;
+  image_2_url?: string | null;
+  image_3_url?: string | null;
+  features?: string | null;
+  usages?: string | null;
   price: number;
   sale_price: number | null;
   is_promo: boolean;
@@ -25,6 +29,10 @@ type FormState = {
   title: string;
   description: string;
   image_url: string;
+  image_2_url: string;
+  image_3_url: string;
+  features: string;
+  usages: string;
   price: string;
   sale_price: string;
   is_promo: boolean;
@@ -35,6 +43,10 @@ const empty: FormState = {
   title: "",
   description: "",
   image_url: "",
+  image_2_url: "",
+  image_3_url: "",
+  features: "",
+  usages: "",
   price: "",
   sale_price: "",
   is_promo: false,
@@ -157,6 +169,10 @@ export function AdminPage() {
       title: form.title,
       description: form.description || null,
       image_url: form.image_url || null,
+      image_2_url: form.image_2_url || null,
+      image_3_url: form.image_3_url || null,
+      features: form.features || null,
+      usages: form.usages || null,
       price: Number(form.price) || 0,
       sale_price: form.sale_price ? Number(form.sale_price) : null,
       is_promo: form.is_promo,
@@ -182,6 +198,10 @@ export function AdminPage() {
       title: p.title,
       description: p.description ?? "",
       image_url: p.image_url ?? "",
+      image_2_url: p.image_2_url ?? "",
+      image_3_url: p.image_3_url ?? "",
+      features: p.features ?? "",
+      usages: p.usages ?? "",
       price: String(p.price),
       sale_price: p.sale_price != null ? String(p.sale_price) : "",
       is_promo: p.is_promo,
@@ -220,7 +240,7 @@ export function AdminPage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "image_url" | "image_2_url" | "image_3_url") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -238,7 +258,7 @@ export function AdminPage() {
       }
 
       const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(data.path);
-      setForm((prev) => ({ ...prev, image_url: publicUrl }));
+      setForm((prev) => ({ ...prev, [field]: publicUrl }));
       toast.success("Imagen subida con éxito");
     } catch (err) {
       console.error(err);
@@ -383,27 +403,59 @@ export function AdminPage() {
                 <form onSubmit={submit} className="space-y-5">
                   <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
                   <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
+                  <Field label="Características (Pros)" placeholder="Separa cada punto por una nueva línea" value={form.features} onChange={(v) => setForm({ ...form, features: v })} textarea />
+                  <Field label="Usos Recomendados" placeholder="Ej: Hogar, Viaje, Spa (separados por coma)" value={form.usages} onChange={(v) => setForm({ ...form, usages: v })} />
                   
-                  <div>
-                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Fotografía</label>
-                    <div className="mt-3 space-y-4">
-                      {form.image_url && (
-                        <div className="h-40 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
-                          <img src={form.image_url} alt="Vista previa" className="h-full w-full object-cover" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Miniatura (Img 1)</label>
+                      <div className="mt-3 space-y-4">
+                        {form.image_url && (
+                          <div className="h-32 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
+                            <img src={form.image_url} alt="Vista previa 1" className="h-full w-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <input type="url" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="URL img..." className="w-0 flex-1 rounded-[8px] border border-border bg-input px-3 py-2 text-xs focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none" />
+                          <label className="cursor-pointer inline-flex items-center justify-center rounded-[8px] border border-border bg-background px-3 text-foreground hover:border-primary hover:bg-muted transition-all">
+                            {isUploading ? <div className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-4 w-4" />}
+                            <input type="file" accept="image/*" disabled={isUploading} onChange={(e) => handleImageUpload(e, "image_url")} className="sr-only" />
+                          </label>
                         </div>
-                      )}
-                      <div className="flex gap-3">
-                        <input
-                          type="url"
-                          value={form.image_url}
-                          onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                          placeholder="URL de imagen..."
-                          className="flex-1 rounded-[8px] border border-border bg-input px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
-                        />
-                        <label className="cursor-pointer inline-flex min-w-[50px] items-center justify-center rounded-[8px] border border-border bg-background px-4 text-foreground hover:border-primary hover:bg-muted transition-all focus-within:ring-2 focus-within:ring-primary/40">
-                          {isUploading ? <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-5 w-5" />}
-                          <input type="file" accept="image/*" disabled={isUploading} onChange={handleImageUpload} className="sr-only" />
-                        </label>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Imagen 2 (Opc)</label>
+                      <div className="mt-3 space-y-4">
+                        {form.image_2_url && (
+                          <div className="h-32 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
+                            <img src={form.image_2_url} alt="Vista previa 2" className="h-full w-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <input type="url" value={form.image_2_url} onChange={(e) => setForm({ ...form, image_2_url: e.target.value })} placeholder="URL img..." className="w-0 flex-1 rounded-[8px] border border-border bg-input px-3 py-2 text-xs focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none" />
+                          <label className="cursor-pointer inline-flex items-center justify-center rounded-[8px] border border-border bg-background px-3 text-foreground hover:border-primary hover:bg-muted transition-all">
+                            {isUploading ? <div className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-4 w-4" />}
+                            <input type="file" accept="image/*" disabled={isUploading} onChange={(e) => handleImageUpload(e, "image_2_url")} className="sr-only" />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Imagen 3 (Opc)</label>
+                      <div className="mt-3 space-y-4">
+                        {form.image_3_url && (
+                          <div className="h-32 w-full rounded-[8px] overflow-hidden bg-muted border border-border/40">
+                            <img src={form.image_3_url} alt="Vista previa 3" className="h-full w-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <input type="url" value={form.image_3_url} onChange={(e) => setForm({ ...form, image_3_url: e.target.value })} placeholder="URL img..." className="w-0 flex-1 rounded-[8px] border border-border bg-input px-3 py-2 text-xs focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none" />
+                          <label className="cursor-pointer inline-flex items-center justify-center rounded-[8px] border border-border bg-background px-3 text-foreground hover:border-primary hover:bg-muted transition-all">
+                            {isUploading ? <div className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Upload className="h-4 w-4" />}
+                            <input type="file" accept="image/*" disabled={isUploading} onChange={(e) => handleImageUpload(e, "image_3_url")} className="sr-only" />
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>

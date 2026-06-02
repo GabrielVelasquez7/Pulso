@@ -18,7 +18,10 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          features: string | null
           id: string
+          image_2_url: string | null
+          image_3_url: string | null
           image_url: string | null
           is_promo: boolean
           price: number
@@ -26,11 +29,15 @@ export type Database = {
           stock: number
           title: string
           updated_at: string
+          usages: string | null
         }
         Insert: {
           created_at?: string
           description?: string | null
+          features?: string | null
           id?: string
+          image_2_url?: string | null
+          image_3_url?: string | null
           image_url?: string | null
           is_promo?: boolean
           price?: number
@@ -38,11 +45,15 @@ export type Database = {
           stock?: number
           title: string
           updated_at?: string
+          usages?: string | null
         }
         Update: {
           created_at?: string
           description?: string | null
+          features?: string | null
           id?: string
+          image_2_url?: string | null
+          image_3_url?: string | null
           image_url?: string | null
           is_promo?: boolean
           price?: number
@@ -50,6 +61,7 @@ export type Database = {
           stock?: number
           title?: string
           updated_at?: string
+          usages?: string | null
         }
         Relationships: []
       }

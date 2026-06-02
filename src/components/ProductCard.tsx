@@ -1,4 +1,4 @@
-﻿import type { MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Plus, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
@@ -9,6 +9,10 @@ export type Product = {
   title: string;
   description: string | null;
   image_url: string | null;
+  image_2_url?: string | null;
+  image_3_url?: string | null;
+  features?: string | null;
+  usages?: string | null;
   price: number;
   sale_price: number | null;
   is_promo: boolean;
