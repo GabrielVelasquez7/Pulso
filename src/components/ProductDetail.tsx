@@ -1,4 +1,4 @@
-import { BedDouble, Check, Home, MapPin, Sparkles, Star } from "lucide-react";
+import { BedDouble, Check, Home, MapPin, Sparkles, Star, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Product } from "@/components/ProductCard";
@@ -21,6 +21,7 @@ const defaultPros = [
 interface ProductDetailProps {
   product: Product;
   recommendedProducts: Product[];
+  whatsappNumber?: string;
   onBack: () => void;
   onSelectProduct: (product: Product) => void;
 }
@@ -28,6 +29,7 @@ interface ProductDetailProps {
 export function ProductDetail({
   product,
   recommendedProducts,
+  whatsappNumber = "5215555555555",
   onBack,
   onSelectProduct,
 }: ProductDetailProps) {
@@ -48,7 +50,7 @@ export function ProductDetail({
     <div className="fixed inset-0 z-50 bg-background/95 overflow-auto p-6" role="dialog" aria-modal="true">
       <section className="mx-auto max-w-7xl px-5 sm:px-8 py-20">
       <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
-        <div className="group relative overflow-hidden rounded-[24px] border border-border/50 bg-card/60 p-4 shadow-elegant backdrop-blur-lg lg:max-w-[45%]">
+        <div className="lg:sticky lg:top-6 group relative overflow-hidden rounded-[24px] border border-border/50 bg-card/60 p-4 shadow-elegant backdrop-blur-lg lg:max-w-[45%] w-full">
           {product.image_url ? (
             <img
               src={product.image_url}
@@ -160,6 +162,27 @@ export function ProductDetail({
             >
               Añadir a la bolsa
             </button>
+          </div>
+
+          {/* WhatsApp Callout */}
+          <div className="mt-10 rounded-[24px] border border-emerald-500/20 bg-emerald-500/5 p-6 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-6 transition-all duration-300 hover:border-emerald-500/40 hover:bg-emerald-500/10">
+            <div className="flex items-center gap-4 text-left">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                <MessageCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-medium text-foreground">¿Tienes dudas sobre esta pieza?</h3>
+                <p className="text-sm text-muted-foreground mt-1">Pregúntanos por WhatsApp con total discreción y anonimato.</p>
+              </div>
+            </div>
+            <a
+              href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, tengo dudas sobre el producto "${product.title}" (${window.location.href})`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-[12px] bg-emerald-600 hover:bg-emerald-500 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.4)]"
+            >
+              Consultar dudas
+            </a>
           </div>
         </div>
       </div>

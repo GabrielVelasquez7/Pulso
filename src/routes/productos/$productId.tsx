@@ -16,6 +16,8 @@ export const Route = createFileRoute("/productos/$productId")({
 function ProductPage() {
   const { productId } = Route.useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("5215555555555");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,6 +25,8 @@ function ProductPage() {
     if (!id) return;
     (async () => {
       try {
+        setLoading(true);
+        // Fetch current product
         const { data, error } = await supabase
           .from("products")
           .select("*")
@@ -33,9 +37,31 @@ function ProductPage() {
           setProduct(null);
         } else {
           setProduct(data as Product);
+
+          // Fetch recommended products (excluding current, limit 4)
+          const { data: recData, error: recError } = await supabase
+            .from("products")
+            .select("*")
+            .neq("id", id)
+            .limit(4);
+          if (!recError && recData) {
+            setRecommendedProducts(recData as Product[]);
+          }
+        }
+
+        // Fetch WhatsApp number from site_settings
+        const { data: settingsData, error: settingsError } = await supabase
+          .from("site_settings")
+          .select("*");
+        if (!settingsError && settingsData) {
+          const dict: Record<string, string> = {};
+          settingsData.forEach(d => dict[d.key] = d.value);
+          if (dict.whatsapp_number) {
+            setWhatsappNumber(dict.whatsapp_number);
+          }
         }
       } catch (err) {
-        console.error('[Supabase] Exception fetching product:', err);
+        console.error('[Supabase] Exception fetching product details data:', err);
         setProduct(null);
       } finally {
         setLoading(false);
@@ -62,7 +88,8 @@ function ProductPage() {
   return (
     <ProductDetail
       product={product}
-      recommendedProducts={[]}
+      recommendedProducts={recommendedProducts}
+      whatsappNumber={whatsappNumber}
       onBack={() => { window.location.href = '/'; }}
       onSelectProduct={(p) => { window.location.href = `/productos/${p.id}`; }}
     />
