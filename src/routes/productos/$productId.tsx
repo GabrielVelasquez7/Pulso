@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductDetail } from "@/components/ProductDetail";
 import { Product } from "@/components/ProductCard";
 
-export const Route = createFileRoute()({
+export const Route = createFileRoute("/productos/$productId")({
   component: ProductPage,
   head: () => ({
     meta: [
@@ -13,12 +13,13 @@ export const Route = createFileRoute()({
   }),
 });
 
-function ProductPage({ params }: { params: { productId: string } }) {
+function ProductPage() {
+  const { productId } = Route.useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const id = params.productId;
+    const id = productId;
     if (!id) return;
     (async () => {
       try {
@@ -40,7 +41,7 @@ function ProductPage({ params }: { params: { productId: string } }) {
         setLoading(false);
       }
     })();
-  }, [params.productId]);
+  }, [productId]);
 
   if (loading) {
     return (
