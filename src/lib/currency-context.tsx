@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export type Currency = "USD" | "VES";
 
@@ -14,29 +14,21 @@ const CurrencyContext = createContext<CurrencyContextValue | null>(null);
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [bcvRate, setBcvRate] = useState<number>(1);
+  const { data: fetchedRate } = useQuery({
+    queryKey: ["bcv-usd-rate"],
+    queryFn: async () => {
+      const res = await fetch("https://ve.dolarapi.com/v1/dolares/oficial");
+      if (!res.ok) throw new Error("Failed to fetch BCV rate");
+      const data = await res.json();
+      if (!data.promedio) throw new Error("Invalid rate payload");
+      return Number(data.promedio);
+    },
+    refetchInterval: 1000 * 60 * 60 * 2, // Refetch every 2 hours automatically in background
+    staleTime: 1000 * 60 * 60, // Consider data fresh for 1 hour
+    retry: 3,
+  });
 
-  useEffect(() => {
-    async function fetchRate() {
-      try {
-        const { data } = await supabase
-          .from("site_settings")
-          .select("value")
-          .eq("key", "bcv_usd_rate")
-          .maybeSingle();
-        
-        if (data && data.value) {
-          const rate = parseFloat(data.value);
-          if (!isNaN(rate) && rate > 0) {
-            setBcvRate(rate);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching BCV rate:", err);
-      }
-    }
-    fetchRate();
-  }, []);
+  const bcvRate = fetchedRate && fetchedRate > 0 ? fetchedRate : 1;
 
   const formatPrice = (amountInUsd: number, forceCurrency?: Currency) => {
     const activeCurrency = forceCurrency || currency;
