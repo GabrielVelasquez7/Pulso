@@ -137,6 +137,17 @@ export function CartDrawer() {
       const { error } = await supabase.from("orders").insert(orderPayload);
       if (error) {
         console.error("Error saving order to Supabase:", error);
+      } else {
+        // Send email notification
+        try {
+          await fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderDetails: orderPayload })
+          });
+        } catch (emailErr) {
+          console.error("Error triggering email notification:", emailErr);
+        }
       }
     } catch (err) {
       console.error("Failed to insert order:", err);
