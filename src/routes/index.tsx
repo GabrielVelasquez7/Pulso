@@ -61,13 +61,13 @@ function Index() {
             <img src={pulsoLogo} alt="PULSO Logo" className="h-16 md:h-24 opacity-90 drop-shadow-lg" />
           </div>
 
-          <p className="inline-flex items-center gap-3 rounded-full border border-primary/30 bg-background/80 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-primary backdrop-blur shadow-sm mx-auto">
-            <span className="h-2 w-2 rounded-full bg-primary glow-pulse" />
+          <p className="inline-flex items-center gap-3 rounded-full border border-brand-rose/40 bg-brand-rose/5 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-brand-rose backdrop-blur shadow-sm mx-auto">
+            <span className="h-2 w-2 rounded-full bg-brand-rose shadow-[0_0_12px_rgba(232,161,150,0.8)] glow-pulse" />
             Solo para adultos
           </p>
 
           <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl leading-[0.95] text-balance text-foreground drop-shadow-sm">
-            Encuentra <span className="italic text-gradient-ruby">tu ritmo</span>.
+            Encuentra <span className="italic text-gradient-brand">tu ritmo</span>.
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg sm:text-xl text-muted-foreground text-balance leading-relaxed mb-6">

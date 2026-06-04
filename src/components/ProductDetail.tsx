@@ -185,7 +185,7 @@ export function ProductDetail({
                 </div>
                 <div className="space-y-1 sm:space-y-2 text-left sm:text-right mt-2 sm:mt-0">
                   <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground">Precio</p>
-                  <p className="text-2xl sm:text-3xl font-semibold text-gradient-ruby">
+                  <p className="text-2xl sm:text-3xl font-semibold text-gradient-brand">
                     {formatPrice(product.is_promo && product.sale_price != null ? product.sale_price : product.price)}
                   </p>
                   {product.is_promo && product.sale_price != null ? (
@@ -267,7 +267,7 @@ export function ProductDetail({
         {relatedProductsList.length > 0 && (
           <div className="mt-16 pt-10 border-t border-border/30 animate-in slide-in-from-bottom-8 duration-700">
             <div className="mb-8 text-center sm:text-left">
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs uppercase tracking-widest text-primary font-bold shadow-sm mb-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-rose/30 bg-brand-rose/10 px-3 py-1 text-xs uppercase tracking-widest text-brand-rose font-bold shadow-sm mb-3">
                 <Sparkles className="h-3 w-3" /> Combinación Perfecta
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl text-foreground">Complemento Ideal</h2>
@@ -302,7 +302,7 @@ export function ProductDetail({
             {product.title}
           </span>
           <div className="flex items-baseline gap-1.5 mt-0.5">
-            <span className="text-lg font-bold text-gradient-ruby leading-none">
+            <span className="text-lg font-bold text-gradient-brand leading-none">
               {formatPrice(product.is_promo && product.sale_price != null ? product.sale_price : product.price)}
             </span>
             {product.is_promo && product.sale_price != null && (

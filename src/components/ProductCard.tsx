@@ -91,7 +91,7 @@ export function ProductCard({
           )}
         </div>
         {product.is_promo && (
-          <span className="inline-flex w-fit items-center rounded-full bg-primary/20 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary border border-primary/20 shadow-sm">
+          <span className="inline-flex w-fit items-center rounded-full bg-brand-rose/20 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-widest text-brand-rose border border-brand-rose/30 shadow-sm">
             Promo
           </span>
         )}

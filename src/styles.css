@@ -35,6 +35,12 @@
   --font-serif: "Outfit", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
+  /* Brand Colors from Logo */
+  --color-brand-red: #B03837;
+  --color-brand-dark: #221C20;
+  --color-brand-rose: #E8A196;
+  --color-brand-lilac: #D0CDE0;
+
   /* Custom radii */
   --radius-default: 8px;
 }
@@ -116,8 +122,15 @@
   .shadow-wine { box-shadow: var(--shadow-wine); }
   .bg-gradient-ruby { background-image: var(--gradient-ruby); }
   .bg-gradient-wine { background-image: var(--gradient-wine); }
+  .bg-gradient-brand { background-image: linear-gradient(135deg, var(--color-brand-red), var(--color-brand-rose)); }
   .text-gradient-ruby {
     background-image: var(--gradient-ruby);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-brand {
+    background-image: linear-gradient(135deg, var(--color-brand-red), var(--color-brand-rose));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
