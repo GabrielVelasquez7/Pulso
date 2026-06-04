@@ -142,7 +142,13 @@ function Index() {
                 <button
                   onClick={() => {
                     setCurrentPage(prev => Math.max(0, prev - 1));
-                    document.getElementById("coleccion")?.scrollIntoView({ behavior: "smooth" });
+                    setTimeout(() => {
+                      const element = document.getElementById("coleccion");
+                      if (element) {
+                        const y = element.getBoundingClientRect().top + window.scrollY - 80;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }
+                    }, 0);
                   }}
                   disabled={currentPage === 0}
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/80 bg-background/80 text-foreground transition-all hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
@@ -156,7 +162,13 @@ function Index() {
                 <button
                   onClick={() => {
                     setCurrentPage(prev => Math.min(Math.ceil(products.length / ITEMS_PER_PAGE) - 1, prev + 1));
-                    document.getElementById("coleccion")?.scrollIntoView({ behavior: "smooth" });
+                    setTimeout(() => {
+                      const element = document.getElementById("coleccion");
+                      if (element) {
+                        const y = element.getBoundingClientRect().top + window.scrollY - 80;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }
+                    }, 0);
                   }}
                   disabled={currentPage >= Math.ceil(products.length / ITEMS_PER_PAGE) - 1}
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/80 bg-background/80 text-foreground transition-all hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
