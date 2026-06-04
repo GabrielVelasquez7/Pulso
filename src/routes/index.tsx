@@ -22,7 +22,7 @@ function Index() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 14;
 
   useEffect(() => {
     supabase
@@ -67,7 +67,7 @@ function Index() {
           </p>
 
           <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl leading-[0.95] text-balance text-foreground drop-shadow-sm">
-            Encuentra <span className="italic text-gradient-brand">tu ritmo</span>.
+            Encuentra <span className="italic text-gradient-brand pr-1 sm:pr-2">tu ritmo</span>.
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg sm:text-xl text-muted-foreground text-balance leading-relaxed mb-6">
