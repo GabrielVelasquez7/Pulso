@@ -61,7 +61,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "PULSO — Bienestar íntimo, elegancia nocturna" },
       { name: "description", content: "Colección curada de bienestar íntimo y juguetes premium para adultos. Confidencial, sofisticado, sensual." },
-      { name: "theme-color", content: "#0B0C10" },
+      { name: "theme-color", content: "#F5E9E2" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

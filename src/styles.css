@@ -36,10 +36,10 @@
   --font-sans: "Inter", system-ui, sans-serif;
 
   /* Brand Colors from Logo */
-  --color-brand-red: #B03837;
-  --color-brand-dark: #221C20;
-  --color-brand-rose: #E8A196;
-  --color-brand-lilac: #D0CDE0;
+  --color-brand-red: #D44D5C;     /* Lobster Pink */
+  --color-brand-dark: #160029;    /* Midnight Violet */
+  --color-brand-rose: #E3B5A4;    /* Almond Silk */
+  --color-brand-lilac: #F5E9E2;   /* Linen */
 
   /* Custom radii */
   --radius-default: 8px;
@@ -48,47 +48,47 @@
 :root {
   --radius: 8px;
 
-  /* Dark by default — warm wine/ruby theme to avoid being overly black */
-  --background: oklch(0.16 0.03 15);          /* deep dark wine/red */
-  --foreground: oklch(0.96 0.01 15);           /* warm off-white for legibility */
+  /* Premium Light palette based on Linen, Almond Silk, Lobster Pink, Wine Plum, Midnight Violet */
+  --background: #F5E9E2;          /* Linen */
+  --foreground: #160029;          /* Midnight Violet */
 
-  --card: oklch(0.20 0.04 15);                /* slightly lighter wine for cards */
-  --card-foreground: oklch(0.96 0.01 15);
+  --card: #FFFFFF;                /* White contrast for cards on Linen bg */
+  --card-foreground: #160029;
 
-  --popover: oklch(0.20 0.04 15);
-  --popover-foreground: oklch(0.96 0.01 15);
+  --popover: #FFFFFF;
+  --popover-foreground: #160029;
 
-  --primary: oklch(0.55 0.22 15);               /* rich ruby red */
-  --primary-foreground: oklch(0.98 0.01 15);
+  --primary: #D44D5C;             /* Lobster Pink */
+  --primary-foreground: #FFFFFF;
 
-  --secondary: oklch(0.25 0.06 15);
-  --secondary-foreground: oklch(0.96 0.01 15);
+  --secondary: #E3B5A4;           /* Almond Silk */
+  --secondary-foreground: #773344;
 
-  --muted: oklch(0.26 0.05 15);
-  --muted-foreground: oklch(0.75 0.02 15);      /* Lighter muted foreground for legibility */
+  --muted: #E3B5A4;               /* Almond Silk */
+  --muted-foreground: #773344;    /* Wine Plum */
 
-  --accent: oklch(0.40 0.16 15);                /* wine accent */
-  --accent-foreground: oklch(0.98 0.01 15);
+  --accent: #773344;              /* Wine Plum */
+  --accent-foreground: #FFFFFF;
 
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.98 0.01 15);
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
 
-  --border: oklch(0.30 0.06 15 / 0.8);
-  --input: oklch(0.24 0.05 15);
-  --ring: oklch(0.55 0.22 15);
+  --border: rgba(119, 51, 68, 0.2); /* Wine Plum translucent border */
+  --input: #FFFFFF;
+  --ring: #D44D5C;
 
-  --ruby: oklch(0.55 0.22 15);
-  --wine: oklch(0.40 0.16 15);
+  --ruby: #D44D5C;
+  --wine: #773344;
 
-  --gradient-night: radial-gradient(1200px 700px at 50% -10%, oklch(0.40 0.16 15 / 0.45), transparent 65%),
-                    radial-gradient(900px 500px at 90% 20%, oklch(0.30 0.10 15 / 0.25), transparent 70%),
-                    radial-gradient(700px 500px at 10% 80%, oklch(0.45 0.22 15 / 0.15), transparent 70%);
-  --gradient-ruby: linear-gradient(135deg, oklch(0.60 0.23 18), oklch(0.45 0.18 12));
-  --gradient-wine: linear-gradient(135deg, oklch(0.45 0.16 15), oklch(0.30 0.12 10));
-  --shadow-ruby: 0 0 40px -8px oklch(0.55 0.22 15 / 0.55);
-  --shadow-ruby-soft: 0 10px 50px -15px oklch(0.55 0.22 15 / 0.35);
-  --shadow-elegant: 0 30px 70px -25px oklch(0 0 0 / 0.75), 0 0 0 1px oklch(0.55 0.22 15 / 0.15);
-  --shadow-wine: 0 20px 60px -20px oklch(0.40 0.16 15 / 0.6);
+  --gradient-night: radial-gradient(1200px 700px at 50% -10%, rgba(227, 181, 164, 0.25), transparent 70%),
+                    radial-gradient(900px 500px at 90% 20%, rgba(212, 77, 92, 0.05), transparent 70%),
+                    radial-gradient(700px 500px at 10% 80%, rgba(119, 51, 68, 0.05), transparent 70%);
+  --gradient-ruby: linear-gradient(135deg, #D44D5C, #773344);
+  --gradient-wine: linear-gradient(135deg, #773344, #160029);
+  --shadow-ruby: 0 10px 30px -8px rgba(212, 77, 92, 0.4);
+  --shadow-ruby-soft: 0 10px 40px -15px rgba(212, 77, 92, 0.15);
+  --shadow-elegant: 0 20px 45px -15px rgba(22, 0, 41, 0.08), 0 0 0 1px rgba(119, 51, 68, 0.08);
+  --shadow-wine: 0 15px 35px -15px rgba(119, 51, 68, 0.2);
   --transition-silk: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -111,7 +111,7 @@
     letter-spacing: -0.01em;
     line-height: 1.2;
   }
-  ::selection { background: var(--ruby); color: var(--foreground); }
+  ::selection { background: var(--ruby); color: #FFFFFF; }
 }
 
 @layer utilities {
