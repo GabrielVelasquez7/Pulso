@@ -154,7 +154,7 @@ export function CartDrawer() {
     }
 
     const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
-    let paymentMsg = `Adjunto el comprobante de pago por ${paymentMethodNames[paymentMethod]} para el pedido ${orderId}.`;
+    let paymentMsg = `Te envío los detalles de mi pedido ${orderId} (Pago mediante ${paymentMethodNames[paymentMethod]}). ¡En breve te adjunto el comprobante!`;
     if (paymentMethod === "cash") {
         paymentMsg = `He seleccionado realizar el pago en Efectivo para el pedido ${orderId} al momento del retiro.`;
     }
@@ -165,7 +165,7 @@ export function CartDrawer() {
     }
 
     const msg =
-      `Hola PULSO.\n\n` +
+      `¡Hola equipo PULSO! ✨\n\n` +
       `${paymentMsg}\n\n` +
       `Nombre: ${name}\n` +
       `Productos:\n` +
@@ -429,7 +429,7 @@ export function CartDrawer() {
                           Monto a transferir: <strong className="text-primary text-lg">{formatPrice(grandTotal, "VES")}</strong>
                         </p>
                         <p className="text-sm text-foreground/90">
-                          Realiza el pago a los siguientes datos y haz clic en "Confirmar" para enviar el comprobante por WhatsApp.
+                          Por favor, realiza el pago a los datos indicados a continuación. Una vez que lo tengas hecho, confirma tu pedido y pasa el comprobante por WhatsApp.
                         </p>
                         <ul className="text-sm space-y-2 mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40">
                           <li><span className="text-muted-foreground font-sans w-20 inline-block">Banco:</span> {pmData.banco || "-"}</li>
@@ -448,7 +448,7 @@ export function CartDrawer() {
                       </h3>
                       <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
                         <p className="text-sm text-foreground/90">
-                          Transfiere el monto exacto en Zelle a la siguiente dirección de correo. Luego confirma y envía el comprobante.
+                          Por favor, transfiere el monto exacto por Zelle a la dirección indicada a continuación. Una vez que lo tengas hecho, confirma tu pedido y pasa el comprobante por WhatsApp.
                         </p>
                         <div className="mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40 text-center text-base">
                           {zelleEmail || "-"}
@@ -464,7 +464,7 @@ export function CartDrawer() {
                       </h3>
                       <div className="bg-primary/5 rounded-[8px] p-5 border border-primary/20 space-y-3">
                         <p className="text-sm text-foreground/90">
-                          Envía el monto mediante Binance Pay al siguiente Pay ID o Correo. Confirma para notificar tu pago por WhatsApp.
+                          Por favor, envía el monto mediante Binance Pay al dato indicado a continuación. Una vez que lo tengas hecho, confirma tu pedido y pasa el comprobante por WhatsApp.
                         </p>
                         <div className="mt-4 font-mono bg-background/50 p-4 rounded-[5px] border border-border/40 text-center text-base">
                           {binanceId || "-"}
@@ -541,7 +541,7 @@ export function CartDrawer() {
                 disabled={items.length === 0 || isSubmitting}
                 className="w-full rounded-[8px] bg-primary py-5 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-ruby focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSubmitting ? "Procesando..." : paymentMethod === "cash" ? "Confirmar y Coordinar" : "Confirmar y Enviar Comprobante"}
+                {isSubmitting ? "Procesando..." : paymentMethod === "cash" ? "Confirmar y Coordinar" : "Confirmar Pedido"}
               </button>
             )}
 
