@@ -115,7 +115,6 @@ export function ProductCard({
             Agotado
           </p>
         )}
-        )}
       </div>
     </article>
   );
