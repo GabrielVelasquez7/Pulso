@@ -1,8 +1,7 @@
 import type { MouseEvent } from "react";
 import { useCart } from "@/lib/cart-context";
 import { useCurrency } from "@/lib/currency-context";
-import { Plus, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { Plus, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 export type Product = {
@@ -35,7 +34,6 @@ export function ProductCard({
 }) {
   const { add, open } = useCart();
   const { formatPrice } = useCurrency();
-  const [isExpanded, setIsExpanded] = useState(false);
   const isOutOfStock = product.stock <= 0;
   const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
@@ -69,6 +67,8 @@ export function ProductCard({
         <img
           src={product.image_url}
           alt={product.title}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
         />
       ) : (
@@ -77,7 +77,7 @@ export function ProductCard({
         </div>
       )}
 
-      <div className={`absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 ${isExpanded ? 'opacity-95' : 'opacity-80 group-hover:opacity-60'}`} />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 opacity-80 group-hover:opacity-60" />
 
       <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
         <div className="inline-flex items-center rounded-full bg-background/80 backdrop-blur px-3 py-1.5 border border-border/50 shadow-sm">
@@ -115,27 +115,6 @@ export function ProductCard({
             Agotado
           </p>
         )}
-        {product.description && (
-          <div className="w-full mt-1">
-            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-40 opacity-100 mb-2' : 'max-h-0 opacity-0'}`}>
-              <p className="text-sm text-foreground/90 leading-relaxed text-pretty drop-shadow-md">
-                {product.description}
-              </p>
-            </div>
-            <button
-              onClick={(event) => {
-                event.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
-              className="inline-flex items-center gap-1.5 text-xs text-primary/90 hover:text-primary font-medium uppercase tracking-widest transition-colors focus:outline-none bg-background/40 hover:bg-background/80 px-2 py-1 rounded-md backdrop-blur-sm"
-            >
-              {isExpanded ? (
-                <>Ver menos <ChevronUp className="h-3 w-3" /></>
-              ) : (
-                <>Ver más <ChevronDown className="h-3 w-3" /></>
-              )}
-            </button>
-          </div>
         )}
       </div>
     </article>
