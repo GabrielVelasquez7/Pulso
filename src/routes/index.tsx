@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
 import pulsoLogo from "@/routes/img/pulsgo.png";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -21,6 +21,8 @@ function Index() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
     supabase
@@ -124,7 +126,7 @@ function Index() {
               Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
-              {products.map((p, i) => (
+              {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
                 <div 
                   key={p.id} 
                   className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both"
@@ -134,6 +136,36 @@ function Index() {
                 </div>
               ))}
             </div>
+            
+            {products.length > ITEMS_PER_PAGE && (
+              <div className="mt-16 flex items-center justify-center gap-6">
+                <button
+                  onClick={() => {
+                    setCurrentPage(prev => Math.max(0, prev - 1));
+                    document.getElementById("coleccion")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  disabled={currentPage === 0}
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/80 bg-background/80 text-foreground transition-all hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Página anterior"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">
+                  {currentPage + 1} / {Math.ceil(products.length / ITEMS_PER_PAGE)}
+                </span>
+                <button
+                  onClick={() => {
+                    setCurrentPage(prev => Math.min(Math.ceil(products.length / ITEMS_PER_PAGE) - 1, prev + 1));
+                    document.getElementById("coleccion")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  disabled={currentPage >= Math.ceil(products.length / ITEMS_PER_PAGE) - 1}
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/80 bg-background/80 text-foreground transition-all hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="Página siguiente"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </section>
