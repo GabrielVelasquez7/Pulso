@@ -22,13 +22,13 @@ function Index() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const ITEMS_PER_PAGE = 14;
+  const ITEMS_PER_PAGE = 12;
 
   useEffect(() => {
     supabase
       .from("products")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("title", { ascending: true })
       .then(({ data }) => {
         setProducts((data ?? []) as Product[]);
         setLoading(false);
