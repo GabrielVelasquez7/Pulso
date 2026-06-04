@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
 import pulsoLogo from "@/routes/img/pulsgo.png";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
-import AutoScroll from "embla-carousel-auto-scroll";
+import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -17,79 +15,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function CarouselRow({ products, direction = "forward", onSelect }: { products: Product[], direction?: "forward" | "backward", onSelect?: (p: Product) => void }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { 
-      loop: true, 
-      dragFree: true,
-      align: "start"
-    },
-    [
-      AutoScroll({
-        playOnInit: true,
-        speed: 0.6,
-        direction: direction,
-        stopOnInteraction: false,
-        stopOnMouseEnter: false, // We'll handle this manually on the parent
-      })
-    ]
-  );
 
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
-
-  const onMouseEnter = useCallback(() => {
-    if (!emblaApi) return;
-    const autoScroll = emblaApi.plugins().autoScroll;
-    if (autoScroll) autoScroll.stop();
-  }, [emblaApi]);
-
-  const onMouseLeave = useCallback(() => {
-    if (!emblaApi) return;
-    const autoScroll = emblaApi.plugins().autoScroll;
-    if (autoScroll) autoScroll.play();
-  }, [emblaApi]);
-
-  return (
-    <div 
-      className="relative group px-5 py-2"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      {/* Manual Controls */}
-      <button
-        onClick={scrollPrev}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
-        aria-label="Anterior"
-      >
-        <ChevronLeft className="h-6 w-6" />
-      </button>
-
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex" style={{ touchAction: 'pan-y pinch-zoom' }}>
-          {products.map((p, i) => (
-            <div key={`${i}-${p.id}`} className="flex-[0_0_auto] w-[260px] sm:w-[320px] transform-gpu pr-8">
-              <ProductCard product={p} onSelect={onSelect} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <button
-        onClick={scrollNext}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-background/80 backdrop-blur border border-border/80 flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all opacity-0 group-hover:opacity-100 shadow-elegant"
-        aria-label="Siguiente"
-      >
-        <ChevronRight className="h-6 w-6" />
-      </button>
-    </div>
-  );
-}
 
 function Index() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -116,9 +42,6 @@ function Index() {
   });
 
   const isSearching = searchQuery.trim().length > 0;
-
-  // Separate array for right-scrolling row
-  const row2Products = [...products].reverse();
 
   return (
     <main className="flex flex-col min-h-[calc(100vh-5rem)] overflow-hidden">
@@ -195,18 +118,23 @@ function Index() {
             <p className="mt-2 text-muted-foreground/70">Nuestra selección está siendo curada.</p>
           </div>
         ) : (
-          // Carousel View
-          <>
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background via-background/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/80 to-transparent z-10" />
-
-            <div className="flex flex-col gap-10 md:gap-16">
-              <CarouselRow products={products} direction="forward" onSelect={(p) => { window.location.href = `/productos/${p.id}`; }} />
-              {products.length > 1 && (
-                <CarouselRow products={row2Products} direction="backward" onSelect={(p) => { window.location.href = `/productos/${p.id}`; }} />
-              )}
+          // Static Grid View
+          <div className="max-w-7xl mx-auto px-5 w-full">
+            <h2 className="font-serif text-3xl sm:text-4xl text-center mb-12 flex flex-col items-center gap-3">
+              Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
+              {products.map((p, i) => (
+                <div 
+                  key={p.id} 
+                  className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both"
+                  style={{ animationDelay: `${Math.min(i * 100, 1000)}ms` }}
+                >
+                  <ProductCard product={p} onSelect={() => { window.location.href = `/productos/${p.id}`; }} />
+                </div>
+              ))}
             </div>
-          </>
+          </div>
         )}
       </section>
 
