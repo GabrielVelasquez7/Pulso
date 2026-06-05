@@ -15,7 +15,7 @@ export function ComboCard({ combo, products }: { combo: any; products: any[] }) 
     open();
   };
 
-  const mainImage = products[0]?.image_url || '';
+const mainImage = combo.image_url || products[0]?.image_url || '';
 
   return (
     <>
@@ -55,15 +55,23 @@ export function ComboCard({ combo, products }: { combo: any; products: any[] }) 
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {products.map((p) => (
-                <div key={p.id} className="flex flex-col gap-2">
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    window.location.href = `/productos/${p.id}`;
+                    setOpenModal(false);
+                  }}
+                  className="group flex cursor-pointer flex-col gap-2 rounded-[12px] border border-border/50 p-3 text-left transition hover:border-primary/40 hover:bg-primary/5"
+                >
                   <div className="h-40 w-full overflow-hidden rounded-md bg-muted">
                     {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" /> : null}
                   </div>
                   <div>
-                    <div className="font-medium">{p.title}</div>
+                    <div className="font-medium text-foreground group-hover:text-primary">{p.title}</div>
                     <div className="text-sm text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
 

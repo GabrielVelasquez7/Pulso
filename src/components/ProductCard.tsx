@@ -77,9 +77,9 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="p-4 flex items-center justify-between gap-3">
-        <div className="flex-1">
-          <h3 className="font-serif text-sm sm:text-base md:text-lg font-medium text-foreground leading-tight">
+      <div className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-serif text-sm sm:text-base md:text-lg font-medium text-foreground leading-tight break-words">
             {product.title}
           </h3>
           {isOutOfStock && (
@@ -87,19 +87,19 @@ export function ProductCard({
           )}
         </div>
 
-        <div className="flex flex-col items-end justify-between">
-          <div className="text-sm font-semibold text-foreground">
+        <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
+          <div className="text-sm font-semibold text-foreground whitespace-nowrap">
             {formatPrice(currentPrice)}
           </div>
           {product.is_promo && product.sale_price && (
-            <div className="text-[11px] line-through text-muted-foreground mt-1">{formatPrice(product.price)}</div>
+            <div className="text-[11px] line-through text-muted-foreground">{formatPrice(product.price)}</div>
           )}
 
           <button
             onClick={handleAdd}
             disabled={isOutOfStock}
             aria-label="Añadir a la bolsa"
-            className="mt-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/95 text-primary-foreground shadow-sm hover:scale-105 focus:outline-none"
+            className="mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/95 text-primary-foreground shadow-sm hover:scale-105 focus:outline-none"
           >
             {isOutOfStock ? <ShoppingBag className="h-4 w-4 opacity-60" /> : <Plus className="h-4 w-4" />}
           </button>

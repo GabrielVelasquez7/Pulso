@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import type { Product } from "@/components/ProductCard";
 import { useCurrency } from "@/lib/currency-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export function CartDrawer() {
   const [discount2, setDiscount2] = useState(0);
   const [discount3, setDiscount3] = useState(0);
   const [zonesConfig, setZonesConfig] = useState<DeliveryZonesConfig>(DEFAULT_ZONES);
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
 
   // Checkout form states
   const [step, setStep] = useState<"cart" | "checkout">("cart");
@@ -67,6 +69,16 @@ export function CartDrawer() {
       });
   }, []);
 
+  useEffect(() => {
+    supabase
+      .from("products")
+      .select("*")
+      .order("title", { ascending: true })
+      .then(({ data }) => {
+        setCatalogProducts((data ?? []) as Product[]);
+      });
+  }, []);
+
   // Reset step when drawer closes or items empty
   useEffect(() => {
     if (!isOpen) {
@@ -88,6 +100,17 @@ export function CartDrawer() {
   } else if (totalQty >= 2 && discount2 > 0) {
     bundleDiscount = discount2;
   }
+
+  const discountTarget = totalQty >= 2 ? 3 : 2;
+  const itemsToDiscount = Math.max(0, discountTarget - totalQty);
+  const nextDiscountValue = totalQty >= 2 ? discount3 : discount2;
+  const discountSuggestion = itemsToDiscount > 0 && nextDiscountValue > 0
+    ? `Añade ${itemsToDiscount} producto${itemsToDiscount > 1 ? 's' : ''} más y obtén ${formatPrice(nextDiscountValue)} de descuento.`
+    : "";
+
+  const recommendedProducts = catalogProducts
+    .filter((p) => !items.some((i) => i.id === p.id))
+    .slice(0, 3);
 
   let dynamicShipping = 10;
   if (deliveryType === "home" && selectedLocation) {
@@ -262,8 +285,9 @@ export function CartDrawer() {
                 </p>
               </div>
             ) : step === "cart" ? (
-              /* Step 1: Cart list */
-              <ul className="space-y-6">
+              <>
+                {/* Step 1: Cart list */}
+                <ul className="space-y-6">
                 {items.map((i) => (
                   <li key={i.id} className="flex gap-5 border-b border-border/50 pb-6">
                     <div className="h-28 w-24 shrink-0 overflow-hidden rounded-[8px] bg-muted border border-border/40">
@@ -312,6 +336,39 @@ export function CartDrawer() {
                   </li>
                 ))}
               </ul>
+              {recommendedProducts.length > 0 && itemsToDiscount > 0 && (
+                <div className="mt-8 rounded-[12px] border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <div className="font-semibold">Recomendado para tu descuento</div>
+                      <p className="text-muted-foreground">{discountSuggestion}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    {recommendedProducts.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
+                          open();
+                        }}
+                        className="flex items-center gap-3 rounded-[10px] border border-border/50 bg-background p-3 text-left transition hover:border-primary/50 hover:bg-primary/5"
+                      >
+                        <div className="h-16 w-16 overflow-hidden rounded-[10px] bg-muted">
+                          {p.image_url ? <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" /> : null}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-sm text-foreground truncate">{p.title}</div>
+                          <div className="text-xs text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</div>
+                        </div>
+                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Añadir</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              </>
             ) : (
               /* Step 2: Checkout Form */
               <form id="checkout-form" onSubmit={handleConfirmOrder} className="space-y-6">
