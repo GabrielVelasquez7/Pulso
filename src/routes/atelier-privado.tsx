@@ -299,10 +299,24 @@ export function AdminPage() {
 
   useEffect(() => { loadCombos(); }, []);
 
+  const createSlug = (value: string) =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
   const saveCombo = async () => {
     if (!comboName.trim() || comboSelected.length === 0) return toast.error('Nombre y selección de productos requeridos');
     try {
-      const payload = { name: comboName.trim(), product_ids: comboSelected, price: comboPrice ? Number(comboPrice) : null };
+      const payload = {
+        name: comboName.trim(),
+        slug: createSlug(comboName),
+        product_ids: comboSelected,
+        price: comboPrice ? Number(comboPrice) : null,
+      };
       const { error } = await supabase.from('combos').insert(payload);
       if (error) return toast.error(error.message);
       toast.success('Combo creado');
