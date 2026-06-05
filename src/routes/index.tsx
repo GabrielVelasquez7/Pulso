@@ -27,7 +27,16 @@ function Index() {
   const [discount3, setDiscount3] = useState(0);
   const [combos, setCombos] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const ITEMS_PER_PAGE = 12;
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+
+  useEffect(() => {
+    const updateItemsPerPage = () => {
+      setItemsPerPage(window.innerWidth < 640 ? 6 : 12);
+    };
+    updateItemsPerPage();
+    window.addEventListener('resize', updateItemsPerPage);
+    return () => window.removeEventListener('resize', updateItemsPerPage);
+  }, []);
 
   useEffect(() => {
     supabase
@@ -64,7 +73,7 @@ function Index() {
   return (
     <main className="flex flex-col min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* Hero */}
-      <section className="relative flex-1 min-h-[40vh] flex flex-col items-center justify-center bg-background z-10 px-5 py-16 md:py-24 text-center">
+      <section className="relative flex-1 min-h-[40vh] flex flex-col items-center justify-center border-b border-border/80 bg-background z-10 px-5 py-16 md:py-24 text-center">
         {/* Dynamic Background Effects */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-1/4 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-ruby opacity-[0.15] blur-[120px] float-slow" />
@@ -106,7 +115,7 @@ function Index() {
       </section>
 
       {/* Catalog */}
-      <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-16 md:py-24 bg-background overflow-hidden">
+      <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-16 md:py-24 bg-background border-t border-border/40 overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <div className="animate-pulse rounded-[8px] border border-border/60 bg-card/60 h-64 w-64" />
@@ -171,7 +180,7 @@ function Index() {
             )}
 
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-5 md:gap-6 lg:gap-8">
-                {currentProducts.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
+                {currentProducts.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage).map((p, i) => (
                 <div 
                   key={p.id} 
                   className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both"
@@ -181,7 +190,7 @@ function Index() {
                 </div>
                 ))}
               </div>
-            {currentProducts.length > ITEMS_PER_PAGE && (
+            {currentProducts.length > itemsPerPage && (
               <div className="mt-16 flex items-center justify-center gap-6">
                 <button
                   onClick={() => {
@@ -201,11 +210,11 @@ function Index() {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">
-                  {currentPage + 1} / {Math.ceil(currentProducts.length / ITEMS_PER_PAGE)}
+                  {currentPage + 1} / {Math.ceil(currentProducts.length / itemsPerPage)}
                 </span>
                 <button
                   onClick={() => {
-                    setCurrentPage(prev => Math.min(Math.ceil(currentProducts.length / ITEMS_PER_PAGE) - 1, prev + 1));
+                    setCurrentPage(prev => Math.min(Math.ceil(currentProducts.length / itemsPerPage) - 1, prev + 1));
                     setTimeout(() => {
                       const element = document.getElementById("coleccion");
                       if (element) {
@@ -214,7 +223,7 @@ function Index() {
                       }
                     }, 0);
                   }}
-                  disabled={currentPage >= Math.ceil(currentProducts.length / ITEMS_PER_PAGE) - 1}
+                  disabled={currentPage >= Math.ceil(currentProducts.length / itemsPerPage) - 1}
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/80 bg-background/80 text-foreground transition-all hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Página siguiente"
                 >
