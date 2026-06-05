@@ -474,7 +474,7 @@ export function AdminPage() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-20 w-72 transform border-r border-white/5 bg-black/40 backdrop-blur-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-white/5 bg-black/90 backdrop-blur-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-full flex-col">
           <div className="hidden lg:flex items-center gap-2 p-8 pb-4">
             <span className="font-serif text-3xl font-bold tracking-widest text-primary drop-shadow-[0_0_15px_rgba(var(--ruby-rgb),0.5)]">PULSO</span>
@@ -525,7 +525,7 @@ export function AdminPage() {
 
       {/* Overlay for mobile menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-10 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+        <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
       )}
 
       {/* Main Content */}
@@ -772,9 +772,9 @@ export function AdminPage() {
                   {orders.map((order) => {
                     const orderItems = (order.items || []) as OrderItem[];
                     return (
-                      <div key={order.id} className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-6 shadow-elegant flex flex-col gap-6 lg:flex-row transition-all hover:border-white/10">
+                      <div key={order.id} className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-4 sm:p-6 shadow-elegant flex flex-col gap-4 sm:gap-6 lg:flex-row transition-all hover:border-white/10">
                         {/* Order Meta & Status */}
-                        <div className="flex-1 min-w-[250px] space-y-5 border-b lg:border-b-0 lg:border-r border-border/40 pb-6 lg:pb-0 lg:pr-6">
+                        <div className="flex-1 space-y-4 sm:space-y-5 border-b lg:border-b-0 lg:border-r border-border/40 pb-4 sm:pb-6 lg:pb-0 lg:pr-6">
                           <div className="flex items-start justify-between">
                             <div>
                               <h3 className="font-serif text-2xl font-bold text-primary">{order.order_id}</h3>
@@ -819,7 +819,7 @@ export function AdminPage() {
                         </div>
 
                         {/* Order Details */}
-                        <div className="flex-[2] grid sm:grid-cols-2 gap-6">
+                        <div className="flex-[2] grid sm:grid-cols-2 gap-4 sm:gap-6 pt-2 sm:pt-0">
                           <div className="space-y-4">
                             <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Entrega y Pago</h4>
                             <ul className="text-sm space-y-3">

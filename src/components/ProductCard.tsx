@@ -60,9 +60,9 @@ export function ProductCard({
         }
       }}
       tabIndex={onSelect ? 0 : undefined}
-      className="group relative cursor-pointer flex flex-col p-3 sm:p-4 overflow-hidden rounded-[16px] sm:rounded-[20px] border border-primary/20 bg-transparent shadow-sm transition-transform duration-300 hover:scale-[1.02] hover:border-primary/40 h-full"
+      className="group relative cursor-pointer flex flex-col overflow-hidden rounded-[16px] sm:rounded-[20px] border border-border/80 bg-card shadow-sm transition-transform duration-300 hover:scale-[1.02] hover:border-primary/40 h-full"
     >
-      {/* Top Badges */}
+      {/* Top Badges (Over Image) */}
       <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
         <span className="rounded-full bg-[#DE5B61] px-2.5 py-1 text-[10px] sm:text-[11px] font-bold text-white shadow-sm">
           {formatPrice(currentPrice)}
@@ -80,14 +80,14 @@ export function ProductCard({
       </div>
 
       {/* Image Container */}
-      <div className="relative aspect-square w-full mt-8 mb-4 sm:mt-10 sm:mb-6 overflow-hidden flex items-center justify-center">
+      <div className="relative aspect-[4/5] sm:aspect-square w-full shrink-0 overflow-hidden bg-muted border-b border-border/40">
         {product.image_url ? (
           <img
             src={product.image_url}
             alt={product.title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -97,12 +97,12 @@ export function ProductCard({
       </div>
 
       {/* Title */}
-      <div className="mt-auto text-left">
+      <div className="p-3 sm:p-4 flex flex-col grow justify-between">
         <h3 className="font-serif text-sm sm:text-base font-medium text-foreground leading-tight line-clamp-2">
           {product.title}
         </h3>
         {isOutOfStock && (
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-rose-400 font-bold mt-1.5">Agotado</p>
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-rose-400 font-bold mt-2">Agotado</p>
         )}
       </div>
     </article>
