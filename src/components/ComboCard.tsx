@@ -2,58 +2,83 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useCurrency } from "@/lib/currency-context";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 export function ComboCard({ combo, products }: { combo: any; products: any[] }) {
   const { add, open } = useCart();
   const { formatPrice } = useCurrency();
   const total = combo.price ?? products.reduce((s, p) => s + (p.price || 0), 0);
-  const [selected, setSelected] = useState(0);
+  const [openModal, setOpenModal] = useState(false);
 
   const handleAddCombo = () => {
     products.forEach((p) => add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url }));
     open();
   };
 
-  const handleAddSingle = () => {
-    const p = products[selected];
-    if (!p) return;
-    add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
-    open();
-  };
+  const mainImage = products[0]?.image_url || '';
 
   return (
-    <article className="group relative cursor-default rounded-[12px] border border-border/40 bg-card p-4 shadow-sm flex flex-col sm:flex-row items-center gap-4">
-      <div className="flex items-center gap-2">
-        <button onClick={() => setSelected((s) => (s - 1 + products.length) % products.length)} className="p-1 rounded-md bg-input border border-border hover:bg-muted">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <div className="h-20 w-20 overflow-hidden rounded-sm bg-muted border border-border/40">
-          {products[selected] && (
-            <img src={products[selected].image_url || ""} alt={products[selected].title} className="h-full w-full object-cover" />
+    <>
+      <article
+        onClick={() => setOpenModal(true)}
+        className="group relative cursor-pointer rounded-[10px] border border-border/80 bg-card shadow-sm overflow-hidden"
+      >
+        <div className="h-44 w-full overflow-hidden bg-muted">
+          {mainImage ? (
+            <img src={mainImage} alt={combo.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground">PULSO</div>
           )}
         </div>
-        <button onClick={() => setSelected((s) => (s + 1) % products.length)} className="p-1 rounded-md bg-input border border-border hover:bg-muted">
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
 
-      <div className="flex-1 w-full">
-        <div className="flex items-center justify-between gap-4">
+        <div className="p-3 flex items-center justify-between">
           <div>
-            <h4 className="font-medium">{combo.name}</h4>
+            <h4 className="font-medium text-sm">{combo.name}</h4>
             <p className="text-xs text-muted-foreground">{products.length} productos</p>
-            <p className="mt-1 text-sm text-muted-foreground">Seleccionado: {products[selected]?.title}</p>
           </div>
           <div className="text-right">
             <div className="font-bold">{formatPrice(total)}</div>
+            <button onClick={(e) => { e.stopPropagation(); handleAddCombo(); }} className="mt-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+              +
+            </button>
           </div>
         </div>
+      </article>
 
-        <div className="mt-3 flex gap-2">
-          <button onClick={handleAddCombo} className="rounded-md bg-primary px-3 py-2 text-xs text-primary-foreground">Añadir combo</button>
-          <button onClick={handleAddSingle} className="rounded-md border border-border px-3 py-2 text-xs">Añadir seleccionado</button>
-        </div>
-      </div>
-    </article>
+      <Dialog open={openModal} onOpenChange={setOpenModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{combo.name}</DialogTitle>
+            <DialogDescription>Detalles del combo</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {products.map((p) => (
+                <div key={p.id} className="flex flex-col gap-2">
+                  <div className="h-40 w-full overflow-hidden rounded-md bg-muted">
+                    {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" /> : null}
+                  </div>
+                  <div>
+                    <div className="font-medium">{p.title}</div>
+                    <div className="text-sm text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+              <div className="font-semibold">Total: {formatPrice(total)}</div>
+              <div className="flex gap-2">
+                <button onClick={() => setOpenModal(false)} className="rounded-md border px-4 py-2">Cerrar</button>
+                <button onClick={() => { handleAddCombo(); setOpenModal(false); }} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Añadir combo</button>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
