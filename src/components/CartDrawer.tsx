@@ -286,7 +286,18 @@ export function CartDrawer() {
               </div>
             ) : step === "cart" ? (
               <>
-                {/* Step 1: Cart list */}
+                <div className="mb-6 rounded-[14px] border border-border/50 bg-muted/80 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Contenido de la bolsa</p>
+                      <h3 className="mt-2 text-xl font-semibold text-foreground">{items.length} artículo{items.length > 1 ? 's' : ''}</h3>
+                    </div>
+                    <div className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                      {totalQty} unidad{totalQty > 1 ? 'es' : ''}
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="space-y-6">
                 {items.map((i) => (
                   <li key={i.id} className="flex gap-5 border-b border-border/50 pb-6">
@@ -336,43 +347,63 @@ export function CartDrawer() {
                   </li>
                 ))}
               </ul>
-              {recommendedProducts.length > 0 && itemsToDiscount > 0 && (
-                <div className="mt-8 rounded-[12px] border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
-                  <div className="mb-3 flex items-center justify-between gap-3">
+
+              {recommendedProducts.length > 0 && (
+                <section className="mt-8 space-y-4 rounded-[12px] border border-border/50 bg-background/80 p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="font-semibold">Recomendado para tu descuento</div>
-                      <p className="text-muted-foreground">{discountSuggestion}</p>
+                      <h3 className="text-base font-semibold text-foreground">Sugerencias para tu bolsa</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Productos que combinan bien con tu selección actual.
+                      </p>
                     </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                      Recomendado
+                    </span>
                   </div>
-                  <div className="grid grid-cols-1 gap-3">
+
+                  {itemsToDiscount > 0 && discountSuggestion ? (
+                    <div className="rounded-[10px] border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
+                      <p className="font-semibold">Aprovecha un descuento extra</p>
+                      <p className="mt-1 text-muted-foreground">{discountSuggestion}</p>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-3">
                     {recommendedProducts.map((p) => (
                       <div
                         key={p.id}
-                        className="flex items-center gap-3 rounded-[10px] border border-border/50 bg-background p-3 text-left transition hover:border-primary/50 hover:bg-primary/5"
+                        className="flex flex-col gap-3 rounded-[14px] border border-border/50 bg-card p-4 transition hover:border-primary/60 hover:shadow-sm"
                       >
-                        <div className="h-16 w-16 overflow-hidden rounded-[10px] bg-muted">
-                          {p.image_url ? <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" /> : null}
+                        <div className="flex items-center gap-4">
+                          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[12px] bg-muted">
+                            {p.image_url ? <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" /> : null}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm text-foreground truncate">{p.title}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
+                              open();
+                            }}
+                            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          >
+                            Añadir
+                          </button>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium text-sm text-foreground truncate">{p.title}</div>
-                          <div className="text-xs text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
-                            open();
-                          }}
-                          className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
-                        >
-                          Añadir
-                        </button>
+                        <p className="text-xs leading-5 text-muted-foreground">
+                          Añade más de estos productos para mantener tu bolsa privada completa y aprovechar descuentos.
+                        </p>
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
-              </>
+            </>
             ) : (
               /* Step 2: Checkout Form */
               <form id="checkout-form" onSubmit={handleConfirmOrder} className="space-y-6">
