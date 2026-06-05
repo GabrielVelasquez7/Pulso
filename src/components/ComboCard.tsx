@@ -46,7 +46,7 @@ const mainImage = combo.image_url || products[0]?.image_url || '';
       </article>
 
       <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl p-4 sm:p-6">
+        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto p-4 sm:max-w-2xl sm:p-6">
           <DialogHeader>
             <DialogTitle>{combo.name}</DialogTitle>
             <DialogDescription>Detalles del combo</DialogDescription>
