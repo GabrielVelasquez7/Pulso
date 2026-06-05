@@ -234,7 +234,12 @@ export function CartDrawer() {
                 <p className="text-xs uppercase tracking-[0.3em] text-primary font-bold">
                   Tu selección
                 </p>
-                <h2 className="font-serif text-3xl text-foreground">Bolsa privada</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="font-serif text-2xl text-foreground">Bolsa privada</h2>
+                  {bundleDiscount > 0 && (
+                    <span className="inline-flex items-center rounded-full bg-primary/10 text-primary text-sm font-medium px-3 py-1 border border-primary/20">-{formatPrice(bundleDiscount)}</span>
+                  )}
+                </div>
               </div>
             )}
             <button

@@ -77,11 +77,11 @@ export function ProductCard({
         </div>
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 opacity-80 group-hover:opacity-60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 opacity-60 group-hover:opacity-40" />
 
       <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-        <div className="inline-flex items-center rounded-full bg-background/80 backdrop-blur px-3 py-1.5 border border-border/50 shadow-sm">
-          <span className="text-sm font-bold text-foreground">
+        <div className="inline-flex items-center rounded-full bg-background/80 backdrop-blur px-3 py-1 border border-border/50 shadow-sm">
+          <span className="text-sm font-semibold text-foreground">
             {formatPrice(currentPrice)}
           </span>
           {product.is_promo && product.sale_price && (
@@ -101,13 +101,13 @@ export function ProductCard({
         onClick={handleAdd}
         disabled={isOutOfStock}
         aria-label="Añadir a la bolsa"
-        className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-primary/95 backdrop-blur text-primary-foreground shadow-[0_0_20px_-5px_var(--ruby)] transition-all duration-300 hover:scale-110 hover:bg-primary focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+        className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-primary/95 backdrop-blur text-primary-foreground shadow-[0_0_14px_-6px_var(--ruby)] transition-all duration-300 hover:scale-105 hover:bg-primary focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
       >
-        {isOutOfStock ? <ShoppingBag className="h-5 w-5 opacity-50" /> : <Plus className="h-6 w-6" />}
+        {isOutOfStock ? <ShoppingBag className="h-5 w-5 opacity-50" /> : <Plus className="h-5 w-5" />}
       </button>
 
       <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-1">
-        <h3 className="font-serif text-2xl font-medium leading-tight text-foreground drop-shadow-md">
+        <h3 className="font-serif text-lg font-medium leading-tight text-foreground drop-shadow-md">
           {product.title}
         </h3>
         {isOutOfStock && (
