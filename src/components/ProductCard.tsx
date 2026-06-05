@@ -87,19 +87,21 @@ export function ProductCard({
           )}
         </div>
 
-        <div className="flex flex-col items-start gap-2 sm:items-end sm:text-right">
-          <div className="text-sm font-semibold text-foreground whitespace-nowrap">
-            {formatPrice(currentPrice)}
+        <div className="flex items-center gap-3 sm:items-end sm:text-right">
+          <div>
+            <div className="text-sm font-semibold text-foreground whitespace-nowrap">
+              {formatPrice(currentPrice)}
+            </div>
+            {product.is_promo && product.sale_price && (
+              <div className="text-[11px] line-through text-muted-foreground">{formatPrice(product.price)}</div>
+            )}
           </div>
-          {product.is_promo && product.sale_price && (
-            <div className="text-[11px] line-through text-muted-foreground">{formatPrice(product.price)}</div>
-          )}
 
           <button
             onClick={handleAdd}
             disabled={isOutOfStock}
             aria-label="Añadir a la bolsa"
-            className="mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/95 text-primary-foreground shadow-sm hover:scale-105 focus:outline-none"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/95 text-primary-foreground shadow-sm hover:scale-105 focus:outline-none"
           >
             {isOutOfStock ? <ShoppingBag className="h-4 w-4 opacity-60" /> : <Plus className="h-4 w-4" />}
           </button>

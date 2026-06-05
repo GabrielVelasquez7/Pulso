@@ -346,13 +346,8 @@ export function CartDrawer() {
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     {recommendedProducts.map((p) => (
-                      <button
+                      <div
                         key={p.id}
-                        type="button"
-                        onClick={() => {
-                          add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
-                          open();
-                        }}
                         className="flex items-center gap-3 rounded-[10px] border border-border/50 bg-background p-3 text-left transition hover:border-primary/50 hover:bg-primary/5"
                       >
                         <div className="h-16 w-16 overflow-hidden rounded-[10px] bg-muted">
@@ -362,8 +357,17 @@ export function CartDrawer() {
                           <div className="font-medium text-sm text-foreground truncate">{p.title}</div>
                           <div className="text-xs text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</div>
                         </div>
-                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Añadir</span>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
+                            open();
+                          }}
+                          className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
+                        >
+                          Añadir
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
