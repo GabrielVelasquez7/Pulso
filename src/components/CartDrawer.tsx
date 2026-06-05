@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/components/ProductCard";
@@ -16,7 +16,7 @@ function generateOrderId() {
 
 
 export function CartDrawer() {
-  const { items, isOpen, close, setQty, remove, total: subtotal, clear } = useCart();
+  const { items, isOpen, close, setQty, remove, add, open, total: subtotal, clear } = useCart();
   const { formatPrice, currency } = useCurrency();
   
   const [waNumber, setWaNumber] = useState<string>("");
@@ -37,6 +37,18 @@ export function CartDrawer() {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"pago_movil" | "zelle" | "binance" | "cash">("pago_movil");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleAddRecommended = (event: MouseEvent<HTMLButtonElement>, product: Product) => {
+    event.preventDefault();
+    event.stopPropagation();
+    add({
+      id: product.id,
+      title: product.title,
+      price: product.is_promo && product.sale_price ? product.sale_price : product.price,
+      image_url: product.image_url,
+    });
+    open();
+  };
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<any | null>(null);
 
@@ -108,9 +120,9 @@ export function CartDrawer() {
     ? `Añade ${itemsToDiscount} producto${itemsToDiscount > 1 ? 's' : ''} más y obtén ${formatPrice(nextDiscountValue)} de descuento.`
     : "";
 
-  const recommendedProducts = catalogProducts
+  const recommendedProducts = totalQty < 3 ? catalogProducts
     .filter((p) => !items.some((i) => i.id === p.id))
-    .slice(0, 3);
+    .slice(0, 3) : [];
 
   let dynamicShipping = 10;
   if (deliveryType === "home" && selectedLocation) {
@@ -350,7 +362,7 @@ export function CartDrawer() {
                     </span>
                   </div>
 
-                  {itemsToDiscount > 0 && discountSuggestion ? (
+                  {discountSuggestion ? (
                     <div className="rounded-[10px] border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
                       <p className="font-semibold">Aprovecha un descuento extra</p>
                       <p className="mt-1 text-muted-foreground">{discountSuggestion}</p>
@@ -373,11 +385,7 @@ export function CartDrawer() {
                           </div>
                           <button
                             type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              add({ id: p.id, title: p.title, price: p.is_promo && p.sale_price ? p.sale_price : p.price, image_url: p.image_url });
-                              open();
-                            }}
+                            onClick={(event) => handleAddRecommended(event, p)}
                             className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50"
                           >
                             Añadir

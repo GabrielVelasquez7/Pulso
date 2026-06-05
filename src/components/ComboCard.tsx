@@ -46,7 +46,7 @@ const mainImage = combo.image_url || products[0]?.image_url || '';
       </article>
 
       <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent>
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>{combo.name}</DialogTitle>
             <DialogDescription>Detalles del combo</DialogDescription>
@@ -60,7 +60,7 @@ const mainImage = combo.image_url || products[0]?.image_url || '';
                   href={`/productos/${p.id}`}
                   className="group flex cursor-pointer flex-col gap-2 rounded-[12px] border border-border/50 p-3 text-left transition hover:border-primary/40 hover:bg-primary/5"
                 >
-                  <div className="h-40 w-full overflow-hidden rounded-md bg-muted">
+                  <div className="h-32 sm:h-40 w-full overflow-hidden rounded-md bg-muted">
                     {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" /> : null}
                   </div>
                   <div>

@@ -36,6 +36,7 @@ export function ProductCard({
   const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
   const handleAdd = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     event.stopPropagation();
     add({
       id: product.id,
