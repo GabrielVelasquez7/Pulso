@@ -178,18 +178,7 @@ function Index() {
                   Combos
                 </button>
               </div>
-              {/* Discounts banner */}
-              {(discount2 > 0 || discount3 > 0) && (
-                <div className="max-w-7xl mx-auto px-5 w-full mb-6">
-                  <div className="rounded-[12px] border border-border/40 bg-primary/5 p-4 flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-bold text-foreground">Descuentos por volumen</div>
-                      <div className="text-xs text-muted-foreground">{discount2 > 0 ? `Lleva 2 piezas y ahorras $${discount2}` : ''} {discount3 > 0 ? ` / 3+ piezas y ahorras $${discount3}` : ''}</div>
-                    </div>
-                    <div className="text-sm text-primary font-bold">Ahorra al combinar</div>
-                  </div>
-                </div>
-              )}
+
 
               {/* Combos horizontal section */}
               {viewMode === 'combos' && displayCombos.length > 0 && (

@@ -60,9 +60,9 @@ export function ProductCard({
         }
       }}
       tabIndex={onSelect ? 0 : undefined}
-      className="group relative cursor-pointer flex flex-col overflow-hidden rounded-[20px] border border-border/80 bg-card shadow-sm transition-transform duration-300 hover:scale-[1.02]"
+      className="group relative cursor-pointer flex flex-col overflow-hidden rounded-[16px] sm:rounded-[20px] border border-border/80 bg-card shadow-sm transition-transform duration-300 hover:scale-[1.02] h-full"
     >
-      <div className="relative h-52 sm:h-56 md:h-64 w-full overflow-hidden rounded-t-[20px] bg-muted">
+      <div className="relative aspect-[4/5] w-full shrink-0 overflow-hidden border-b border-border/40 bg-muted">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -77,25 +77,29 @@ export function ProductCard({
           </div>
         )}
 
-        <div className="absolute left-3 top-3 rounded-full bg-primary px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-sm">
-          {formatPrice(currentPrice)}
-        </div>
-        <button
-          onClick={handleAdd}
-          disabled={isOutOfStock}
-          aria-label="Añadir a la bolsa"
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isOutOfStock ? <ShoppingBag className="h-4 w-4 opacity-60" /> : <Plus className="h-4 w-4" />}
-        </button>
       </div>
 
-      <div className="p-4 flex flex-col gap-2 text-center">
-        <h3 className="font-serif text-base sm:text-lg font-semibold text-foreground leading-tight">
-          {product.title}
-        </h3>
+      <div className="p-3 sm:p-4 flex flex-col grow justify-between bg-card">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] sm:text-xs font-bold tracking-widest text-muted-foreground">
+              {formatPrice(currentPrice)}
+            </span>
+            <button
+              onClick={handleAdd}
+              disabled={isOutOfStock}
+              aria-label="Añadir a la bolsa"
+              className="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform duration-200 hover:scale-105 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isOutOfStock ? <ShoppingBag className="h-3 w-3 opacity-60" /> : <Plus className="h-4 w-4" />}
+            </button>
+          </div>
+          <h3 className="font-serif text-sm sm:text-base font-medium text-foreground leading-tight text-left line-clamp-2">
+            {product.title}
+          </h3>
+        </div>
         {isOutOfStock && (
-          <p className="text-xs uppercase tracking-[0.25em] text-rose-400 font-bold">Agotado</p>
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-rose-400 font-bold mt-2 text-left">Agotado</p>
         )}
       </div>
     </article>
