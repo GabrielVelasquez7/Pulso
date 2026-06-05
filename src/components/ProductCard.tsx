@@ -77,16 +77,16 @@ export function ProductCard({
           </div>
         )}
 
-        <div className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-sm">
+        <div className="absolute left-3 top-3 rounded-full bg-primary px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-sm">
           {formatPrice(currentPrice)}
         </div>
         <button
           onClick={handleAdd}
           disabled={isOutOfStock}
           aria-label="Añadir a la bolsa"
-          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isOutOfStock ? <ShoppingBag className="h-4 w-4 opacity-60" /> : <Plus className="h-5 w-5" />}
+          {isOutOfStock ? <ShoppingBag className="h-4 w-4 opacity-60" /> : <Plus className="h-4 w-4" />}
         </button>
       </div>
 
