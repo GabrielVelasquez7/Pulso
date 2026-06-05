@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useCurrency } from "@/lib/currency-context";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -21,27 +21,40 @@ const mainImage = combo.image_url || products[0]?.image_url || '';
     <>
       <article
         onClick={() => setOpenModal(true)}
-        className="group relative cursor-pointer rounded-[10px] border border-border/80 bg-card shadow-sm overflow-hidden"
+        className="group relative cursor-pointer flex flex-col p-3 sm:p-4 overflow-hidden rounded-[16px] sm:rounded-[20px] border border-primary/20 bg-transparent shadow-sm transition-transform duration-300 hover:scale-[1.02] hover:border-primary/40 h-full"
       >
-        <div className="h-44 w-full overflow-hidden bg-muted">
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+          <span className="rounded-full bg-[#DE5B61] px-2.5 py-1 text-[10px] sm:text-[11px] font-bold text-white shadow-sm">
+            {formatPrice(total)}
+          </span>
+        </div>
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleAddCombo(); }}
+            className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#DE5B61] text-white shadow-sm transition-transform duration-200 hover:scale-105 focus:outline-none"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Image Container */}
+        <div className="relative aspect-square w-full mt-8 mb-4 sm:mt-10 sm:mb-6 overflow-hidden flex items-center justify-center">
           {mainImage ? (
-            <img src={mainImage} alt={combo.name} className="w-full h-full object-cover" />
+            <img src={mainImage} alt={combo.name} className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-105" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground">PULSO</div>
+            <div className="flex h-full w-full items-center justify-center font-serif italic text-muted-foreground opacity-50 text-3xl">PULSO</div>
           )}
         </div>
 
-        <div className="p-3 flex items-center justify-between">
-          <div>
-            <h4 className="font-medium text-sm">{combo.name}</h4>
-            <p className="text-xs text-muted-foreground">{products.length} productos</p>
-          </div>
-          <div className="text-right">
-            <div className="font-bold">{formatPrice(total)}</div>
-            <button onClick={(e) => { e.stopPropagation(); handleAddCombo(); }} className="mt-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-              +
-            </button>
-          </div>
+        {/* Title */}
+        <div className="mt-auto text-left">
+          <h3 className="font-serif text-sm sm:text-base font-medium text-foreground leading-tight line-clamp-2">
+            {combo.name}
+          </h3>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+            {products.length} productos
+          </p>
         </div>
       </article>
 
