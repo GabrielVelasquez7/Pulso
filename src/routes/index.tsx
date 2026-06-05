@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
+import { ComboCard } from "@/components/ComboCard";
 import pulsoLogo from "@/routes/img/pulsgo.png";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -21,6 +22,9 @@ function Index() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [discount2, setDiscount2] = useState(0);
+  const [discount3, setDiscount3] = useState(0);
+  const [combos, setCombos] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const ITEMS_PER_PAGE = 12;
 
@@ -33,6 +37,23 @@ function Index() {
         setProducts((data ?? []) as Product[]);
         setLoading(false);
       });
+    // load discounts and combos
+    supabase.from('site_settings').select('*').in('key', ['discount_2_items','discount_3_items']).then(({ data }) => {
+      if (data) {
+        data.forEach(s => {
+          if (s.key === 'discount_2_items') setDiscount2(Number(s.value));
+          if (s.key === 'discount_3_items') setDiscount3(Number(s.value));
+        });
+      }
+    });
+    (async () => {
+      try {
+        const { data } = await supabase.from('combos').select('*');
+        setCombos(data ?? []);
+      } catch (e) {
+        setCombos([]);
+      }
+    })();
   }, []);
 
   const normalizedSearch = searchQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -107,7 +128,8 @@ function Index() {
                 <p className="text-muted-foreground">No encontramos ninguna pieza con ese nombre.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map(p => (
                   <ProductCard key={p.id} product={p} onSelect={() => { window.location.href = `/productos/${p.id}`; }} />
                 ))}
@@ -125,7 +147,32 @@ function Index() {
             <h2 className="font-serif text-3xl sm:text-4xl text-center mb-12 flex flex-col items-center gap-3">
               Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
+              {/* Discounts banner */}
+              {(discount2 > 0 || discount3 > 0) && (
+                <div className="max-w-7xl mx-auto px-5 w-full mb-6">
+                  <div className="rounded-[12px] border border-border/40 bg-primary/5 p-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-bold text-foreground">Descuentos por volumen</div>
+                      <div className="text-xs text-muted-foreground">{discount2 > 0 ? `Lleva 2 piezas y ahorras $${discount2}` : ''} {discount3 > 0 ? ` / 3+ piezas y ahorras $${discount3}` : ''}</div>
+                    </div>
+                    <div className="text-sm text-primary font-bold">Ahorra al combinar</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Combos horizontal section */}
+              {combos.length > 0 && (
+                <div className="max-w-7xl mx-auto px-5 w-full mb-8">
+                  <h2 className="font-serif text-3xl mb-4">Combos destacados</h2>
+                  <div className="grid lg:grid-cols-3 gap-4">
+                    {combos.map((c) => {
+                      const comboProducts = products.filter(p => (c.product_ids || []).includes(p.id));
+                      return <ComboCard key={c.id} combo={c} products={comboProducts} />;
+                    })}
+                  </div>
+                </div>
+              )}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
               {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
                 <div 
                   key={p.id} 

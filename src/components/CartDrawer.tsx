@@ -5,6 +5,7 @@ import { useCurrency } from "@/lib/currency-context";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DEFAULT_ZONES, DeliveryZonesConfig } from "@/lib/default-zones";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 function generateOrderId() {
   const n = Math.floor(1000 + Math.random() * 9000);
@@ -34,6 +35,8 @@ export function CartDrawer() {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"pago_movil" | "zelle" | "binance" | "cash">("pago_movil");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [pendingOrder, setPendingOrder] = useState<any | null>(null);
 
   useEffect(() => {
     supabase
@@ -106,11 +109,7 @@ export function CartDrawer() {
       toast.error("Por favor completa los campos requeridos");
       return;
     }
-
-    setIsSubmitting(true);
-    const orderId = generateOrderId();
-
-    // Prepare order details for Supabase
+    // Build pending order summary and open confirmation modal
     const paymentMethodNames = {
       "pago_movil": "Pago Móvil",
       "zelle": "Zelle",
@@ -118,6 +117,7 @@ export function CartDrawer() {
       "cash": "Efectivo",
     };
 
+    const orderId = generateOrderId();
     const orderPayload = {
       order_id: orderId,
       customer_name: name,
@@ -133,56 +133,64 @@ export function CartDrawer() {
       status: "pending",
     };
 
+    setPendingOrder(orderPayload);
+    setConfirmModalOpen(true);
+  };
+
+  const confirmAndSend = async () => {
+    if (!pendingOrder) return;
+    setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("orders").insert(orderPayload);
+      const { error } = await supabase.from("orders").insert(pendingOrder);
       if (error) {
         console.error("Error saving order to Supabase:", error);
       } else {
-        // Send email notification
         try {
           await fetch('/api/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderDetails: orderPayload })
+            body: JSON.stringify({ orderDetails: pendingOrder })
           });
         } catch (emailErr) {
           console.error("Error triggering email notification:", emailErr);
         }
       }
+
+      const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
+      let paymentMsg = `Te envío los detalles de mi pedido ${pendingOrder.order_id} (Pago mediante ${pendingOrder.payment_method}).`;
+      if (pendingOrder.payment_method === "Efectivo") {
+        paymentMsg = `He seleccionado realizar el pago en Efectivo para el pedido ${pendingOrder.order_id} al momento del retiro.`;
+      }
+
+      let discountMsg = "";
+      if (Math.abs(pendingOrder.payment_adjustment) > 0) {
+         discountMsg = `(Descuento Aplicado: -${formatPrice(Math.abs(pendingOrder.payment_adjustment))})\n`;
+      }
+
+      const msg =
+        `¡Hola equipo PULSO! ✨\n\n` +
+        `${paymentMsg}\n\n` +
+        `Nombre: ${pendingOrder.customer_name}\n` +
+        `Productos:\n` +
+        `${resumen}\n\n` +
+        discountMsg +
+        `Total a pagar: ${formatPrice(pendingOrder.total)}\n` +
+        `Dirección: ${pendingOrder.delivery_type === "Envío a domicilio" ? pendingOrder.delivery_address : "Retiro en persona"}`;
+
+      const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
+      const url = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(msg)}`;
+
+      clear();
+      setStep("cart");
+      setConfirmModalOpen(false);
+      setPendingOrder(null);
+      close();
+      window.open(url, "_blank");
     } catch (err) {
-      console.error("Failed to insert order:", err);
+      console.error("Failed to confirm order:", err);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const resumen = items.map((i) => `• ${i.quantity}x ${i.title}`).join("\n");
-    let paymentMsg = `Te envío los detalles de mi pedido ${orderId} (Pago mediante ${paymentMethodNames[paymentMethod]}). ¡En breve te adjunto el comprobante!`;
-    if (paymentMethod === "cash") {
-        paymentMsg = `He seleccionado realizar el pago en Efectivo para el pedido ${orderId} al momento del retiro.`;
-    }
-
-    let discountMsg = "";
-    if (bundleDiscount > 0) {
-       discountMsg = `(Descuento Aplicado: -${formatPrice(bundleDiscount)})\n`;
-    }
-
-    const msg =
-      `¡Hola equipo PULSO! ✨\n\n` +
-      `${paymentMsg}\n\n` +
-      `Nombre: ${name}\n` +
-      `Productos:\n` +
-      `${resumen}\n\n` +
-      discountMsg +
-      `Total a pagar: ${formatPrice(grandTotal)}\n` +
-      (paymentMethod === "pago_movil" && currency === "USD" ? `Monto en Bolívares: ${formatPrice(grandTotal, "VES")}\n` : "") +
-      `Dirección: ${deliveryType === "home" ? `${selectedLocation} - ${address}` : "Retiro en persona"}`;
-
-    const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";
-    const url = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(msg)}`;
-
-    setIsSubmitting(false);
-    clear();
-    setStep("cart");
-    close();
-    window.open(url, "_blank");
   };
 
   const allLocations = Object.values(zonesConfig)
@@ -560,6 +568,45 @@ export function CartDrawer() {
           </div>
         </div>
       </aside>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={confirmModalOpen} onOpenChange={(v) => setConfirmModalOpen(v)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirmar pedido</DialogTitle>
+              <DialogDescription>
+                Verifica los detalles antes de abrir WhatsApp. Se mostrará el resumen y el total final.
+              </DialogDescription>
+            </DialogHeader>
+
+            {pendingOrder && (
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground">Pedido: <strong>{pendingOrder.order_id}</strong></p>
+                <p className="mt-2 text-sm">Nombre: <strong>{pendingOrder.customer_name}</strong></p>
+                <p className="mt-2 text-sm">Método de pago: <strong>{pendingOrder.payment_method}</strong></p>
+                <div className="mt-3 text-sm">
+                  {pendingOrder.items.map((i: any) => (
+                    <div key={i.id} className="flex justify-between py-1">
+                      <span>{i.quantity}x {i.title}</span>
+                      <span className="font-medium">{formatPrice(i.price * i.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+                {pendingOrder.payment_adjustment < 0 && (
+                  <div className="mt-3 text-sm text-primary font-medium">Descuento aplicado: -{formatPrice(Math.abs(pendingOrder.payment_adjustment))}</div>
+                )}
+                <div className="mt-4 text-lg font-semibold">Total: {formatPrice(pendingOrder.total)}</div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <div className="flex gap-3 w-full justify-end">
+                <button onClick={() => { setConfirmModalOpen(false); }} className="rounded-md border px-4 py-2">Cancelar</button>
+                <button onClick={confirmAndSend} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Confirmar y abrir WhatsApp</button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </>
   );
 }

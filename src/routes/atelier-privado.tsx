@@ -115,6 +115,10 @@ export function AdminPage() {
   const [discount2, setDiscount2] = useState("0");
   const [discount3, setDiscount3] = useState("0");
   const [zonesConfig, setZonesConfig] = useState<DeliveryZonesConfig>(DEFAULT_ZONES);
+  const [combos, setCombos] = useState<any[]>([]);
+  const [comboName, setComboName] = useState("");
+  const [comboSelected, setComboSelected] = useState<string[]>([]);
+  const [comboPrice, setComboPrice] = useState("");
 
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "offers" | "zones" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
@@ -276,8 +280,48 @@ export function AdminPage() {
         if (error) throw error;
       }
       toast.success("Configuración guardada correctamente");
+      // reload combos after saving
+      await loadCombos();
     } catch (err: any) {
       toast.error(`Error guardando configuración: ${err.message}`);
+    }
+  };
+
+  const loadCombos = async () => {
+    try {
+      const { data } = await supabase.from('combos').select('*').order('created_at', { ascending: false });
+      setCombos(data ?? []);
+    } catch (e) {
+      // ignore if table doesn't exist yet
+      setCombos([]);
+    }
+  };
+
+  useEffect(() => { loadCombos(); }, []);
+
+  const saveCombo = async () => {
+    if (!comboName.trim() || comboSelected.length === 0) return toast.error('Nombre y selección de productos requeridos');
+    try {
+      const payload = { name: comboName.trim(), product_ids: comboSelected, price: comboPrice ? Number(comboPrice) : null };
+      const { error } = await supabase.from('combos').insert(payload);
+      if (error) return toast.error(error.message);
+      toast.success('Combo creado');
+      setComboName(''); setComboSelected([]); setComboPrice('');
+      loadCombos();
+    } catch (err: any) {
+      toast.error('Error creando combo');
+    }
+  };
+
+  const deleteCombo = async (id: string) => {
+    if (!confirm('Eliminar combo permanentemente?')) return;
+    try {
+      const { error } = await supabase.from('combos').delete().eq('id', id);
+      if (error) return toast.error(error.message);
+      toast.success('Combo eliminado');
+      loadCombos();
+    } catch (err) {
+      toast.error('Error eliminando combo');
     }
   };
 
@@ -855,6 +899,55 @@ export function AdminPage() {
                     />
                   </div>
                 </div>
+              </section>
+
+              <section className="mt-8 rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 shadow-elegant">
+                <h2 className="font-serif text-2xl mb-2 text-primary">Combos</h2>
+                <p className="text-sm text-muted-foreground mb-6">Crea conjuntos de productos que se mostrarán en la página principal como combos destacados.</p>
+
+                <div className="grid sm:grid-cols-3 gap-4 mb-6">
+                  <input value={comboName} onChange={(e) => setComboName(e.target.value)} placeholder="Nombre del combo (Ej. Combo nocturno)" className="col-span-2 mt-2 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base" />
+                  <input type="number" step="0.01" value={comboPrice} onChange={(e) => setComboPrice(e.target.value)} placeholder="Precio opcional ($)" className="mt-2 w-full rounded-[8px] border border-border bg-input px-4 py-3 text-base" />
+                </div>
+
+                <div className="grid gap-3 max-h-48 overflow-auto mb-6">
+                  {products.map(p => (
+                    <label key={p.id} className="inline-flex items-center gap-3 p-2 rounded-md border border-border/40 hover:bg-input/50">
+                      <input type="checkbox" checked={comboSelected.includes(p.id)} onChange={(e) => {
+                        if (e.target.checked) setComboSelected(prev => [...prev, p.id]); else setComboSelected(prev => prev.filter(id => id !== p.id));
+                      }} />
+                      <img src={p.image_url || ''} alt={p.title} className="h-10 w-10 object-cover rounded-sm" />
+                      <div>
+                        <div className="text-sm font-medium">{p.title}</div>
+                        <div className="text-xs text-muted-foreground">{formatPrice(p.price)}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button onClick={() => { setComboName(''); setComboSelected([]); setComboPrice(''); }} className="rounded-md border px-4 py-2">Limpiar</button>
+                  <button onClick={saveCombo} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Guardar Combo</button>
+                </div>
+
+                {combos.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="font-serif text-xl mb-3">Combos existentes</h3>
+                    <div className="grid gap-3">
+                      {combos.map(c => (
+                        <div key={c.id} className="p-3 rounded-md border border-border/40 flex items-center justify-between">
+                          <div>
+                            <div className="font-medium">{c.name}</div>
+                            <div className="text-xs text-muted-foreground">Productos: {(c.product_ids || []).length}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => deleteCombo(c.id)} className="text-sm text-destructive">Eliminar</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </section>
 
               <div className="sticky bottom-5 border-t border-border/40 pt-5 flex justify-end">
