@@ -373,23 +373,23 @@ export function CartDrawer() {
                     {recommendedProducts.map((p) => (
                       <div
                         key={p.id}
-                        className="flex flex-col gap-3 rounded-[14px] border border-border/50 bg-card p-4 transition hover:border-primary/60 hover:shadow-sm sm:flex-row sm:items-center"
+                        className="grid gap-3 rounded-[14px] border border-border/50 bg-card p-4 transition hover:border-primary/60 hover:shadow-sm sm:grid-cols-[auto_1fr_auto] sm:items-center"
                       >
-                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[12px] bg-muted">
+                        <div className="h-16 w-16 overflow-hidden rounded-[12px] bg-muted">
                           {p.image_url ? <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" /> : null}
                         </div>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0">
                           <p className="font-medium text-sm text-foreground truncate">{p.title}</p>
                           <p className="mt-1 text-xs text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</p>
                         </div>
                         <button
                           type="button"
                           onClick={(event) => handleAddRecommended(event, p)}
-                          className="inline-flex h-10 min-w-[96px] items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 sm:self-start"
+                          className="inline-flex h-10 min-w-[96px] items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50"
                         >
                           Añadir
                         </button>
-                        <p className="text-xs leading-5 text-muted-foreground">
+                        <p className="sm:col-span-3 text-xs leading-5 text-muted-foreground">
                           Añade más de estos productos para mantener tu bolsa privada completa y aprovechar descuentos.
                         </p>
                       </div>
