@@ -347,6 +347,40 @@ export function CartDrawer() {
                   </li>
                 ))}
               </ul>
+
+              {recommendedProducts.length > 0 && (
+                <div className="mt-8 rounded-[12px] border border-primary/20 bg-primary/5 p-4 relative overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="absolute -top-6 -right-6 p-3 opacity-10 pointer-events-none">
+                    <Sparkles className="h-24 w-24 text-primary" />
+                  </div>
+                  <h4 className="text-xs uppercase tracking-[0.2em] font-bold text-primary mb-1 flex items-center gap-2">
+                    <Sparkles className="h-3 w-3" /> Sugerencia Especial
+                  </h4>
+                  {discountSuggestion ? (
+                    <p className="text-[11px] text-foreground font-medium mb-3">{discountSuggestion}</p>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground mb-3">Perfecto para complementar tu selección actual.</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-3 relative z-10 bg-background/60 p-2 rounded-[10px] backdrop-blur-md border border-border/40">
+                    <div className="h-16 w-16 rounded-[8px] bg-muted overflow-hidden shrink-0 border border-border/40">
+                      {recommendedProducts[0].image_url && <img src={recommendedProducts[0].image_url} alt="Recomendado" className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-serif font-medium truncate text-foreground">
+                        {recommendedProducts[0].title.toUpperCase().startsWith("[COMBO] ") ? recommendedProducts[0].title.substring(8) : recommendedProducts[0].title}
+                      </p>
+                      <p className="text-xs font-bold text-primary mt-0.5">{formatPrice(recommendedProducts[0].is_promo && recommendedProducts[0].sale_price ? recommendedProducts[0].sale_price : recommendedProducts[0].price)}</p>
+                    </div>
+                    <button
+                      onClick={(e) => handleAddRecommended(e, recommendedProducts[0])}
+                      className="shrink-0 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm"
+                      aria-label="Añadir sugerencia"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
             ) : (
               /* Step 2: Checkout Form */
@@ -661,7 +695,16 @@ export function CartDrawer() {
                   )}
                   <div className="flex justify-between items-end pt-2">
                     <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">Total a pagar</span>
-                    <span className="font-serif text-3xl font-bold text-gradient-brand">{formatPrice(pendingOrder.total)}</span>
+                    <div className="text-right">
+                      <div className="font-serif text-3xl font-bold text-gradient-brand leading-none mb-1">
+                        {formatPrice(pendingOrder.total)}
+                      </div>
+                      {pendingOrder.payment_method === "Pago Móvil" && (
+                        <div className="text-xs font-bold text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-sm inline-block">
+                          ~ {formatPrice(pendingOrder.total, "VES")}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

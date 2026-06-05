@@ -636,8 +636,12 @@ export function AdminPage() {
                   </label>
 
                   <div className="pt-4 border-t border-border/40">
-                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Acompañantes Ideales (Cross-Selling)</label>
-                    <p className="text-sm text-muted-foreground mb-3">Selecciona hasta 4 productos para mostrar como combinación perfecta en la página de esta pieza.</p>
+                    <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">
+                      {activeTab === "combos" ? "Piezas Incluidas en el Combo" : "Acompañantes Ideales (Cross-Selling)"}
+                    </label>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {activeTab === "combos" ? "Selecciona hasta 4 productos para que se muestren como parte del contenido de este combo." : "Selecciona hasta 4 productos para mostrar como combinación perfecta en la página de esta pieza."}
+                    </p>
                     
                     <div className="grid sm:grid-cols-2 gap-4">
                       <select
