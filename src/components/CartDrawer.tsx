@@ -286,18 +286,6 @@ export function CartDrawer() {
               </div>
             ) : step === "cart" ? (
               <>
-                <div className="mb-6 rounded-[14px] border border-border/50 bg-muted/80 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Contenido de la bolsa</p>
-                      <h3 className="mt-2 text-xl font-semibold text-foreground">{items.length} artículo{items.length > 1 ? 's' : ''}</h3>
-                    </div>
-                    <div className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                      {totalQty} unidad{totalQty > 1 ? 'es' : ''}
-                    </div>
-                  </div>
-                </div>
-
                 <ul className="space-y-6">
                 {items.map((i) => (
                   <li key={i.id} className="flex gap-5 border-b border-border/50 pb-6">
@@ -600,15 +588,15 @@ export function CartDrawer() {
           </div>
 
           {/* Footer with Calculations */}
-          <div className="border-t border-border/80 px-6 py-6 space-y-5 bg-card shrink-0">
+          <div className="border-t border-border/80 px-6 py-4 space-y-4 bg-card shrink-0">
             {items.length > 0 && (
-              <div className="space-y-3 border-b border-border/50 pb-4 text-base">
+              <div className="space-y-2 border-b border-border/50 pb-3 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span className="text-foreground">{formatPrice(subtotal)}</span>
                 </div>
                 {bundleDiscount > 0 && (
-                  <div className="flex justify-between text-primary font-medium animate-in fade-in slide-in-from-right-4">
+                  <div className="flex justify-between text-primary font-medium">
                     <span>Oferta por Volumen</span>
                     <span>-{formatPrice(bundleDiscount)}</span>
                   </div>
@@ -622,11 +610,11 @@ export function CartDrawer() {
               </div>
             )}
 
-            <div className="flex items-end justify-between">
-              <span className="text-sm uppercase tracking-[0.25em] text-muted-foreground font-bold">
-                Total a Pagar
+            <div className="flex items-end justify-between gap-4">
+              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground font-bold">
+                Total
               </span>
-              <span className="font-serif text-3xl font-bold text-primary leading-none">
+              <span className="font-serif text-2xl font-bold text-primary leading-none">
                 {formatPrice(step === "checkout" ? grandTotal : subtotal)}
               </span>
             </div>
@@ -635,7 +623,7 @@ export function CartDrawer() {
               <button
                 onClick={() => setStep("checkout")}
                 disabled={items.length === 0}
-                className="w-full rounded-[8px] bg-primary py-5 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-ruby focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-[8px] bg-primary py-4 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Continuar con el Pedido
               </button>
@@ -644,7 +632,7 @@ export function CartDrawer() {
                 type="submit"
                 form="checkout-form"
                 disabled={items.length === 0 || isSubmitting}
-                className="w-full rounded-[8px] bg-primary py-5 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:glow-ruby focus:outline-none focus:ring-4 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-[8px] bg-primary py-4 text-sm font-bold uppercase tracking-[0.25em] text-primary-foreground transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? "Procesando..." : paymentMethod === "cash" ? "Confirmar y Coordinar" : "Confirmar Pedido"}
               </button>
@@ -653,13 +641,13 @@ export function CartDrawer() {
             {step === "cart" && items.length > 0 && (
               <button
                 onClick={clear}
-                className="block w-full text-center text-sm uppercase tracking-[0.2em] text-muted-foreground hover:text-primary transition-colors p-2"
+                className="block w-full text-center text-xs uppercase tracking-[0.2em] text-muted-foreground hover:text-primary transition-colors py-2"
               >
                 Vaciar bolsa
               </button>
             )}
 
-            <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground/60">
+            <p className="text-center text-[11px] uppercase tracking-[0.3em] text-muted-foreground/60">
               Compra 100% segura
             </p>
           </div>
