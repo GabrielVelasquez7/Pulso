@@ -64,7 +64,7 @@ function Index() {
   return (
     <main className="flex flex-col min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* Hero */}
-      <section className="relative flex-1 min-h-[40vh] flex flex-col items-center justify-center border-b border-border/80 bg-background z-10 px-5 py-16 md:py-24 text-center">
+      <section className="relative flex-1 min-h-[40vh] flex flex-col items-center justify-center bg-background z-10 px-5 py-16 md:py-24 text-center">
         {/* Dynamic Background Effects */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-1/4 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-ruby opacity-[0.15] blur-[120px] float-slow" />
@@ -107,8 +107,6 @@ function Index() {
 
       {/* Catalog */}
       <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-16 md:py-24 bg-background overflow-hidden">
-        {/* Soft blur transition at the top */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background/0 to-background pointer-events-none" />
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <div className="animate-pulse rounded-[8px] border border-border/60 bg-card/60 h-64 w-64" />
