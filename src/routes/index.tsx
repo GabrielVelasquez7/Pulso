@@ -66,6 +66,20 @@ function Index() {
 
   const isSearching = searchQuery.trim().length > 0;
 
+  // If no combos in DB, derive simple fallback combos from products so UI is visible
+  const displayCombos = combos.length > 0
+    ? combos
+    : products.length >= 3
+      ? [
+          {
+            id: "fallback-1",
+            name: "Combos recomendados",
+            product_ids: products.slice(0, 3).map((p) => p.id),
+            price: null,
+          },
+        ]
+      : [];
+
   return (
     <main className="flex flex-col min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* Hero */}
@@ -123,13 +137,13 @@ function Index() {
             <h2 className="font-serif text-3xl mb-8 flex items-center gap-3">
               Resultados de búsqueda <span className="text-sm font-sans bg-muted text-muted-foreground px-3 py-1 rounded-full">{filteredProducts.length}</span>
             </h2>
-            {filteredProducts.length === 0 ? (
+              {filteredProducts.length === 0 ? (
               <div className="text-center py-10">
                 <p className="text-muted-foreground">No encontramos ninguna pieza con ese nombre.</p>
               </div>
             ) : (
                 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {filteredProducts.map(p => (
                   <ProductCard key={p.id} product={p} onSelect={() => { window.location.href = `/productos/${p.id}`; }} />
                 ))}
@@ -161,18 +175,18 @@ function Index() {
               )}
 
               {/* Combos horizontal section */}
-              {combos.length > 0 && (
+              {displayCombos.length > 0 && (
                 <div className="max-w-7xl mx-auto px-5 w-full mb-8">
                   <h2 className="font-serif text-3xl mb-4">Combos destacados</h2>
-                  <div className="grid lg:grid-cols-3 gap-4">
-                    {combos.map((c) => {
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {displayCombos.map((c) => {
                       const comboProducts = products.filter(p => (c.product_ids || []).includes(p.id));
                       return <ComboCard key={c.id} combo={c} products={comboProducts} />;
                     })}
                   </div>
                 </div>
               )}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-8 lg:gap-10">
               {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
                 <div 
                   key={p.id} 
