@@ -106,8 +106,9 @@ function Index() {
       </section>
 
       {/* Catalog */}
-      {/* Catalog */}
-      <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-16 md:py-24 bg-background border-t border-border/40 overflow-hidden">
+      <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-16 md:py-24 bg-background overflow-hidden">
+        {/* Soft blur transition at the top */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background/0 to-background pointer-events-none" />
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <div className="animate-pulse rounded-[8px] border border-border/60 bg-card/60 h-64 w-64" />
