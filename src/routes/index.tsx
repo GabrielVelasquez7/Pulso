@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
 import { ComboCard } from "@/components/ComboCard";
 import pulsoLogo from "@/routes/img/pulsgo.png";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,

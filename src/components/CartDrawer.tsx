@@ -1,5 +1,5 @@
 import { useEffect, useState, type MouseEvent } from "react";
-import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote } from "lucide-react";
+import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/components/ProductCard";
 import { useCurrency } from "@/lib/currency-context";
