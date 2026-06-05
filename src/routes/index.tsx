@@ -20,6 +20,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [viewMode, setViewMode] = useState<'productos' | 'combos'>('productos');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [discount2, setDiscount2] = useState(0);
@@ -158,9 +159,25 @@ function Index() {
         ) : (
           // Static Grid View
           <div className="max-w-7xl mx-auto px-5 w-full">
-            <h2 className="font-serif text-3xl sm:text-4xl text-center mb-12 flex flex-col items-center gap-3">
-              Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
-            </h2>
+            <h2 className="font-serif text-3xl sm:text-4xl text-center mb-6 flex flex-col items-center gap-3">
+                Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
+              </h2>
+
+              {/* Toggle: Productos / Combos */}
+              <div className="mx-auto mb-6 flex items-center gap-3 justify-center">
+                <button
+                  onClick={() => setViewMode('productos')}
+                  className={`px-4 py-2 rounded-full border ${viewMode === 'productos' ? 'bg-primary text-primary-foreground border-primary' : 'bg-input text-muted-foreground'}`}
+                >
+                  Productos
+                </button>
+                <button
+                  onClick={() => setViewMode('combos')}
+                  className={`px-4 py-2 rounded-full border ${viewMode === 'combos' ? 'bg-primary text-primary-foreground border-primary' : 'bg-input text-muted-foreground'}`}
+                >
+                  Combos
+                </button>
+              </div>
               {/* Discounts banner */}
               {(discount2 > 0 || discount3 > 0) && (
                 <div className="max-w-7xl mx-auto px-5 w-full mb-6">
@@ -175,10 +192,10 @@ function Index() {
               )}
 
               {/* Combos horizontal section */}
-              {displayCombos.length > 0 && (
+              {viewMode === 'combos' && displayCombos.length > 0 && (
                 <div className="max-w-7xl mx-auto px-5 w-full mb-8">
                   <h2 className="font-serif text-3xl mb-4">Combos destacados</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {displayCombos.map((c) => {
                       const comboProducts = products.filter(p => (c.product_ids || []).includes(p.id));
                       return <ComboCard key={c.id} combo={c} products={comboProducts} />;
@@ -186,8 +203,9 @@ function Index() {
                   </div>
                 </div>
               )}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-8 lg:gap-10">
-              {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
+            {viewMode === 'productos' && (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-8 lg:gap-10">
+                {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
                 <div 
                   key={p.id} 
                   className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both"
@@ -195,8 +213,9 @@ function Index() {
                 >
                   <ProductCard product={p} onSelect={() => { window.location.href = `/productos/${p.id}`; }} />
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             
             {products.length > ITEMS_PER_PAGE && (
               <div className="mt-16 flex items-center justify-center gap-6">

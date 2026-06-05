@@ -77,7 +77,7 @@ export function ProductCard({
         </div>
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 opacity-60 group-hover:opacity-40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/40 transition-opacity duration-500 opacity-50 group-hover:opacity-30" />
 
       <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
         <div className="inline-flex items-center rounded-full bg-background/80 backdrop-blur px-3 py-1 border border-border/50 shadow-sm">
