@@ -120,7 +120,7 @@ export function AdminPage() {
   const [comboSelected, setComboSelected] = useState<string[]>([]);
   const [comboPrice, setComboPrice] = useState("");
 
-  const [activeTab, setActiveTab] = useState<"products" | "orders" | "offers" | "zones" | "settings">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "combos" | "orders" | "offers" | "zones" | "settings">("products");
   const [isUploading, setIsUploading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -197,8 +197,12 @@ export function AdminPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let finalTitle = form.title.trim();
+    if (activeTab === "combos" && !finalTitle.toUpperCase().startsWith("[COMBO]")) {
+      finalTitle = `[COMBO] ${finalTitle}`;
+    }
     const payload = {
-      title: form.title,
+      title: finalTitle,
       description: form.description || null,
       image_url: form.image_url || null,
       image_2_url: form.image_2_url || null,
@@ -229,9 +233,13 @@ export function AdminPage() {
   };
 
   const edit = (p: Product) => {
+    let cleanTitle = p.title;
+    if (cleanTitle.toUpperCase().startsWith("[COMBO] ")) {
+      cleanTitle = cleanTitle.substring(8);
+    }
     setForm({
       id: p.id,
-      title: p.title,
+      title: cleanTitle,
       description: p.description ?? "",
       image_url: p.image_url ?? "",
       image_2_url: p.image_2_url ?? "",
@@ -489,6 +497,12 @@ export function AdminPage() {
               onClick={() => { setActiveTab("products"); setIsMobileMenuOpen(false); }} 
             />
             <SidebarItem 
+              icon={<Package className="h-5 w-5" />} 
+              label="Combos" 
+              active={activeTab === "combos"} 
+              onClick={() => { setActiveTab("combos"); setIsMobileMenuOpen(false); }} 
+            />
+            <SidebarItem 
               icon={<ShoppingBag className="h-5 w-5" />} 
               label="Pedidos" 
               badge={pendingOrdersCount > 0 ? pendingOrdersCount : undefined}
@@ -537,17 +551,21 @@ export function AdminPage() {
         </div>
         
         <div className="max-w-6xl mx-auto relative z-10">
-          {activeTab === "products" && (
+          {(activeTab === "products" || activeTab === "combos") && (
             <div className="animate-in fade-in duration-500">
               {/* Form Section - Full Width */}
               <header className="mb-10">
-                <h1 className="font-serif text-4xl sm:text-5xl text-foreground tracking-tight">{form.id ? "Editar Pieza" : "Nueva Pieza"}</h1>
-                <p className="mt-2 text-muted-foreground/80">Completa los datos del producto para añadirlo al catálogo.</p>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground tracking-tight">
+                  {form.id ? (activeTab === "combos" ? "Editar Combo" : "Editar Pieza") : (activeTab === "combos" ? "Nuevo Combo" : "Nueva Pieza")}
+                </h1>
+                <p className="mt-2 text-muted-foreground/80">
+                  {activeTab === "combos" ? "Configura los detalles del combo." : "Completa los datos del producto para añadirlo al catálogo."}
+                </p>
               </header>
 
               <section className="rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-xl p-6 sm:p-8 shadow-elegant max-w-2xl">
                 <form onSubmit={submit} className="space-y-5">
-                  <Field label="Título" value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
+                  <Field label={activeTab === "combos" ? "Nombre del Combo" : "Título"} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
                   <Field label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
                   <Field label="Características (Pros)" placeholder="Separa cada punto por una nueva línea" value={form.features} onChange={(v) => setForm({ ...form, features: v })} textarea />
                   <Field label="Usos Recomendados" placeholder="Ej: Hogar, Viaje, Spa (separados por coma)" value={form.usages} onChange={(v) => setForm({ ...form, usages: v })} />
@@ -683,21 +701,31 @@ export function AdminPage() {
 
               {/* Catalog Section - Below Form */}
               <div className="mt-16 border-t border-border/40 pt-12">
-                <header className="mb-8 flex items-end justify-between">
+                <header className="mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
                   <div>
-                    <h2 className="font-serif text-4xl sm:text-5xl text-foreground">Catálogo</h2>
-                    <p className="mt-2 text-muted-foreground">Todos los productos disponibles en la tienda.</p>
+                    <h2 className="font-serif text-4xl sm:text-5xl text-foreground">
+                      {activeTab === "combos" ? "Combos Registrados" : "Catálogo"}
+                    </h2>
+                    <p className="mt-2 text-muted-foreground">
+                      {activeTab === "combos" ? "Todos los combos disponibles en la tienda." : "Todas las piezas disponibles en la tienda."}
+                    </p>
                   </div>
-                  <span className="text-sm font-sans bg-muted text-muted-foreground px-4 py-1.5 rounded-full font-medium">{products.length} piezas</span>
+                  <span className="text-sm font-sans bg-muted text-muted-foreground px-4 py-1.5 rounded-full font-medium">
+                    {products.filter(p => activeTab === "combos" ? p.title.toUpperCase().startsWith("[COMBO]") : !p.title.toUpperCase().startsWith("[COMBO]")).length} {activeTab === "combos" ? "combos" : "piezas"}
+                  </span>
                 </header>
                 
-                {products.length === 0 ? (
+                {products.filter(p => activeTab === "combos" ? p.title.toUpperCase().startsWith("[COMBO]") : !p.title.toUpperCase().startsWith("[COMBO]")).length === 0 ? (
                   <div className="p-10 text-center rounded-[8px] border border-border/40 bg-card/30">
-                    <p className="text-muted-foreground">No hay productos en el catálogo.</p>
+                    <p className="text-muted-foreground">No hay {activeTab === "combos" ? "combos" : "productos"} en el catálogo.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-                    {products.map((p) => (
+                    {products.filter(p => activeTab === "combos" ? p.title.toUpperCase().startsWith("[COMBO]") : !p.title.toUpperCase().startsWith("[COMBO]")).map((p) => {
+                      let cleanTitle = p.title;
+                      if (cleanTitle.toUpperCase().startsWith("[COMBO] ")) cleanTitle = cleanTitle.substring(8);
+                      
+                      return (
                       <article key={p.id} className="group relative flex flex-col overflow-hidden rounded-[12px] border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-elegant hover:border-primary/40 hover:shadow-[0_0_30px_rgba(var(--ruby-rgb),0.15)] transition-all duration-500">
                         {/* Image */}
                         <div className="relative aspect-square overflow-hidden bg-muted border-b border-border/40">
@@ -724,7 +752,7 @@ export function AdminPage() {
                         </div>
                         {/* Info */}
                         <div className="p-3 flex flex-col gap-1.5">
-                          <h3 className="font-serif text-sm font-medium leading-tight truncate text-foreground" title={p.title}>{p.title}</h3>
+                          <h3 className="font-serif text-sm font-medium leading-tight truncate text-foreground" title={cleanTitle}>{cleanTitle}</h3>
                           <div className="flex items-center gap-2">
                             {p.is_promo && p.sale_price != null ? (
                               <>
@@ -743,7 +771,8 @@ export function AdminPage() {
                           </div>
                         </div>
                       </article>
-                    ))}
+                    );
+                  })}
                   </div>
                 )}
               </div>

@@ -35,17 +35,21 @@ export function ProductCard({
   const isOutOfStock = product.stock <= 0;
   const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
+  const cleanTitle = product.title.toUpperCase().startsWith("[COMBO] ") 
+    ? product.title.substring(8) 
+    : product.title;
+
   const handleAdd = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
     add({
       id: product.id,
-      title: product.title,
+      title: cleanTitle,
       price: currentPrice,
       image_url: product.image_url,
     });
     toast.success("Añadido a la bolsa", {
-      description: product.title,
+      description: cleanTitle,
     });
     open();
   };
@@ -84,7 +88,7 @@ export function ProductCard({
         {product.image_url ? (
           <img
             src={product.image_url}
-            alt={product.title}
+            alt={cleanTitle}
             loading="lazy"
             decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -99,7 +103,7 @@ export function ProductCard({
       {/* Title */}
       <div className="p-3 sm:p-4 flex flex-col grow justify-between">
         <h3 className="font-serif text-sm sm:text-base font-medium text-foreground leading-tight line-clamp-2">
-          {product.title}
+          {cleanTitle}
         </h3>
         {isOutOfStock && (
           <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-rose-400 font-bold mt-2">Agotado</p>

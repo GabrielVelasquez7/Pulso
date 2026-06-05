@@ -97,8 +97,8 @@ function Index() {
             <img src={pulsoLogo} alt="PULSO Logo" className="h-16 md:h-24 opacity-90 drop-shadow-lg" />
           </div>
 
-          <p className="inline-flex items-center gap-3 rounded-full border border-brand-rose/40 bg-brand-rose/5 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-brand-rose backdrop-blur shadow-sm mx-auto">
-            <span className="h-2 w-2 rounded-full bg-brand-rose shadow-[0_0_12px_rgba(232,161,150,0.8)] glow-pulse" />
+          <p className="inline-flex items-center gap-3 rounded-full border border-brand-rose/60 bg-brand-rose/10 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-brand-rose shadow-[0_0_20px_rgba(232,161,150,0.3)] backdrop-blur mx-auto font-bold">
+            <span className="h-2 w-2 rounded-full bg-brand-rose shadow-[0_0_12px_rgba(232,161,150,1)] glow-pulse" />
             Solo para adultos
           </p>
 
@@ -163,36 +163,7 @@ function Index() {
                 Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
               </h2>
 
-              {/* Toggle: Productos / Combos */}
-              <div className="mx-auto mb-6 flex items-center gap-3 justify-center">
-                <button
-                  onClick={() => setViewMode('productos')}
-                  className={`px-4 py-2 rounded-full border ${viewMode === 'productos' ? 'bg-primary text-primary-foreground border-primary' : 'bg-input text-muted-foreground'}`}
-                >
-                  Productos
-                </button>
-                <button
-                  onClick={() => setViewMode('combos')}
-                  className={`px-4 py-2 rounded-full border ${viewMode === 'combos' ? 'bg-primary text-primary-foreground border-primary' : 'bg-input text-muted-foreground'}`}
-                >
-                  Combos
-                </button>
-              </div>
 
-
-              {/* Combos horizontal section */}
-              {viewMode === 'combos' && displayCombos.length > 0 && (
-                <div className="max-w-7xl mx-auto px-5 w-full mb-8">
-                  <h2 className="font-serif text-3xl mb-4">Combos destacados</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {displayCombos.map((c) => {
-                      const comboProducts = products.filter(p => (c.product_ids || []).includes(p.id));
-                      return <ComboCard key={c.id} combo={c} products={comboProducts} />;
-                    })}
-                  </div>
-                </div>
-              )}
-            {viewMode === 'productos' && (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-5 md:gap-6 lg:gap-8">
                 {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
                 <div 
@@ -204,8 +175,6 @@ function Index() {
                 </div>
                 ))}
               </div>
-            )}
-            
             {products.length > ITEMS_PER_PAGE && (
               <div className="mt-16 flex items-center justify-center gap-6">
                 <button

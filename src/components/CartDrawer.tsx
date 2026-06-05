@@ -347,56 +347,6 @@ export function CartDrawer() {
                   </li>
                 ))}
               </ul>
-
-              {recommendedProducts.length > 0 && (
-                <section className="mt-8 space-y-4 rounded-[12px] border border-border/50 bg-background/80 p-4 shadow-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-semibold text-foreground">Sugerencias para tu bolsa</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Productos que combinan bien con tu selección actual.
-                      </p>
-                    </div>
-                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                      Recomendado
-                    </span>
-                  </div>
-
-                  {discountSuggestion ? (
-                    <div className="rounded-[10px] border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
-                      <p className="font-semibold">Aprovecha un descuento extra</p>
-                      <p className="mt-1 text-muted-foreground">{discountSuggestion}</p>
-                    </div>
-                  ) : null}
-
-                  <div className="grid gap-3">
-                    {recommendedProducts.map((p) => (
-                      <div
-                        key={p.id}
-                        className="grid gap-3 rounded-[14px] border border-border/50 bg-card p-4 transition hover:border-primary/60 hover:shadow-sm sm:grid-cols-[auto_1fr_auto] sm:items-center"
-                      >
-                        <div className="mx-auto h-24 w-24 overflow-hidden rounded-[12px] bg-muted sm:mx-0 sm:h-16 sm:w-16">
-                          {p.image_url ? <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" /> : null}
-                        </div>
-                        <div className="min-w-0 text-center sm:text-left">
-                          <p className="font-medium text-sm text-foreground truncate">{p.title}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{formatPrice(p.is_promo && p.sale_price ? p.sale_price : p.price)}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={(event) => handleAddRecommended(event, p)}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 sm:w-auto"
-                        >
-                          Añadir
-                        </button>
-                        <p className="sm:col-span-3 text-xs leading-5 text-center text-muted-foreground sm:text-left">
-                          Añade más de estos productos para mantener tu bolsa privada completa y aprovechar descuentos.
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
             </>
             ) : (
               /* Step 2: Checkout Form */
@@ -662,39 +612,74 @@ export function CartDrawer() {
 
         {/* Confirmation Dialog */}
         <Dialog open={confirmModalOpen} onOpenChange={(v) => setConfirmModalOpen(v)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirmar pedido</DialogTitle>
-              <DialogDescription>
-                Verifica los detalles antes de abrir WhatsApp. Se mostrará el resumen y el total final.
+          <DialogContent className="max-w-[95vw] sm:max-w-md rounded-[24px] p-6 sm:p-8 bg-card/95 backdrop-blur-xl border-border/50 shadow-elegant">
+            <DialogHeader className="text-center sm:text-left space-y-3 mb-6 border-b border-border/40 pb-6">
+              <div className="mx-auto sm:mx-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <SmartphoneNfc className="h-6 w-6 text-primary" />
+              </div>
+              <DialogTitle className="font-serif text-2xl sm:text-3xl">Confirmar tu Pedido</DialogTitle>
+              <DialogDescription className="text-base text-muted-foreground/90">
+                Verifica los detalles de tu compra. Al confirmar, abriremos WhatsApp para que envíes el comprobante.
               </DialogDescription>
             </DialogHeader>
 
             {pendingOrder && (
-              <div className="mt-4">
-                <p className="text-sm text-muted-foreground">Pedido: <strong>{pendingOrder.order_id}</strong></p>
-                <p className="mt-2 text-sm">Nombre: <strong>{pendingOrder.customer_name}</strong></p>
-                <p className="mt-2 text-sm">Método de pago: <strong>{pendingOrder.payment_method}</strong></p>
-                <div className="mt-3 text-sm">
-                  {pendingOrder.items.map((i: any) => (
-                    <div key={i.id} className="flex justify-between py-1">
-                      <span>{i.quantity}x {i.title}</span>
-                      <span className="font-medium">{formatPrice(i.price * i.quantity)}</span>
-                    </div>
-                  ))}
+              <div className="space-y-6">
+                <div className="bg-background/50 rounded-[12px] p-4 border border-border/40 space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Pedido:</span>
+                    <strong className="font-mono text-primary text-base">{pendingOrder.order_id}</strong>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">A nombre de:</span>
+                    <span className="font-medium">{pendingOrder.customer_name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Método de pago:</span>
+                    <span className="font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs uppercase tracking-wider">{pendingOrder.payment_method}</span>
+                  </div>
                 </div>
-                {pendingOrder.payment_adjustment < 0 && (
-                  <div className="mt-3 text-sm text-primary font-medium">Descuento aplicado: -{formatPrice(Math.abs(pendingOrder.payment_adjustment))}</div>
-                )}
-                <div className="mt-4 text-lg font-semibold">Total: {formatPrice(pendingOrder.total)}</div>
+
+                <div className="space-y-3">
+                  <h4 className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-bold">Resumen de piezas</h4>
+                  <div className="max-h-[150px] overflow-y-auto pr-2 space-y-3 scrollbar-thin">
+                    {pendingOrder.items.map((i: any) => (
+                      <div key={i.id} className="flex justify-between items-center bg-input/30 p-2.5 rounded-[8px] text-sm">
+                        <span className="truncate pr-4"><span className="text-muted-foreground mr-2">{i.quantity}x</span> {i.title}</span>
+                        <span className="font-medium shrink-0">{formatPrice(i.price * i.quantity)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-border/40 space-y-2">
+                  {pendingOrder.payment_adjustment < 0 && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-primary font-medium">Descuento aplicado</span>
+                      <span className="text-primary font-medium">-{formatPrice(Math.abs(pendingOrder.payment_adjustment))}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-end pt-2">
+                    <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">Total a pagar</span>
+                    <span className="font-serif text-3xl font-bold text-gradient-brand">{formatPrice(pendingOrder.total)}</span>
+                  </div>
+                </div>
               </div>
             )}
 
-            <DialogFooter>
-              <div className="flex gap-3 w-full justify-end">
-                <button onClick={() => { setConfirmModalOpen(false); }} className="rounded-md border px-4 py-2">Cancelar</button>
-                <button onClick={confirmAndSend} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Confirmar y abrir WhatsApp</button>
-              </div>
+            <DialogFooter className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+              <button 
+                onClick={() => setConfirmModalOpen(false)} 
+                className="w-full sm:w-auto flex-1 rounded-[12px] border border-border/80 bg-input/50 px-4 py-3.5 text-sm font-bold uppercase tracking-[0.2em] text-foreground hover:bg-muted transition-colors"
+              >
+                Volver
+              </button>
+              <button 
+                onClick={confirmAndSend} 
+                className="w-full sm:w-auto flex-[2] rounded-[12px] bg-primary px-4 py-3.5 text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground shadow-[0_0_20px_rgba(var(--ruby-rgb),0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(var(--ruby-rgb),0.5)]"
+              >
+                Enviar por WhatsApp
+              </button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
