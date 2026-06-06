@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useState, useMemo, type MouseEvent } from "react";
 import { Minus, Plus, X, Trash2, ArrowLeft, SmartphoneNfc, DollarSign, Bitcoin, Banknote, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/components/ProductCard";
@@ -120,9 +120,25 @@ export function CartDrawer() {
     ? `Añade ${itemsToDiscount} producto${itemsToDiscount > 1 ? 's' : ''} más y obtén ${formatPrice(nextDiscountValue)} de descuento.`
     : "";
 
-  const recommendedProducts = totalQty < 3 ? catalogProducts
-    .filter((p) => !items.some((i) => i.id === p.id))
-    .slice(0, 3) : [];
+  const recommendedProducts = useMemo(() => {
+    if (totalQty >= 3) return [];
+    
+    const relatedIds = items.map(i => {
+      const p = catalogProducts.find(cp => cp.id === i.id);
+      return p ? [p.related_product_id, p.related_product_id_2, p.related_product_id_3, p.related_product_id_4] : [];
+    }).flat().filter(Boolean) as string[];
+
+    let candidates = catalogProducts.filter(p => !items.some(i => i.id === p.id));
+    if (candidates.length === 0) return [];
+
+    const relatedCandidates = candidates.filter(p => relatedIds.includes(p.id));
+    if (relatedCandidates.length > 0) {
+      return [relatedCandidates[0]];
+    }
+
+    const pseudoRandomIndex = items.reduce((acc, i) => acc + i.id.charCodeAt(0), 0) % candidates.length;
+    return [candidates[pseudoRandomIndex]];
+  }, [catalogProducts, items, totalQty]);
 
   let dynamicShipping = 10;
   if (deliveryType === "home" && selectedLocation) {
