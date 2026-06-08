@@ -35,17 +35,21 @@ export function ProductCard({
   const isOutOfStock = product.stock <= 0;
   const currentPrice = product.is_promo && product.sale_price ? product.sale_price : product.price;
 
+  const cleanTitle = product.title.toUpperCase().startsWith("[COMBO] ") 
+    ? product.title.substring(8) 
+    : product.title;
+
   const handleAdd = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
     add({
       id: product.id,
-      title: product.title,
+      title: cleanTitle,
       price: currentPrice,
       image_url: product.image_url,
     });
     toast.success("Añadido a la bolsa", {
-      description: product.title,
+      description: cleanTitle,
     });
     open();
   };
@@ -60,13 +64,31 @@ export function ProductCard({
         }
       }}
       tabIndex={onSelect ? 0 : undefined}
-      className="group relative cursor-pointer flex flex-col overflow-hidden rounded-[20px] border border-border/80 bg-card shadow-sm transition-transform duration-300 hover:scale-[1.02]"
+      className="group relative cursor-pointer flex flex-col overflow-hidden rounded-[16px] sm:rounded-[20px] border border-border/80 bg-card shadow-sm transition-transform duration-300 hover:scale-[1.02] hover:border-primary/40 h-full"
     >
-      <div className="relative h-52 sm:h-56 md:h-64 w-full overflow-hidden rounded-t-[20px] bg-muted">
+      {/* Top Badges (Over Image) */}
+      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+        <span className="rounded-full bg-[#DE5B61] px-2.5 py-1 text-[10px] sm:text-[11px] font-bold text-white shadow-sm">
+          {formatPrice(currentPrice)}
+        </span>
+      </div>
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+        <button
+          onClick={handleAdd}
+          disabled={isOutOfStock}
+          aria-label="Añadir a la bolsa"
+          className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#DE5B61] text-white shadow-sm transition-transform duration-200 hover:scale-105 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isOutOfStock ? <ShoppingBag className="h-3 w-3 opacity-60" /> : <Plus className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* Image Container */}
+      <div className="relative aspect-[4/5] sm:aspect-square w-full shrink-0 overflow-hidden bg-muted border-b border-border/40">
         {product.image_url ? (
           <img
             src={product.image_url}
-            alt={product.title}
+            alt={cleanTitle}
             loading="lazy"
             decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -76,26 +98,15 @@ export function ProductCard({
             <span className="font-serif text-3xl italic text-gradient-ruby opacity-50">PULSO</span>
           </div>
         )}
-
-        <div className="absolute left-3 top-3 rounded-full bg-primary px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-sm">
-          {formatPrice(currentPrice)}
-        </div>
-        <button
-          onClick={handleAdd}
-          disabled={isOutOfStock}
-          aria-label="Añadir a la bolsa"
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isOutOfStock ? <ShoppingBag className="h-4 w-4 opacity-60" /> : <Plus className="h-4 w-4" />}
-        </button>
       </div>
 
-      <div className="p-4 flex flex-col gap-2 text-center">
-        <h3 className="font-serif text-base sm:text-lg font-semibold text-foreground leading-tight">
-          {product.title}
+      {/* Title */}
+      <div className="p-3 sm:p-4 flex flex-col grow justify-between">
+        <h3 className="font-serif text-sm sm:text-base font-medium text-foreground leading-tight line-clamp-2">
+          {cleanTitle}
         </h3>
         {isOutOfStock && (
-          <p className="text-xs uppercase tracking-[0.25em] text-rose-400 font-bold">Agotado</p>
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-rose-400 font-bold mt-2">Agotado</p>
         )}
       </div>
     </article>

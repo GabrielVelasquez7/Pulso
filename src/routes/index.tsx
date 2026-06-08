@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductCard, type Product } from "@/components/ProductCard";
 import { ComboCard } from "@/components/ComboCard";
 import pulsoLogo from "@/routes/img/pulsgo.png";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -27,7 +27,16 @@ function Index() {
   const [discount3, setDiscount3] = useState(0);
   const [combos, setCombos] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const ITEMS_PER_PAGE = 12;
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+
+  useEffect(() => {
+    const updateItemsPerPage = () => {
+      setItemsPerPage(window.innerWidth < 640 ? 6 : 12);
+    };
+    updateItemsPerPage();
+    window.addEventListener('resize', updateItemsPerPage);
+    return () => window.removeEventListener('resize', updateItemsPerPage);
+  }, []);
 
   useEffect(() => {
     supabase
@@ -38,7 +47,7 @@ function Index() {
         setProducts((data ?? []) as Product[]);
         setLoading(false);
       });
-    // load discounts and combos
+    // load discounts
     supabase.from('site_settings').select('*').in('key', ['discount_2_items','discount_3_items']).then(({ data }) => {
       if (data) {
         data.forEach(s => {
@@ -47,14 +56,6 @@ function Index() {
         });
       }
     });
-    (async () => {
-      try {
-        const { data } = await supabase.from('combos').select('*');
-        setCombos(data ?? []);
-      } catch (e) {
-        setCombos([]);
-      }
-    })();
   }, []);
 
   const normalizedSearch = searchQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -67,24 +68,12 @@ function Index() {
 
   const isSearching = searchQuery.trim().length > 0;
 
-  // If no combos in DB, derive simple fallback combos from products so UI is visible
-  const displayCombos = combos.length > 0
-    ? combos
-    : products.length >= 3
-      ? [
-          {
-            id: "fallback-1",
-            name: "Combos recomendados",
-            product_ids: products.slice(0, 3).map((p) => p.id),
-            price: null,
-          },
-        ]
-      : [];
+  const currentProducts = products.filter(p => viewMode === 'combos' ? p.title.toUpperCase().startsWith("[COMBO] ") : !p.title.toUpperCase().startsWith("[COMBO] "));
 
   return (
     <main className="flex flex-col min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* Hero */}
-      <section className="relative flex-1 min-h-[40vh] flex flex-col items-center justify-center border-b border-border/80 bg-background z-10 px-5 text-center">
+      <section className="relative flex-1 min-h-[40vh] flex flex-col items-center justify-center border-b border-border/80 bg-background z-10 px-5 py-16 md:py-24 text-center">
         {/* Dynamic Background Effects */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-1/4 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-ruby opacity-[0.15] blur-[120px] float-slow" />
@@ -97,8 +86,8 @@ function Index() {
             <img src={pulsoLogo} alt="PULSO Logo" className="h-16 md:h-24 opacity-90 drop-shadow-lg" />
           </div>
 
-          <p className="inline-flex items-center gap-3 rounded-full border border-brand-rose/40 bg-brand-rose/5 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-brand-rose backdrop-blur shadow-sm mx-auto">
-            <span className="h-2 w-2 rounded-full bg-brand-rose shadow-[0_0_12px_rgba(232,161,150,0.8)] glow-pulse" />
+          <p className="inline-flex items-center gap-3 rounded-full border border-brand-rose/60 bg-brand-rose/10 px-6 py-2.5 text-xs uppercase tracking-[0.4em] text-brand-rose shadow-[0_0_20px_rgba(232,161,150,0.3)] backdrop-blur mx-auto font-bold">
+            <span className="h-2 w-2 rounded-full bg-brand-rose shadow-[0_0_12px_rgba(232,161,150,1)] glow-pulse" />
             Solo para adultos
           </p>
 
@@ -126,8 +115,7 @@ function Index() {
       </section>
 
       {/* Catalog */}
-      {/* Catalog */}
-      <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-12 md:py-16 bg-background/50 border-t border-border/40 shadow-[inset_0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+      <section id="coleccion" className="shrink-0 relative flex flex-col justify-center py-16 md:py-24 bg-background border-t border-border/40 overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <div className="animate-pulse rounded-[8px] border border-border/60 bg-card/60 h-64 w-64" />
@@ -160,52 +148,39 @@ function Index() {
           // Static Grid View
           <div className="max-w-7xl mx-auto px-5 w-full">
             <h2 className="font-serif text-3xl sm:text-4xl text-center mb-6 flex flex-col items-center gap-3">
-                Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{products.length} Piezas exclusivas</span>
-              </h2>
+                Catálogo <span className="text-sm font-sans uppercase tracking-[0.3em] text-muted-foreground">{currentProducts.length} Piezas exclusivas</span>
+            </h2>
 
-              {/* Toggle: Productos / Combos */}
-              <div className="mx-auto mb-6 flex items-center gap-3 justify-center">
-                <button
-                  onClick={() => setViewMode('productos')}
-                  className={`px-4 py-2 rounded-full border ${viewMode === 'productos' ? 'bg-primary text-primary-foreground border-primary' : 'bg-input text-muted-foreground'}`}
-                >
-                  Productos
-                </button>
-                <button
-                  onClick={() => setViewMode('combos')}
-                  className={`px-4 py-2 rounded-full border ${viewMode === 'combos' ? 'bg-primary text-primary-foreground border-primary' : 'bg-input text-muted-foreground'}`}
-                >
-                  Combos
-                </button>
+            {/* Toggle: Productos / Combos */}
+            <div className="mx-auto mb-8 flex items-center gap-3 justify-center">
+              <button
+                onClick={() => { setViewMode('productos'); setCurrentPage(0); }}
+                className={`px-6 py-2.5 rounded-full border text-sm font-bold uppercase tracking-[0.15em] transition-all ${viewMode === 'productos' ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(var(--ruby-rgb),0.3)]' : 'bg-input/50 text-muted-foreground border-border/60 hover:bg-muted'}`}
+              >
+                Productos
+              </button>
+              <button
+                onClick={() => { setViewMode('combos'); setCurrentPage(0); }}
+                className={`px-6 py-2.5 rounded-full border text-sm font-bold uppercase tracking-[0.15em] transition-all ${viewMode === 'combos' ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_15px_rgba(var(--ruby-rgb),0.3)]' : 'bg-input/50 text-muted-foreground border-border/60 hover:bg-muted'}`}
+              >
+                Combos
+              </button>
+            </div>
+
+            {/* Bulk Discount Banner */}
+            {discount2 > 0 && viewMode === 'productos' && (
+              <div className="mb-10 max-w-2xl mx-auto text-center rounded-[16px] border border-brand-rose/30 bg-brand-rose/5 p-4 animate-in fade-in zoom-in duration-500 shadow-sm relative overflow-hidden">
+                <div className="absolute top-1/2 left-4 -translate-y-1/2 opacity-20"><Sparkles className="h-10 w-10 text-brand-rose" /></div>
+                <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-20"><Sparkles className="h-10 w-10 text-brand-rose" /></div>
+                <span className="inline-block px-3 py-1 bg-brand-rose text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full mb-2">Oferta Especial</span>
+                <p className="text-sm sm:text-base font-medium text-foreground">
+                  Lleva 2 piezas y obtén un descuento automático en tu bolsa.
+                </p>
               </div>
-              {/* Discounts banner */}
-              {(discount2 > 0 || discount3 > 0) && (
-                <div className="max-w-7xl mx-auto px-5 w-full mb-6">
-                  <div className="rounded-[12px] border border-border/40 bg-primary/5 p-4 flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-bold text-foreground">Descuentos por volumen</div>
-                      <div className="text-xs text-muted-foreground">{discount2 > 0 ? `Lleva 2 piezas y ahorras $${discount2}` : ''} {discount3 > 0 ? ` / 3+ piezas y ahorras $${discount3}` : ''}</div>
-                    </div>
-                    <div className="text-sm text-primary font-bold">Ahorra al combinar</div>
-                  </div>
-                </div>
-              )}
+            )}
 
-              {/* Combos horizontal section */}
-              {viewMode === 'combos' && displayCombos.length > 0 && (
-                <div className="max-w-7xl mx-auto px-5 w-full mb-8">
-                  <h2 className="font-serif text-3xl mb-4">Combos destacados</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {displayCombos.map((c) => {
-                      const comboProducts = products.filter(p => (c.product_ids || []).includes(p.id));
-                      return <ComboCard key={c.id} combo={c} products={comboProducts} />;
-                    })}
-                  </div>
-                </div>
-              )}
-            {viewMode === 'productos' && (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-5 md:gap-6 lg:gap-8">
-                {products.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE).map((p, i) => (
+                {currentProducts.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage).map((p, i) => (
                 <div 
                   key={p.id} 
                   className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both"
@@ -215,9 +190,7 @@ function Index() {
                 </div>
                 ))}
               </div>
-            )}
-            
-            {products.length > ITEMS_PER_PAGE && (
+            {currentProducts.length > itemsPerPage && (
               <div className="mt-16 flex items-center justify-center gap-6">
                 <button
                   onClick={() => {
@@ -237,11 +210,11 @@ function Index() {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-bold">
-                  {currentPage + 1} / {Math.ceil(products.length / ITEMS_PER_PAGE)}
+                  {currentPage + 1} / {Math.ceil(currentProducts.length / itemsPerPage)}
                 </span>
                 <button
                   onClick={() => {
-                    setCurrentPage(prev => Math.min(Math.ceil(products.length / ITEMS_PER_PAGE) - 1, prev + 1));
+                    setCurrentPage(prev => Math.min(Math.ceil(currentProducts.length / itemsPerPage) - 1, prev + 1));
                     setTimeout(() => {
                       const element = document.getElementById("coleccion");
                       if (element) {
@@ -250,7 +223,7 @@ function Index() {
                       }
                     }, 0);
                   }}
-                  disabled={currentPage >= Math.ceil(products.length / ITEMS_PER_PAGE) - 1}
+                  disabled={currentPage >= Math.ceil(currentProducts.length / itemsPerPage) - 1}
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/80 bg-background/80 text-foreground transition-all hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Página siguiente"
                 >

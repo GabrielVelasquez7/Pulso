@@ -83,10 +83,14 @@ export function ProductDetail({
 
   const images = [product.image_url, product.image_2_url, product.image_3_url].filter(Boolean) as string[];
 
+  const cleanTitle = product.title.toUpperCase().startsWith("[COMBO] ") 
+    ? product.title.substring(8) 
+    : product.title;
+
   const onAdd = () => {
     add({
       id: product.id,
-      title: product.title,
+      title: cleanTitle,
       price: Number(product.is_promo && product.sale_price != null ? product.sale_price : product.price),
       image_url: product.image_url,
     });
@@ -171,7 +175,7 @@ export function ProductDetail({
                       <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">{product.stock > 0 ? 'Disponible' : 'Agotado'}</span>
                     </div>
                   </div>
-                  <h1 className="mt-2 sm:mt-4 font-serif text-3xl sm:text-4xl leading-tight text-foreground">{product.title}</h1>
+                  <h1 className="mt-2 sm:mt-4 font-serif text-3xl sm:text-4xl leading-tight text-foreground">{cleanTitle}</h1>
 
                   <div className="mt-3 flex items-center gap-2">
                     <div className="flex items-center gap-0.5">
@@ -252,7 +256,7 @@ export function ProductDetail({
                 <p className="text-sm text-muted-foreground">Consulta con uno de nuestros especialistas vía WhatsApp.</p>
               </div>
               <a
-                href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, quisiera saber más sobre la pieza "${product.title}" (${window.location.href})`)}`}
+                href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola, quisiera saber más sobre la pieza "${cleanTitle}" (${window.location.href})`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full sm:w-auto items-center justify-center gap-3 rounded-full border border-border/60 bg-transparent px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-foreground transition-all duration-300 hover:border-foreground/50 hover:bg-foreground/5 focus:outline-none"
@@ -268,10 +272,10 @@ export function ProductDetail({
           <div className="mt-16 pt-10 border-t border-border/30 animate-in slide-in-from-bottom-8 duration-700">
             <div className="mb-8 text-center sm:text-left">
               <span className="inline-flex items-center gap-2 rounded-full border border-brand-rose/30 bg-brand-rose/10 px-3 py-1 text-xs uppercase tracking-widest text-brand-rose font-bold shadow-sm mb-3">
-                <Sparkles className="h-3 w-3" /> Combinación Perfecta
+                <Sparkles className="h-3 w-3" /> {product.title.toUpperCase().startsWith("[COMBO] ") ? "Contenido del Combo" : "Combinación Perfecta"}
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-foreground">Complemento Ideal</h2>
-              <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto sm:mx-0">Llévalos juntos y eleva tu experiencia.</p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-foreground">{product.title.toUpperCase().startsWith("[COMBO] ") ? "Piezas Incluidas" : "Complemento Ideal"}</h2>
+              <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto sm:mx-0">{product.title.toUpperCase().startsWith("[COMBO] ") ? "Este combo incluye las siguientes piezas de nuestra colección." : "Llévalos juntos y eleva tu experiencia."}</p>
             </div>
             <div className={`grid gap-6 ${relatedProductsList.length > 1 ? 'sm:grid-cols-2 xl:grid-cols-4' : 'max-w-xs mx-auto sm:mx-0 sm:max-w-sm'} relative group`}>
               <div className="absolute -inset-4 bg-gradient-ruby opacity-[0.02] blur-2xl rounded-full pointer-events-none group-hover:opacity-[0.06] transition-opacity duration-500" />
