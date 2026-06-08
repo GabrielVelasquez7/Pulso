@@ -206,6 +206,7 @@ export function CartDrawer() {
         `¡Hola equipo PULSO! ✨\n\n` +
         `${paymentMsg}\n\n` +
         `Nombre: ${pendingOrder.customer_name}\n` +
+        `Teléfono: ${pendingOrder.customer_phone}\n` +
         `Productos:\n` +
         `${resumen}\n\n` +
         discountMsg +
