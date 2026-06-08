@@ -487,7 +487,7 @@ export function AdminPage() {
           <div className="hidden lg:flex items-center gap-2 p-8 pb-4">
             <span className="font-serif text-3xl font-bold tracking-widest text-primary drop-shadow-[0_0_15px_rgba(var(--ruby-rgb),0.5)]">PULSO</span>
           </div>
-          <p className="hidden lg:block px-8 text-[10px] uppercase tracking-[0.4em] text-muted-foreground/60 font-bold mb-8">Atelier Privado</p>
+          <p className="hidden lg:block px-8 text-[10px] uppercase tracking-[0.4em] text-white/50 font-sans font-bold mb-8">Atelier Privado</p>
 
           <nav className="flex-1 space-y-2 px-4 py-8 lg:py-0">
             <SidebarItem 
@@ -530,7 +530,7 @@ export function AdminPage() {
           </nav>
 
           <div className="p-4 border-t border-border/40">
-            <button onClick={logout} className="flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/40">
+            <button onClick={logout} className="flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-sm font-sans font-medium text-white/60 hover:bg-destructive/10 hover:text-destructive transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/40">
               <LogOut className="h-5 w-5" /> Cerrar sesión
             </button>
           </div>
@@ -1151,8 +1151,8 @@ function SidebarItem({ icon, label, active, onClick, badge }: { icon: React.Reac
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center justify-between gap-3 px-4 py-4 rounded-[8px] transition-all focus:outline-none ${
-        active ? "bg-primary/10 text-primary font-bold border border-primary/20" : "text-muted-foreground hover:bg-input hover:text-foreground font-medium border border-transparent"
+      className={`w-full flex items-center justify-between gap-3 px-4 py-4 rounded-[8px] transition-all focus:outline-none font-sans ${
+        active ? "bg-primary/10 text-primary font-bold border border-primary/20" : "text-white/60 hover:bg-white/5 hover:text-white font-medium border border-transparent"
       }`}
     >
       <div className="flex items-center gap-3">
