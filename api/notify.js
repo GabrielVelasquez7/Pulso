@@ -11,13 +11,13 @@ export default async function handler(req, res) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'kiakkodevs@gmail.com',
+        user: process.env.EMAIL_USER || 'oliverosvargasaa@gmail.com',
         pass: process.env.EMAIL_PASS
       }
     });
 
     const info = await transporter.sendMail({
-      from: '"Notificaciones Pulso" <kiakkodevs@gmail.com>',
+      from: '"Notificaciones Pulso" <oliverosvargasaa@gmail.com>',
       to: 'nelsongvr26@gmail.com',
       subject: `🚨 Nuevo Pedido Registrado - ${orderDetails.customer_name}`,
       html: `
