@@ -482,7 +482,7 @@ export function AdminPage() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-white/5 bg-black/90 backdrop-blur-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-white/5 bg-black/90 backdrop-blur-2xl transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-full flex-col">
           <div className="hidden lg:flex items-center gap-2 p-8 pb-4">
             <span className="font-serif text-3xl font-bold tracking-widest text-primary drop-shadow-[0_0_15px_rgba(var(--ruby-rgb),0.5)]">PULSO</span>

@@ -200,7 +200,10 @@ export function CartDrawer() {
           await fetch('/api/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderDetails: pendingOrder })
+            body: JSON.stringify({ 
+              orderDetails: pendingOrder,
+              total_ves_formatted: pendingOrder.payment_method === "Pago Móvil" ? formatPrice(pendingOrder.total, "VES") : null
+            })
           });
         } catch (emailErr) {
           console.error("Error triggering email notification:", emailErr);
@@ -218,6 +221,11 @@ export function CartDrawer() {
          discountMsg = `(Descuento Aplicado: -${formatPrice(Math.abs(pendingOrder.payment_adjustment))})\n`;
       }
 
+      let totalMsg = `Total a pagar: ${formatPrice(pendingOrder.total)}\n`;
+      if (pendingOrder.payment_method === "Pago Móvil") {
+         totalMsg += `Total en Bs: ${formatPrice(pendingOrder.total, "VES")}\n`;
+      }
+
       const msg =
         `¡Hola equipo PULSO! ✨\n\n` +
         `${paymentMsg}\n\n` +
@@ -226,7 +234,7 @@ export function CartDrawer() {
         `Productos:\n` +
         `${resumen}\n\n` +
         discountMsg +
-        `Total a pagar: ${formatPrice(pendingOrder.total)}\n` +
+        totalMsg +
         `Dirección: ${pendingOrder.delivery_type === "Envío a domicilio" ? pendingOrder.delivery_address : "Retiro en persona"}`;
 
       const cleanWaNumber = waNumber.replace(/\D/g, "") || "5215555555555";

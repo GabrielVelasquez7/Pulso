@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { orderDetails } = req.body;
+    const { orderDetails, total_ves_formatted } = req.body;
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
             <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Cliente:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${orderDetails.customer_name}</td></tr>
             <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Teléfono:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${orderDetails.customer_phone}</td></tr>
             <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Método de pago:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${orderDetails.payment_method}</td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Total:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee; color: #dc2626; font-weight: bold;">$${orderDetails.total}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Total:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee; color: #dc2626; font-weight: bold;">$${orderDetails.total}${total_ves_formatted ? ` (${total_ves_formatted})` : ''}</td></tr>
           </table>
           
           <h3 style="margin-top: 30px; color: #333;">Productos:</h3>
