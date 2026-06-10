@@ -312,7 +312,7 @@ export function CartDrawer() {
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-6">
+          <div className="flex-1 overflow-y-auto px-6 py-6 min-h-0">
             {items.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center">
                 <div className="mb-4 h-20 w-20 rounded-full bg-gradient-ruby opacity-20 blur-xl" />
@@ -671,7 +671,7 @@ export function CartDrawer() {
 
         {/* Confirmation Dialog */}
         <Dialog open={confirmModalOpen} onOpenChange={(v) => setConfirmModalOpen(v)}>
-          <DialogContent className="max-w-[95vw] sm:max-w-md rounded-[24px] p-6 sm:p-8 bg-card/95 backdrop-blur-xl border-border/50 shadow-elegant">
+          <DialogContent className="max-w-[95vw] sm:max-w-md rounded-[24px] p-6 sm:p-8 bg-card/95 backdrop-blur-xl border-border/50 shadow-elegant max-h-[90vh] overflow-y-auto">
             <DialogHeader className="text-center sm:text-left space-y-3 mb-6 border-b border-border/40 pb-6">
               <div className="mx-auto sm:mx-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <SmartphoneNfc className="h-6 w-6 text-primary" />
